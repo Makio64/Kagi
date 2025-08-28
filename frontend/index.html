@@ -8,11 +8,6 @@
     <meta name = "pinterest" content = "nopin" description = "Sorry, this user does not allow pinning" />
     
     <!-- Critical resource hints - load in parallel -->
-    <link rel="preconnect" href="https://starter2024.netlify.app" crossorigin>
-    <link rel="dns-prefetch" href="//starter2024.netlify.app">
-    
-    <!-- Preload critical assets to avoid sequential loading -->
-    <link rel="preload" href="/fonts/subset-BlackHanSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
     
     <!-- favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
@@ -24,61 +19,51 @@
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="msapplication-config" content="/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
-    <meta name="description" content="Starter 2024 by Makio64 | Ronai David">
-    <title>Starter 2024 by Makio64 | Ronai David</title>
+    <meta name="description" content="Kagi - Building Management Made Simple | 建物管理をシンプルに">
+    <title>Kagi - Building Management Portal</title>
     
     <!-- Critical CSS -->
     <style>
       body, html, #app {
-        user-select: none;
         height: 100%;
         min-height: 100%;
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        overflow-x: hidden;
         scroll-behavior: smooth;
       }
 
       html {
-        touch-action: none; /* Disable Pinch Zoom */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
-        background: #000;
+        background: #FFF9C4;
       }
     </style>
   </head>
   <body>
     <div id="app"></div>
     
-    <!-- Loading spinner - shows instantly while Vue loads -->
+    <!-- Loading with Kagi logo -->
     <div id="initial-loader" style="
       user-select: none;
       pointer-events: none;
       position: fixed;
       z-index: 10000;
-      top: calc(50% - 37px);
-      left: calc(50% - 37px);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
       ">
-      <div style="
-        margin: auto;
-        width: 74px;
-        height: 74px;
-        border-radius: 50%;
-        background: radial-gradient(farthest-side,#ff5379 94%,#0000) top/9px 9px no-repeat, conic-gradient(#0000 30%,#ff5379);
-        -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0);
-        animation: spinner-c7wet2 1s infinite linear;
-        " role="status" aria-label="Loading">
-      </div>
+      <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="35" cy="35" r="18" fill="none" stroke="#FFC107" stroke-width="6"/>
+        <rect x="48" y="32" width="45" height="6" fill="#FFC107"/>
+        <rect x="83" y="32" width="4" height="10" fill="#FFC107"/>
+        <rect x="88" y="32" width="4" height="8" fill="#FFC107"/>
+        <rect x="93" y="32" width="4" height="10" fill="#FFC107"/>
+      </svg>
+      <p id="loading-text" style="color: #FFC107; margin-top: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">Loading...</p>
     </div>
-    
-    <style>
-      @keyframes spinner-c7wet2 {
-        100% {
-          transform: rotate(1turn);
-        }
-      }
-    </style>
     
     <script type="module" src="/src/main.js"></script>
   </body>

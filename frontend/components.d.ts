@@ -10,8 +10,12 @@ declare module 'vue' {
   export interface GlobalComponents {
     BurgerButton: typeof import('./src/components/ui/BurgerButton.vue')['default']
     ButtonFX: typeof import('./src/components/ui/ButtonFX.vue')['default']
+    DashboardCard: typeof import('./src/components/DashboardCard.vue')['default']
+    EmailPopup: typeof import('./src/components/EmailPopup.vue')['default']
     GradientButton: typeof import('./src/components/ui/GradientButton.vue')['default']
     ImgNext: typeof import('./src/components/ui/ImgNext.vue')['default']
+    KagiLogo: typeof import('./src/components/KagiLogo.vue')['default']
+    LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
     ProgressBar: typeof import('./src/components/ui/ProgressBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  mansion_admin
+  landlord
+  resident
+  guest
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+enum MaintenanceStatus {
+  pending
+  in_progress
+  completed
+  cancelled
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  role      UserRole @default(resident)
+  name      String?
+  phone     String?
+  unit      String?
+  isActive  Boolean  @default(true)
+  
+  mansionId String?
+  mansion   Mansion? @relation(fields: [mansionId], references: [id])
+  
+  bookings     Booking[]
+  messages     Message[]
+  sentMessages Message[] @relation("SentMessages")
+  maintenance  MaintenanceRequest[]
+  bills        Bill[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Mansion {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  description String?
+  facilities  Json?
+  rules       Json?
+  
+  users       User[]
+  documents   Document[]
+  events      Event[]
+  bookings    Booking[]
+  facilities  Facility[]
+  maintenance MaintenanceRequest[]
+  bills       Bill[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MagicLink {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  role      UserRole @default(resident)
+  mansionId String?
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  category    String
+  fileUrl     String?
+  content     String?
+  
+  mansionId String
+  mansion   Mansion @relation(fields: [mansionId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  location    String?
+  imageUrl    String?
+  category    String?
+  
+  mansionId String
+  mansion   Mansion @relation(fields: [mansionId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Facility {
+  id          String  @id @default(cuid())
+  name        String
+  type        String
+  description String?
+  capacity    Int?
+  price       Float?
+  rules       Json?
+  imageUrl    String?
+  
+  mansionId String
+  mansion   Mansion @relation(fields: [mansionId], references: [id])
+  
+  bookings Booking[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  startTime  DateTime
+  endTime    DateTime
+  status     BookingStatus @default(pending)
+  notes      String?
+  totalPrice Float?
+  
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  facilityId String
+  facility   Facility @relation(fields: [facilityId], references: [id])
+  mansionId  String
+  mansion    Mansion  @relation(fields: [mansionId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id        String  @id @default(cuid())
+  subject   String
+  content   String
+  isRead    Boolean @default(false)
+  isAI      Boolean @default(false)
+  
+  fromId String
+  from   User   @relation("SentMessages", fields: [fromId], references: [id])
+  toId   String?
+  to     User?  @relation(fields: [toId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MaintenanceRequest {
+  id          String            @id @default(cuid())
+  title       String
+  description String
+  category    String
+  status      MaintenanceStatus @default(pending)
+  priority    String?
+  imageUrl    String?
+  
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  mansionId String
+  mansion   Mansion @relation(fields: [mansionId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bill {
+  id          String   @id @default(cuid())
+  type        String
+  amount      Float
+  dueDate     DateTime
+  isPaid      Boolean  @default(false)
+  paidAt      DateTime?
+  description String?
+  fileUrl     String?
+  
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  mansionId String
+  mansion   Mansion @relation(fields: [mansionId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -5,22 +5,20 @@
 </template>
 
 <script>
-import { animate, engine } from 'animejs'
+import { engine } from 'animejs'
 import { TinyRouter } from 'vue-tiny-router'
 import { loadTranslations } from 'vue-tiny-translation'
 
-import injectFonts from '@/makio/utils/injectFonts'
+import { detectLang } from '@/makio/utils/detect'
 import { contentLoaded } from '@/store'
-
-import { detectLang } from './makio/utils/detect'
 
 // Configure engine with default settings
 engine.timeUnit = 's'
 
-import HomeView from '@/views/HomeView'
-//const HomeView = defineAsyncComponent( () => import( '@/views/HomeView' ) )
-
-
+// Import Kagi views
+import Dashboard from '@/views/Dashboard'
+import Home from '@/views/Home'
+import Login from '@/views/Login'
 
 export default {
 	name: 'App',
@@ -34,12 +32,24 @@ export default {
 			return [
 				{
 					path: '/',
-					component: HomeView,
+					component: Home,
 				},
-				// {
-				// 	path: '/pixi',
-				// 	component: defineAsyncComponent( () => import( '@/views/PixiView' ) ),
-				// },
+				{
+					path: '/login',
+					component: Login,
+				},
+				{
+					path: '/dashboard',
+					component: Dashboard,
+				},
+				{
+					path: '/dashboard/:section',
+					component: Dashboard,
+				},
+				{
+					path: '/auth/verify',
+					component: Login,
+				},
 			]
 		},
 		redirects() {
@@ -62,31 +72,29 @@ export default {
 		hideInitialLoader() {
 			const loader = document.getElementById( 'initial-loader' )
 			if ( loader ) {
-				animate( loader, {
-					opacity: [1, 0],
-					scale: [1, 1.2],
-					duration: 0.4,
-					ease: 'easeInOut',
-					complete: () => {
-						loader.remove()
-					}
-				} )
+				// Simple fade out and remove
+				loader.style.transition = 'opacity 0.4s ease'
+				loader.style.opacity = '0'
+				setTimeout( () => {
+					loader.remove()
+				}, 400 )
 			}
 		}
 	},
 	async mounted() {
-		// Load important stuff in parallel
-		await Promise.all( [
-			injectFonts(
-				[
-					// Order optimize for the font use on the home
-					{ name: 'Black Han Sans', url: 'fonts/subset-BlackHanSans-Regular', weight: 'normal' },
-				],
-				true,
-			),
-			loadTranslations( `translations/${detectLang( ['en', 'fr'] )}.json` ),
-		] )
+		// Detect language: saved preference > browser detection > default
+		const savedLang = localStorage.getItem( 'kagi_language' )
+		const detectedLang = detectLang( ['en', 'fr', 'ja'] )
+		const lang = savedLang || detectedLang || 'en'
+
+		// Load translations
+		await loadTranslations( `/translations/${lang}.json` )
 		this.basicLoaded = true
+
+		// Remove loader after a short delay if it's still there
+		setTimeout( () => {
+			this.hideInitialLoader()
+		}, 500 )
 	},
 	components: {
 		TinyRouter
@@ -110,31 +118,26 @@ export default {
 }
 
 body, html, #app
-	user-select none
-	font-display() // define in global.styl
-	height 100%
-	min-height 100%
+	font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif
 	margin 0
 	padding 0
-	overflow hidden
 	scroll-behavior smooth
 	@media screen and (prefers-reduced-motion: reduce)
 		scroll-behavior: auto
 
 html
-	touch-action none // Disable Pinch Zoom
 	-webkit-font-smoothing antialiased
 	-moz-osx-font-smoothing grayscale
-	text-align center
-	background #000
+	background #f5f5f5
+	overflow-y auto
 
-	.view
-		color #fff
-		display flex
-		min-height 100%
-		flex-direction column
-		justify-content center
-		align-items center
+body
+	overflow-y auto
+
+.view
+	color #333
+	min-height 100vh
+	width 100%
 
 	.loader
 		user-select none
