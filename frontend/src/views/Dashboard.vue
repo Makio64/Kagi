@@ -2,23 +2,16 @@
 	<div class="dashboard">
 		<header class="header">
 			<div class="header-content">
-				<div class="header-left">
+				<div class="header-left" style="cursor: pointer;" @click="navigateToSection('home')">
 					<KagiLogo :size="40" />
 					<h1>Kagi</h1>
 				</div>
-				<div class="header-right desktop-menu">
-					<div class="user-info">
-						<span class="user-name">{{ authStore.user?.email }}</span>
-						<span class="user-role">{{ authStore.user?.role }}</span>
-					</div>
-					<LanguageSwitcher />
-					<button class="logout-btn" @click="logout">
-						{{ $t('nav.logout') }}
+				<div class="header-right">
+					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
+						<span class="user-email">{{ authStore.user?.email }}</span>
+						<span class="menu-arrow">▼</span>
 					</button>
 				</div>
-				<button class="mobile-menu-btn" @click="showMobileMenu = !showMobileMenu">
-					⚙️
-				</button>
 			</div>
 		</header>
 
@@ -75,16 +68,38 @@
 			</aside>
 
 			<main class="main-content">
+				<!-- Home Section -->
+				<section v-if="activeSection === 'home'" class="section">
+					<div class="home-welcome">
+						<h2 class="welcome-title">{{ $t('dashboard.welcome') }}</h2>
+						<p class="welcome-subtitle">{{ $t('dashboard.welcomeSubtitle') }}</p>
+					</div>
+					<div class="services-grid">
+						<button
+							v-for="item in menuItems.filter(m => m.id !== 'home')"
+							:key="item.id"
+							class="service-card"
+							@click="navigateToSection(item.id)"
+						>
+							<div class="service-icon">{{ item.icon }}</div>
+							<h3 class="service-name">{{ item.label }}</h3>
+							<p class="service-description">{{ getServiceDescription(item.id) }}</p>
+						</button>
+					</div>
+				</section>
+
 				<!-- Contact Section -->
 				<section v-if="activeSection === 'contact'" class="section">
-					<h2 class="section-title">📱 {{ $t('dashboard.contact.title') }}</h2>
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">📱</span> {{ $t('dashboard.contact.title') }}</h2>
+					</div>
 					<div class="cards-grid">
 						<DashboardCard
 							icon="🤖"
 							:title="$t('dashboard.contact.ai.title')"
 							:description="$t('dashboard.contact.ai.description')"
 							clickable
-							:actions="[{ text: $t('dashboard.contact.ai.button'), class: 'primary', handler: startAIChat }]"
+							:actions="[{ text: $t('dashboard.contact.ai.button'), class: 'booking', handler: startAIChat }]"
 							@click="startAIChat"
 						/>
 						<DashboardCard
@@ -92,7 +107,7 @@
 							:title="$t('dashboard.contact.manager.title')"
 							:description="$t('dashboard.contact.manager.description')"
 							clickable
-							:actions="[{ text: $t('dashboard.contact.manager.button'), class: 'primary', handler: contactManager }]"
+							:actions="[{ text: $t('dashboard.contact.manager.button'), class: 'booking', handler: contactManager }]"
 							@click="contactManager"
 						/>
 						<DashboardCard
@@ -109,14 +124,16 @@
 
 				<!-- Documents Section -->
 				<section v-if="activeSection === 'documents'" class="section">
-					<h2 class="section-title">📄 {{ $t('dashboard.documents.title') }}</h2>
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">📄</span> {{ $t('dashboard.documents.title') }}</h2>
+					</div>
 					<div class="cards-grid">
 						<DashboardCard
 							icon="📋"
 							:title="$t('dashboard.documents.managementRules')"
 							:info="`${$t('dashboard.documents.lastUpdated')}: 2024/01`"
 							clickable
-							:actions="[{ text: $t('dashboard.documents.view'), class: 'success', handler: () => viewDocument('management') }]"
+							:actions="[{ text: $t('dashboard.documents.view'), class: 'booking', handler: () => viewDocument('management') }]"
 							@click="viewDocument('management')"
 						/>
 						<DashboardCard
@@ -124,7 +141,7 @@
 							:title="$t('dashboard.documents.facilityRules')"
 							:info="`${$t('dashboard.documents.lastUpdated')}: 2024/03`"
 							clickable
-							:actions="[{ text: $t('dashboard.documents.view'), class: 'success', handler: () => viewDocument('facility') }]"
+							:actions="[{ text: $t('dashboard.documents.view'), class: 'booking', handler: () => viewDocument('facility') }]"
 							@click="viewDocument('facility')"
 						/>
 						<DashboardCard
@@ -132,7 +149,7 @@
 							:title="$t('dashboard.documents.parkingRules')"
 							:info="`${$t('dashboard.documents.lastUpdated')}: 2023/12`"
 							clickable
-							:actions="[{ text: $t('dashboard.documents.view'), class: 'success', handler: () => viewDocument('parking') }]"
+							:actions="[{ text: $t('dashboard.documents.view'), class: 'booking', handler: () => viewDocument('parking') }]"
 							@click="viewDocument('parking')"
 						/>
 					</div>
@@ -140,14 +157,16 @@
 
 				<!-- Booking Section -->
 				<section v-if="activeSection === 'booking'" class="section">
-					<h2 class="section-title">📅 {{ $t('dashboard.booking.title') }}</h2>
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">📅</span> {{ $t('dashboard.booking.title') }}</h2>
+					</div>
 					<div class="cards-grid">
 						<DashboardCard
 							image="🎉"
 							:title="$t('dashboard.booking.partyRoom')"
 							:info="`${$t('dashboard.booking.capacity')}: 20 ${$t('dashboard.booking.people')} | ${$t('dashboard.booking.price')}: ¥2,000${$t('dashboard.booking.perHour')}`"
 							clickable
-							:actions="[{ text: $t('dashboard.booking.book'), class: 'primary', handler: () => bookFacility('party') }]"
+							:actions="[{ text: $t('dashboard.booking.book'), class: 'booking', handler: () => bookFacility('party') }]"
 							@click="bookFacility('party')"
 						/>
 						<DashboardCard
@@ -155,7 +174,7 @@
 							:title="$t('dashboard.booking.guestRoom')"
 							:info="`${$t('dashboard.booking.capacity')}: 2 ${$t('dashboard.booking.people')} | ${$t('dashboard.booking.price')}: ¥5,000${$t('dashboard.booking.perNight')}`"
 							clickable
-							:actions="[{ text: $t('dashboard.booking.book'), class: 'primary', handler: () => bookFacility('guest') }]"
+							:actions="[{ text: $t('dashboard.booking.book'), class: 'booking', handler: () => bookFacility('guest') }]"
 							@click="bookFacility('guest')"
 						/>
 						<DashboardCard
@@ -163,7 +182,7 @@
 							:title="$t('dashboard.booking.gym')"
 							:info="`${$t('dashboard.booking.capacity')}: 10 ${$t('dashboard.booking.people')} | ${$t('dashboard.booking.price')}: ${$t('dashboard.booking.free')}`"
 							clickable
-							:actions="[{ text: $t('dashboard.booking.book'), class: 'primary', handler: () => bookFacility('gym') }]"
+							:actions="[{ text: $t('dashboard.booking.book'), class: 'booking', handler: () => bookFacility('gym') }]"
 							@click="bookFacility('gym')"
 						/>
 					</div>
@@ -171,7 +190,9 @@
 
 				<!-- Maintenance Section -->
 				<section v-if="activeSection === 'maintenance'" class="section">
-					<h2 class="section-title">🔧 {{ $t('dashboard.maintenance.title') }}</h2>
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">🔧</span> {{ $t('dashboard.maintenance.title') }}</h2>
+					</div>
 
 					<!-- Category Selection -->
 					<div v-if="!selectedMaintenanceCategory" class="cards-grid">
@@ -232,7 +253,9 @@
 
 				<!-- Events Section -->
 				<section v-if="activeSection === 'events'" class="section">
-					<h2 class="section-title">📢 {{ $t('dashboard.events.title') }}</h2>
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">📢</span> {{ $t('dashboard.events.title') }}</h2>
+					</div>
 					<div class="events-list">
 						<div class="event-card">
 							<div class="event-date">
@@ -259,7 +282,9 @@
 
 				<!-- Bills Section -->
 				<section v-if="activeSection === 'bills'" class="section">
-					<h2 class="section-title">💳 {{ $t('dashboard.bills.title') }}</h2>
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">💳</span> {{ $t('dashboard.bills.title') }}</h2>
+					</div>
 					<div class="bills-list">
 						<div class="bill-card">
 							<div class="bill-header">
@@ -268,8 +293,8 @@
 							</div>
 							<p>{{ $t('dashboard.bills.dueDate') }}: 2024/12/31</p>
 							<div class="bill-actions">
-								<button class="view-btn">{{ $t('dashboard.bills.details') }}</button>
-								<button class="pay-btn">{{ $t('dashboard.bills.pay') }}</button>
+								<button class="details-btn">{{ $t('dashboard.bills.details') }}</button>
+								<button class="pay-btn-primary">{{ $t('dashboard.bills.payNow') }}</button>
 							</div>
 						</div>
 						<div class="bill-card paid">
@@ -288,7 +313,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 
 import DashboardCard from '../components/DashboardCard.vue'
@@ -310,13 +335,14 @@ const router = instance.proxy.$router
 
 // Use computed to make activeSection reactive to route params
 const activeSection = computed( () => {
-	return props.routeParams?.section || 'contact'
+	return props.routeParams?.section || 'home'
 } )
 
 // Mobile menu state
 const showMobileMenu = ref( false )
 
 const menuItems = computed( () => [
+	// { id: 'home', icon: '🏠', label: instance.proxy.$t( 'nav.home' ) },
 	{ id: 'contact', icon: '📱', label: instance.proxy.$t( 'dashboard.menu.contact' ) },
 	{ id: 'documents', icon: '📄', label: instance.proxy.$t( 'dashboard.menu.documents' ) },
 	{ id: 'booking', icon: '📅', label: instance.proxy.$t( 'dashboard.menu.booking' ) },
@@ -398,13 +424,41 @@ const getCategoryName = ( category ) => {
 
 // Navigation helper
 const navigateToSection = ( section ) => {
-	router.push( `/dashboard/${section}` )
+	if ( section === 'home' ) {
+		router.push( '/dashboard' )
+	} else {
+		router.push( `/dashboard/${section}` )
+	}
+}
+
+const getServiceDescription = ( serviceId ) => {
+	const descriptions = {
+		contact: instance.proxy.$t( 'home.features.communication.description' ),
+		documents: instance.proxy.$t( 'home.features.documents.description' ),
+		booking: instance.proxy.$t( 'home.features.booking.description' ),
+		maintenance: instance.proxy.$t( 'home.features.maintenance.description' ),
+		events: instance.proxy.$t( 'home.features.events.description' ),
+		bills: instance.proxy.$t( 'home.features.bills.description' )
+	}
+	return descriptions[serviceId] || ''
 }
 
 // Check authentication on mount
 onMounted( () => {
 	if ( !authStore.isAuthenticated ) {
 		router.push( '/login' )
+	}
+} )
+
+// Toggle mobile menu when clicking user button
+watch( showMobileMenu, ( newVal ) => {
+	const userBtn = document.querySelector( '.user-menu-btn' )
+	if ( userBtn ) {
+		if ( newVal ) {
+			userBtn.classList.add( 'active' )
+		} else {
+			userBtn.classList.remove( 'active' )
+		}
 	}
 } )
 </script>
@@ -414,7 +468,7 @@ onMounted( () => {
 	min-height 100vh
 	display flex
 	flex-direction column
-	background #f5f5f5
+	background linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)
 	box-sizing border-box
 
 // Global box-sizing fix
@@ -422,8 +476,8 @@ onMounted( () => {
 	box-sizing border-box
 
 .header
-	background white
-	box-shadow 0 2px 10px rgba(0,0,0,0.05)
+	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+	box-shadow 0 4px 20px rgba(255, 193, 7, 0.15)
 	position sticky
 	top 0
 	z-index 100
@@ -447,61 +501,47 @@ onMounted( () => {
 		margin 0
 
 .header-right
-	&.desktop-menu
-		display flex
-		align-items center
-		gap 2rem
-
-		@media (max-width: 768px)
-			display none
-
-.mobile-menu-btn
-	display none
-	background #FFC107
-	color #333
-	border none
-	border-radius 50%
-	width 40px
-	height 40px
-	font-size 1.2rem
-	cursor pointer
-	transition all 0.3s ease
-
-	&:hover
-		background #FFB300
-		transform rotate(90deg)
-
-	@media (max-width: 768px)
-		display flex
-		align-items center
-		justify-content center
-
-.user-info
 	display flex
-	flex-direction column
-	align-items flex-end
+	align-items center
 
-	.user-name
-		font-weight 600
-		color #333
-
-	.user-role
-		font-size 0.85rem
-		color #666
-		text-transform capitalize
-
-.logout-btn
-	padding 0.5rem 1.5rem
-	background #FF5252
-	color white
-	border none
-	border-radius 25px
+.user-menu-btn
+	display flex
+	align-items center
+	gap 0.5rem
+	padding 0.6rem 1.2rem
+	background white
+	color #333
+	border 2px solid rgba(255, 193, 7, 0.3)
+	border-radius 50px
 	cursor pointer
 	transition all 0.3s ease
+	box-shadow 0 2px 10px rgba(255, 193, 7, 0.1)
+	font-size 0.95rem
+
+	.user-email
+		font-weight 500
+		max-width 200px
+		overflow hidden
+		text-overflow ellipsis
+		white-space nowrap
+
+		@media (max-width: 480px)
+			max-width 120px
+			font-size 0.9rem
+
+	.menu-arrow
+		font-size 0.7rem
+		transition transform 0.3s ease
 
 	&:hover
-		background #FF1744
-		transform translateY(-2px)
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+		border-color #FFC107
+		box-shadow 0 4px 15px rgba(255, 193, 7, 0.25)
+
+	&.active
+		.menu-arrow
+			transform rotate(180deg)
+
 
 // Mobile Settings Menu
 .mobile-settings-menu
@@ -578,18 +618,20 @@ onMounted( () => {
 .mobile-logout-btn
 	width 100%
 	padding 1rem
-	background #FF5252
-	color white
-	border none
-	border-radius 10px
+	background white
+	color #666
+	border 2px solid #e0e0e0
+	border-radius 50px
 	font-size 1rem
-	font-weight 600
+	font-weight 500
 	cursor pointer
 	transition all 0.3s ease
 	margin-top auto
 
 	&:hover
-		background #FF1744
+		background #f5f5f5
+		border-color #999
+		color #333
 
 // Slide animation for mobile menu
 .slide-enter-active, .slide-leave-active
@@ -618,12 +660,13 @@ onMounted( () => {
 .sidebar
 	width 250px
 	background white
-	border-radius 15px
+	border-radius 20px
 	padding 1.5rem
-	box-shadow 0 5px 15px rgba(0,0,0,0.05)
+	box-shadow 0 8px 25px rgba(255, 193, 7, 0.08)
 	height fit-content
 	position sticky
 	top 100px
+	border 1px solid rgba(255, 193, 7, 0.15)
 
 	@media (max-width: 768px)
 		width 100%
@@ -677,23 +720,26 @@ onMounted( () => {
 	padding 1rem
 	background transparent
 	border none
-	border-radius 10px
+	border-radius 15px
 	cursor pointer
 	transition all 0.3s ease
 	text-align left
 	text-decoration none
-	color #333
+	color #666
 	width 100%
 	font-size 0.95rem
 	font-family inherit
 
 	&:hover
-		background #FFF9C4
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+		color #333
+		transform translateX(5px)
 
 	&.active
-		background #FFC107
-		color #333
+		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+		color white
 		font-weight 600
+		box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
 
 	.nav-icon
 		font-size 1.2rem
@@ -722,13 +768,15 @@ onMounted( () => {
 
 	&:hover
 		.nav-icon-circle
-			background #FFF9C4
-			transform scale(1.05)
+			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+			transform scale(1.08)
+			border-color #FFC107
 
 	&.active
 		.nav-icon-circle
-			background #FFC107
-			box-shadow 0 4px 12px rgba(255, 193, 7, 0.4)
+			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+			border-color #FFC107
+			box-shadow 0 4px 15px rgba(255, 193, 7, 0.4)
 
 		.nav-label-mobile
 			color #333
@@ -739,12 +787,12 @@ onMounted( () => {
 	height 50px
 	border-radius 50%
 	background white
-	border 2px solid #e0e0e0
+	border 2px solid rgba(255, 193, 7, 0.3)
 	display flex
 	align-items center
 	justify-content center
 	transition all 0.2s ease
-	box-shadow 0 2px 8px rgba(0, 0, 0, 0.08)
+	box-shadow 0 3px 12px rgba(255, 193, 7, 0.1)
 
 	@media (max-width: 550px)
 		width 45px
@@ -774,17 +822,109 @@ onMounted( () => {
 .main-content
 	flex 1
 	background white
-	border-radius 15px
+	border-radius 20px
 	padding 2rem
-	box-shadow 0 5px 15px rgba(0,0,0,0.05)
+	// box-shadow 0 8px 25px rgba(255, 193, 7, 0.08)
+	// border 1px solid rgba(255, 193, 7, 0.1)
+
+.section-header
+	background linear-gradient(135deg, #FFC107 0%, #FFD54F 100%)
+	margin -2rem -2rem 2rem -2rem
+	padding 1.5rem 2rem
+	border-radius 20px 20px 0 0
+
+	@media (max-width: 768px)
+		margin -1rem -1rem 1.5rem -1rem
+		padding 1.2rem 1rem
+
+	@media (max-width: 550px)
+		margin -0.75rem -0.75rem 1rem -0.75rem
+		padding 1rem 0.75rem
 
 .section-title
 	font-size 1.8rem
-	margin-bottom 2rem
+	margin 0
 	color #333
-	border-bottom 3px solid #FFC107
-	padding-bottom 0.5rem
-	display inline-block
+	font-weight 700
+	display flex
+	align-items center
+	gap 0.5rem
+
+	.section-icon
+		// background white
+		border-radius 50%
+		width 45px
+		height 45px
+		display inline-flex
+		align-items center
+		justify-content center
+		// box-shadow 0 2px 8px rgba(0, 0, 0, 0.1)
+
+	@media (max-width: 550px)
+		font-size 1.5rem
+		.section-icon
+			width 40px
+			height 40px
+
+// Home section styles
+.home-welcome
+	text-align center
+	margin-bottom 3rem
+
+	.welcome-title
+		font-size 2rem
+		color #333
+		margin-bottom 0.5rem
+		font-weight 600
+
+	.welcome-subtitle
+		color #666
+		font-size 1.1rem
+
+.services-grid
+	display grid
+	grid-template-columns repeat(auto-fill, minmax(200px, 1fr))
+	gap 1.5rem
+	margin-bottom 2rem
+
+	@media (max-width: 768px)
+		grid-template-columns repeat(auto-fill, minmax(150px, 1fr))
+		gap 1rem
+
+.service-card
+	background white
+	border 2px solid rgba(255, 193, 7, 0.2)
+	border-radius 20px
+	padding 2rem 1.5rem
+	text-align center
+	cursor pointer
+	transition all 0.3s ease
+	box-shadow 0 4px 12px rgba(255, 193, 7, 0.08)
+
+	&:hover
+		transform translateY(-5px)
+		box-shadow 0 8px 20px rgba(255, 193, 7, 0.2)
+		border-color #FFC107
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+
+	.service-icon
+		font-size 3rem
+		margin-bottom 1rem
+		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+		-webkit-background-clip text
+		-webkit-text-fill-color transparent
+		background-clip text
+
+	.service-name
+		font-size 1.2rem
+		color #333
+		margin-bottom 0.5rem
+		font-weight 600
+
+	.service-description
+		font-size 0.85rem
+		color #666
+		line-height 1.4
 
 // Generic card grid
 .cards-grid
@@ -816,25 +956,28 @@ onMounted( () => {
 		border 2px solid #FF6F00
 
 .action-btn
-	padding 0.75rem 2rem
-	background #FFC107
+	padding 0.85rem 2rem
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 	color #333
 	border none
-	border-radius 25px
+	border-radius 50px
 	cursor pointer
 	font-weight 600
 	transition all 0.3s ease
+	box-shadow 0 4px 15px rgba(255, 193, 7, 0.25)
 
 	&:hover
-		background #FFB300
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
 		transform translateY(-2px)
+		box-shadow 0 6px 20px rgba(255, 193, 7, 0.35)
 
 	&.emergency-btn
-		background #FF6F00
+		background linear-gradient(135deg, #FF6F00 0%, #FF5722 100%)
 		color white
 
 		&:hover
-			background #FF5722
+			background linear-gradient(135deg, #FF5722 0%, #F4511E 100%)
+			box-shadow 0 6px 20px rgba(255, 87, 34, 0.35)
 
 // Documents Section
 .documents-grid
@@ -867,17 +1010,21 @@ onMounted( () => {
 		margin-bottom 1rem
 
 .view-btn
-	padding 0.5rem 1.5rem
-	background #4CAF50
-	color white
-	border none
-	border-radius 20px
+	padding 0.6rem 1.75rem
+	background white
+	color #333
+	border 2px solid #FFC107
+	border-radius 50px
 	cursor pointer
 	font-weight 600
 	transition all 0.3s ease
+	box-shadow 0 2px 8px rgba(255, 193, 7, 0.15)
 
 	&:hover
-		background #45A049
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+		transform translateY(-2px)
+		box-shadow 0 4px 12px rgba(255, 193, 7, 0.25)
+		border-color #FFB300
 
 // Booking Section
 .booking-facilities
@@ -923,17 +1070,21 @@ onMounted( () => {
 .book-btn
 	width calc(100% - 2rem)
 	margin 1rem
-	padding 0.75rem
-	background #2196F3
-	color white
-	border none
-	border-radius 8px
+	padding 0.85rem
+	background white
+	color #333
+	border 2px solid #FFC107
+	border-radius 50px
 	cursor pointer
 	font-weight 600
 	transition all 0.3s ease
+	box-shadow 0 3px 12px rgba(255, 193, 7, 0.15)
 
 	&:hover
-		background #1976D2
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+		transform translateY(-2px)
+		box-shadow 0 5px 18px rgba(255, 193, 7, 0.25)
+		border-color #FFB300
 
 // Maintenance Form
 .maintenance-form-container
@@ -942,18 +1093,23 @@ onMounted( () => {
 
 .back-btn
 	margin-bottom 1rem
-	padding 0.5rem 1rem
-	background #e0e0e0
-	color #333
-	border none
-	border-radius 8px
+	padding 0.6rem 1.25rem
+	background white
+	color #666
+	border 2px solid rgba(255, 193, 7, 0.3)
+	border-radius 50px
 	cursor pointer
 	font-size 0.9rem
 	transition all 0.2s ease
+	font-weight 500
+	box-shadow 0 2px 8px rgba(255, 193, 7, 0.1)
 
 	&:hover
-		background #d0d0d0
-		transform translateX(-2px)
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+		transform translateX(-3px)
+		border-color #FFC107
+		color #333
+		box-shadow 0 4px 12px rgba(255, 193, 7, 0.2)
 
 .selected-category
 	display flex
@@ -974,8 +1130,10 @@ onMounted( () => {
 .maintenance-form
 	max-width 100%
 	padding 1.5rem
-	background #f9f9f9
-	border-radius 12px
+	background linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)
+	border-radius 20px
+	border 1px solid rgba(255, 193, 7, 0.1)
+	box-shadow 0 4px 15px rgba(255, 193, 7, 0.08)
 
 	.form-group
 		margin-bottom 1.5rem
@@ -990,30 +1148,35 @@ onMounted( () => {
 			width 100%
 			max-width 100%
 			padding 0.75rem
-			border 2px solid #e0e0e0
-			border-radius 8px
+			border 2px solid rgba(255, 193, 7, 0.2)
+			border-radius 12px
 			font-size 1rem
 			transition all 0.3s ease
 			box-sizing border-box
+			background rgba(255, 255, 255, 0.8)
 
 			&:focus
 				outline none
 				border-color #FFC107
+				box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
+				background white
 
 .submit-btn
 	padding 1rem 3rem
-	background #4CAF50
+	background linear-gradient(135deg, #4CAF50 0%, #45A049 100%)
 	color white
 	border none
-	border-radius 8px
+	border-radius 50px
 	font-size 1.1rem
 	font-weight 600
 	cursor pointer
 	transition all 0.3s ease
+	box-shadow 0 4px 15px rgba(76, 175, 80, 0.25)
 
 	&:hover
-		background #45A049
+		background linear-gradient(135deg, #45A049 0%, #388E3C 100%)
 		transform translateY(-2px)
+		box-shadow 0 6px 20px rgba(76, 175, 80, 0.35)
 
 // Events Section
 .events-list
@@ -1025,19 +1188,23 @@ onMounted( () => {
 	display flex
 	gap 2rem
 	padding 1.5rem
-	background #f9f9f9
-	border-radius 10px
+	background linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)
+	border-radius 15px
 	transition all 0.3s ease
+	border 1px solid rgba(255, 193, 7, 0.1)
 
 	&:hover
-		box-shadow 0 5px 15px rgba(0,0,0,0.1)
+		box-shadow 0 8px 20px rgba(255, 193, 7, 0.15)
+		transform translateY(-2px)
+		border-color rgba(255, 193, 7, 0.25)
 
 	.event-date
 		text-align center
-		background #FFC107
-		border-radius 10px
+		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+		border-radius 15px
 		padding 1rem
 		min-width 80px
+		box-shadow 0 4px 12px rgba(255, 193, 7, 0.2)
 
 		.date-month
 			font-size 0.9rem
@@ -1067,15 +1234,19 @@ onMounted( () => {
 
 .bill-card
 	padding 1.5rem
-	background #f9f9f9
-	border-radius 10px
+	background linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)
+	border-radius 15px
 	transition all 0.3s ease
+	border 1px solid rgba(255, 193, 7, 0.1)
 
 	&:hover
-		box-shadow 0 5px 15px rgba(0,0,0,0.1)
+		box-shadow 0 8px 20px rgba(255, 193, 7, 0.15)
+		transform translateY(-2px)
+		border-color rgba(255, 193, 7, 0.25)
 
 	&.paid
-		background #E8F5E9
+		background linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%)
+		border-color rgba(76, 175, 80, 0.2)
 
 	.bill-header
 		display flex
@@ -1103,18 +1274,39 @@ onMounted( () => {
 		color #4CAF50
 		font-weight 600
 
-.pay-btn
-	padding 0.5rem 1.5rem
-	background #4CAF50
-	color white
+.details-btn
+	padding 0.6rem 1.5rem
+	background white
+	color #666
+	border 2px solid #e0e0e0
+	border-radius 50px
+	cursor pointer
+	font-weight 500
+	transition all 0.3s ease
+	box-shadow 0 2px 8px rgba(0, 0, 0, 0.05)
+
+	&:hover
+		background #f5f5f5
+		border-color #999
+		color #333
+		transform translateY(-1px)
+		box-shadow 0 3px 10px rgba(0, 0, 0, 0.1)
+
+.pay-btn-primary
+	padding 0.6rem 1.75rem
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+	color #333
 	border none
-	border-radius 20px
+	border-radius 50px
 	cursor pointer
 	font-weight 600
 	transition all 0.3s ease
+	box-shadow 0 4px 15px rgba(255, 193, 7, 0.25)
 
 	&:hover
-		background #45A049
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+		transform translateY(-2px)
+		box-shadow 0 6px 20px rgba(255, 193, 7, 0.35)
 
 @media (max-width: 768px)
 	.dashboard-content

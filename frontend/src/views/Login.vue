@@ -294,6 +294,7 @@ const adminLogin = async () => {
 
 	input
 		width 100%
+		box-sizing: border-box;
 		padding 0.75rem 1rem
 		border 2px solid #e0e0e0
 		border-radius 10px

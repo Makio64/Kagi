@@ -161,19 +161,41 @@ const handleClick = () => {
 		&:hover
 			background #1976D2
 	
-	&.success
-		background #4CAF50
-		color white
+	&.booking
+		background white
+		color #333
+		border 2px solid #FFC107
+		box-shadow 0 2px 8px rgba(255, 193, 7, 0.15)
 		
 		&:hover
-			background #45A049
+			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+			transform translateY(-2px)
+			box-shadow 0 4px 12px rgba(255, 193, 7, 0.25)
+			border-color #FFB300
+	
+	&.success
+		background white
+		color #4CAF50
+		border 2px solid #4CAF50
+		box-shadow 0 2px 8px rgba(76, 175, 80, 0.15)
+		
+		&:hover
+			background linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%)
+			transform translateY(-2px)
+			box-shadow 0 4px 12px rgba(76, 175, 80, 0.25)
+			border-color #45A049
 	
 	&.danger
-		background #FF5252
-		color white
+		background white
+		color #F44336
+		border 2px solid #F44336
+		box-shadow 0 2px 8px rgba(244, 67, 54, 0.15)
 		
 		&:hover
-			background #FF1744
+			background linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%)
+			transform translateY(-2px)
+			box-shadow 0 4px 12px rgba(244, 67, 54, 0.25)
+			border-color #D32F2F
 	
 	&.secondary
 		background #e0e0e0
