@@ -3,7 +3,7 @@
 		<div class="email-popup">
 			<div class="email-header">
 				<h3>📧 {{ $t('login.resident.success.title') || 'Magic Link Email' }}</h3>
-				<button @click="close" class="close-btn">✕</button>
+				<button class="close-btn" @click="close">✕</button>
 			</div>
 			<div class="email-body">
 				<p class="test-notice">⚠️ TEST MODE - Email not sent via SMTP</p>
@@ -21,7 +21,7 @@
 						<a :href="loginLink" target="_blank" class="magic-link">
 							{{ loginLink }}
 						</a>
-						<button @click="copyLink" class="copy-btn">
+						<button class="copy-btn" @click="copyLink">
 							{{ copied ? '✓ Copied!' : '📋 Copy' }}
 						</button>
 					</div>
@@ -35,34 +35,34 @@
 <script setup>
 import { ref } from 'vue'
 
-const props = defineProps({
+const props = defineProps( {
 	show: Boolean,
 	email: String,
 	token: String
-})
+} )
 
-const emit = defineEmits(['close'])
-const copied = ref(false)
+const emit = defineEmits( ['close'] )
+const copied = ref( false )
 
-const loginLink = computed(() => {
-	if (!props.token) return ''
+const loginLink = computed( () => {
+	if ( !props.token ) return ''
 	const baseUrl = window.location.origin
 	return `${baseUrl}/login?token=${props.token}`
-})
+} )
 
 const close = () => {
-	emit('close')
+	emit( 'close' )
 }
 
 const copyLink = async () => {
 	try {
-		await navigator.clipboard.writeText(loginLink.value)
+		await navigator.clipboard.writeText( loginLink.value )
 		copied.value = true
-		setTimeout(() => {
+		setTimeout( () => {
 			copied.value = false
-		}, 2000)
-	} catch (err) {
-		console.error('Failed to copy:', err)
+		}, 2000 )
+	} catch ( err ) {
+		console.error( 'Failed to copy:', err )
 	}
 }
 </script>

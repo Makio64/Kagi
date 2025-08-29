@@ -157,7 +157,7 @@
 					<div class="section-header">
 						<h2 class="section-title">👥 {{ $t('admin.users.title') || 'Users Management' }}</h2>
 						<div class="header-actions">
-							<input type="search" placeholder="Search users..." class="search-input" />
+							<input type="search" placeholder="Search users..." class="search-input">
 							<button class="add-btn">+ {{ $t('admin.users.invite') || 'Invite User' }}</button>
 						</div>
 					</div>
@@ -264,7 +264,7 @@
 							<div v-for="building in buildingPayments" :key="building.id" class="payment-card">
 								<h4>{{ building.name }}</h4>
 								<div class="payment-bar">
-									<div class="payment-progress" :style="`width: ${building.percentage}%`"></div>
+									<div class="payment-progress" :style="`width: ${building.percentage}%`" />
 								</div>
 								<p>{{ building.percentage }}% collected ({{ building.collected }}/{{ building.total }})</p>
 							</div>
@@ -283,13 +283,13 @@
 							<h3>🔔 {{ $t('admin.settings.notifications') || 'Notification Settings' }}</h3>
 							<div class="setting-item">
 								<label>
-									<input type="checkbox" checked />
+									<input type="checkbox" checked>
 									{{ $t('admin.settings.emailNotifications') || 'Email notifications for urgent requests' }}
 								</label>
 							</div>
 							<div class="setting-item">
 								<label>
-									<input type="checkbox" checked />
+									<input type="checkbox" checked>
 									{{ $t('admin.settings.dailyReports') || 'Daily summary reports' }}
 								</label>
 							</div>
@@ -326,61 +326,62 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { getCurrentInstance } from 'vue'
-import { useAuthStore } from '../stores/auth'
+
 import KagiLogo from '../components/KagiLogo.vue'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
+import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
 
-const activeSection = ref('overview')
-const showMobileMenu = ref(false)
+const activeSection = ref( 'overview' )
+const showMobileMenu = ref( false )
 
-const menuItems = computed(() => [
-	{ id: 'overview', icon: '📊', label: instance.proxy.$t('admin.menu.overview') || 'Overview' },
-	{ id: 'buildings', icon: '🏢', label: instance.proxy.$t('admin.menu.buildings') || 'Buildings' },
-	{ id: 'users', icon: '👥', label: instance.proxy.$t('admin.menu.users') || 'Users' },
-	{ id: 'maintenance', icon: '🔧', label: instance.proxy.$t('admin.menu.maintenance') || 'Maintenance' },
-	{ id: 'financial', icon: '💰', label: instance.proxy.$t('admin.menu.financial') || 'Financial' },
-	{ id: 'settings', icon: '⚙️', label: instance.proxy.$t('admin.menu.settings') || 'Settings' }
-])
+const menuItems = computed( () => [
+	{ id: 'overview', icon: '📊', label: instance.proxy.$t( 'admin.menu.overview' ) || 'Overview' },
+	{ id: 'buildings', icon: '🏢', label: instance.proxy.$t( 'admin.menu.buildings' ) || 'Buildings' },
+	{ id: 'users', icon: '👥', label: instance.proxy.$t( 'admin.menu.users' ) || 'Users' },
+	{ id: 'maintenance', icon: '🔧', label: instance.proxy.$t( 'admin.menu.maintenance' ) || 'Maintenance' },
+	{ id: 'financial', icon: '💰', label: instance.proxy.$t( 'admin.menu.financial' ) || 'Financial' },
+	{ id: 'settings', icon: '⚙️', label: instance.proxy.$t( 'admin.menu.settings' ) || 'Settings' }
+] )
 
 // Sample data
-const buildings = ref([
+const buildings = ref( [
 	{ id: 1, name: 'Sakura Tower', address: 'Shibuya, Tokyo', units: 120, occupancy: 95, status: 'active' },
 	{ id: 2, name: 'Maple Heights', address: 'Shinjuku, Tokyo', units: 80, occupancy: 88, status: 'active' },
 	{ id: 3, name: 'Ocean View', address: 'Minato, Tokyo', units: 200, occupancy: 92, status: 'active' }
-])
+] )
 
-const users = ref([
+const users = ref( [
 	{ id: 1, name: 'Tanaka Yuki', email: 'tanaka@example.com', role: 'resident', building: 'Sakura Tower', status: 'active' },
 	{ id: 2, name: 'Sato Kenji', email: 'sato@example.com', role: 'mansion_admin', building: 'Maple Heights', status: 'active' },
 	{ id: 3, name: 'Yamada Hana', email: 'yamada@example.com', role: 'resident', building: 'Ocean View', status: 'active' }
-])
+] )
 
-const maintenanceRequests = ref([
+const maintenanceRequests = ref( [
 	{ id: 1, title: 'Water leak in bathroom', description: 'Urgent: Water dripping from ceiling', unit: '502', priority: 'urgent', time: '10 min ago' },
 	{ id: 2, title: 'AC not working', description: 'Air conditioning unit making strange noise', unit: '301', priority: 'high', time: '1 hour ago' },
 	{ id: 3, title: 'Door lock issue', description: 'Key card reader not responding', unit: '105', priority: 'medium', time: '3 hours ago' }
-])
+] )
 
-const buildingPayments = ref([
+const buildingPayments = ref( [
 	{ id: 1, name: 'Sakura Tower', percentage: 92, collected: '110', total: '120' },
 	{ id: 2, name: 'Maple Heights', percentage: 85, collected: '68', total: '80' },
 	{ id: 3, name: 'Ocean View', percentage: 78, collected: '156', total: '200' }
-])
+] )
 
-const navigateToSection = (section) => {
+const navigateToSection = ( section ) => {
 	activeSection.value = section
 	showMobileMenu.value = false
 }
 
 const logout = async () => {
 	await authStore.logout()
-	router.push('/')
+	router.push( '/' )
 }
 </script>
 

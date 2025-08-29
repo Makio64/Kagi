@@ -14,77 +14,77 @@
 			</div>
 
 			<div class="contacts-grid">
-			<div class="contact-card urgent">
-				<div class="contact-icon">🚒</div>
-				<h3>{{ $t('emergency.fire') || 'Fire & Ambulance' }}</h3>
-				<a href="tel:119" class="phone-number">119</a>
-				<p class="contact-note">{{ $t('emergency.fireNote') || '24/7 Emergency' }}</p>
-			</div>
+				<div class="contact-card urgent">
+					<div class="contact-icon">🚒</div>
+					<h3>{{ $t('emergency.fire') || 'Fire & Ambulance' }}</h3>
+					<a href="tel:119" class="phone-number">119</a>
+					<p class="contact-note">{{ $t('emergency.fireNote') || '24/7 Emergency' }}</p>
+				</div>
 
-			<div class="contact-card urgent">
-				<div class="contact-icon">👮</div>
-				<h3>{{ $t('emergency.police') || 'Police' }}</h3>
-				<a href="tel:110" class="phone-number">110</a>
-				<p class="contact-note">{{ $t('emergency.policeNote') || '24/7 Emergency' }}</p>
-			</div>
+				<div class="contact-card urgent">
+					<div class="contact-icon">👮</div>
+					<h3>{{ $t('emergency.police') || 'Police' }}</h3>
+					<a href="tel:110" class="phone-number">110</a>
+					<p class="contact-note">{{ $t('emergency.policeNote') || '24/7 Emergency' }}</p>
+				</div>
 
-			<div class="contact-card">
-				<div class="contact-icon">🏢</div>
-				<h3>{{ $t('emergency.buildingManager') || 'Building Manager' }}</h3>
-				<a href="tel:03-1234-5678" class="phone-number">03-1234-5678</a>
-				<p class="contact-note">{{ $t('emergency.managerHours') || 'Mon-Fri 9:00-18:00' }}</p>
-				<p class="contact-note emergency">{{ $t('emergency.managerEmergency') || 'Emergency: 090-1234-5678' }}</p>
-			</div>
+				<div class="contact-card">
+					<div class="contact-icon">🏢</div>
+					<h3>{{ $t('emergency.buildingManager') || 'Building Manager' }}</h3>
+					<a href="tel:03-1234-5678" class="phone-number">03-1234-5678</a>
+					<p class="contact-note">{{ $t('emergency.managerHours') || 'Mon-Fri 9:00-18:00' }}</p>
+					<p class="contact-note emergency">{{ $t('emergency.managerEmergency') || 'Emergency: 090-1234-5678' }}</p>
+				</div>
 
-			<div class="contact-card">
-				<div class="contact-icon">🔧</div>
-				<h3>{{ $t('emergency.maintenance') || '24H Maintenance' }}</h3>
-				<a href="tel:0120-123-456" class="phone-number">0120-123-456</a>
-				<p class="contact-note">{{ $t('emergency.maintenanceNote') || 'Water leaks, electrical issues' }}</p>
-			</div>
+				<div class="contact-card">
+					<div class="contact-icon">🔧</div>
+					<h3>{{ $t('emergency.maintenance') || '24H Maintenance' }}</h3>
+					<a href="tel:0120-123-456" class="phone-number">0120-123-456</a>
+					<p class="contact-note">{{ $t('emergency.maintenanceNote') || 'Water leaks, electrical issues' }}</p>
+				</div>
 
-			<div class="contact-card">
-				<div class="contact-icon">🔒</div>
-				<h3>{{ $t('emergency.locksmith') || 'Emergency Locksmith' }}</h3>
-				<a href="tel:0120-987-654" class="phone-number">0120-987-654</a>
-				<p class="contact-note">{{ $t('emergency.locksmithNote') || '24/7 Lockout service' }}</p>
-			</div>
+				<div class="contact-card">
+					<div class="contact-icon">🔒</div>
+					<h3>{{ $t('emergency.locksmith') || 'Emergency Locksmith' }}</h3>
+					<a href="tel:0120-987-654" class="phone-number">0120-987-654</a>
+					<p class="contact-note">{{ $t('emergency.locksmithNote') || '24/7 Lockout service' }}</p>
+				</div>
 
-			<div class="contact-card">
-				<div class="contact-icon">⚡</div>
-				<h3>{{ $t('emergency.utilities') || 'Utility Companies' }}</h3>
-				<div class="utility-list">
-					<div class="utility-item">
-						<span>{{ $t('emergency.electricity') || 'Electricity' }}:</span>
-						<a href="tel:0120-111-222">0120-111-222</a>
-					</div>
-					<div class="utility-item">
-						<span>{{ $t('emergency.gas') || 'Gas' }}:</span>
-						<a href="tel:0120-333-444">0120-333-444</a>
-					</div>
-					<div class="utility-item">
-						<span>{{ $t('emergency.water') || 'Water' }}:</span>
-						<a href="tel:0120-555-666">0120-555-666</a>
+				<div class="contact-card">
+					<div class="contact-icon">⚡</div>
+					<h3>{{ $t('emergency.utilities') || 'Utility Companies' }}</h3>
+					<div class="utility-list">
+						<div class="utility-item">
+							<span>{{ $t('emergency.electricity') || 'Electricity' }}:</span>
+							<a href="tel:0120-111-222">0120-111-222</a>
+						</div>
+						<div class="utility-item">
+							<span>{{ $t('emergency.gas') || 'Gas' }}:</span>
+							<a href="tel:0120-333-444">0120-333-444</a>
+						</div>
+						<div class="utility-item">
+							<span>{{ $t('emergency.water') || 'Water' }}:</span>
+							<a href="tel:0120-555-666">0120-555-666</a>
+						</div>
 					</div>
 				</div>
 			</div>
-			</div>
 
 			<div class="emergency-tips">
-			<h3>{{ $t('emergency.tips') || 'Important Tips' }}</h3>
-			<ul>
-				<li>{{ $t('emergency.tip1') || 'Keep this list saved in your phone for quick access' }}</li>
-				<li>{{ $t('emergency.tip2') || 'In case of gas leak, turn off main valve and open windows' }}</li>
-				<li>{{ $t('emergency.tip3') || 'Know the location of fire extinguishers on your floor' }}</li>
-				<li>{{ $t('emergency.tip4') || 'Keep emergency kit ready (flashlight, water, first aid)' }}</li>
-			</ul>
+				<h3>{{ $t('emergency.tips') || 'Important Tips' }}</h3>
+				<ul>
+					<li>{{ $t('emergency.tip1') || 'Keep this list saved in your phone for quick access' }}</li>
+					<li>{{ $t('emergency.tip2') || 'In case of gas leak, turn off main valve and open windows' }}</li>
+					<li>{{ $t('emergency.tip3') || 'Know the location of fire extinguishers on your floor' }}</li>
+					<li>{{ $t('emergency.tip4') || 'Keep emergency kit ready (flashlight, water, first aid)' }}</li>
+				</ul>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-defineEmits(['close'])
+defineEmits( ['close'] )
 </script>
 
 <style lang="stylus" scoped>

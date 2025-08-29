@@ -84,7 +84,7 @@
 										</div>
 									</div>
 									<div class="stat-progress">
-										<div class="progress-bar" style="width: 95%"></div>
+										<div class="progress-bar" style="width: 95%" />
 									</div>
 								</div>
 							</div>
@@ -181,19 +181,19 @@
 							<form @submit.prevent="saveResident">
 								<div class="form-group">
 									<label>Name</label>
-									<input v-model="editingResident.name" type="text" required />
+									<input v-model="editingResident.name" type="text" required>
 								</div>
 								<div class="form-group">
 									<label>Unit</label>
-									<input v-model="editingResident.unit" type="text" required />
+									<input v-model="editingResident.unit" type="text" required>
 								</div>
 								<div class="form-group">
 									<label>Email</label>
-									<input v-model="editingResident.email" type="email" required />
+									<input v-model="editingResident.email" type="email" required>
 								</div>
 								<div class="form-group">
 									<label>Phone</label>
-									<input v-model="editingResident.phone" type="tel" required />
+									<input v-model="editingResident.phone" type="tel" required>
 								</div>
 								<div class="form-actions">
 									<button type="button" class="btn-secondary" @click="showEditModal = false">Cancel</button>
@@ -215,15 +215,15 @@
 							<form @submit.prevent="sendMessage">
 								<div class="form-group">
 									<label>Subject</label>
-									<input v-model="message.subject" type="text" required />
+									<input v-model="message.subject" type="text" required>
 								</div>
 								<div class="form-group">
 									<label>Message</label>
-									<textarea v-model="message.content" rows="6" required></textarea>
+									<textarea v-model="message.content" rows="6" required />
 								</div>
 								<div class="form-group">
 									<label>
-										<input v-model="message.sendEmail" type="checkbox" />
+										<input v-model="message.sendEmail" type="checkbox">
 										Also send as email
 									</label>
 								</div>
@@ -276,7 +276,7 @@
 					<div class="section-header">
 						<h2 class="section-title">👥 {{ $t('mansion.residents.title') || 'Residents Management' }}</h2>
 						<div class="header-actions">
-							<input type="search" v-model="searchQuery" :placeholder="$t('mansion.residents.search') || 'Search residents...'" class="search-input" />
+							<input v-model="searchQuery" type="search" :placeholder="$t('mansion.residents.search') || 'Search residents...'" class="search-input">
 							<button class="add-btn">+ {{ $t('mansion.residents.add') || 'Add Resident' }}</button>
 						</div>
 					</div>
@@ -438,7 +438,7 @@
 					<div class="section-header">
 						<h2 class="section-title">📄 {{ $t('mansion.documents.title') || 'Documents Management' }}</h2>
 						<div class="header-actions">
-							<input type="search" v-model="docSearchQuery" placeholder="Search documents..." class="search-input" />
+							<input v-model="docSearchQuery" type="search" placeholder="Search documents..." class="search-input">
 							<button class="add-btn" @click="createNewDocument">
 								<span class="btn-icon">+</span>
 								<span>Create Document</span>
@@ -452,7 +452,7 @@
 							<div class="editor-container">
 								<div class="editor-header">
 									<div class="editor-title-section">
-										<input v-model="editingDocument.title" class="doc-title-input" placeholder="Document Title" />
+										<input v-model="editingDocument.title" class="doc-title-input" placeholder="Document Title">
 										<select v-model="editingDocument.category" class="doc-category-select">
 											<option value="rules">Building Rules</option>
 											<option value="guides">Guides</option>
@@ -489,49 +489,49 @@
 									<div v-if="editorMode !== 'preview'" class="editor-panel">
 										<div class="formatting-toolbar">
 											<div class="toolbar-group">
-												<button class="format-btn" @click="insertMarkdown('# ', '')" title="Heading 1">
+												<button class="format-btn" title="Heading 1" @click="insertMarkdown('# ', '')">
 													<span class="format-icon">H1</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('## ', '')" title="Heading 2">
+												<button class="format-btn" title="Heading 2" @click="insertMarkdown('## ', '')">
 													<span class="format-icon">H2</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('### ', '')" title="Heading 3">
+												<button class="format-btn" title="Heading 3" @click="insertMarkdown('### ', '')">
 													<span class="format-icon">H3</span>
 												</button>
 											</div>
-											<div class="toolbar-separator"></div>
+											<div class="toolbar-separator" />
 											<div class="toolbar-group">
-												<button class="format-btn" @click="insertMarkdown('**', '**')" title="Bold">
+												<button class="format-btn" title="Bold" @click="insertMarkdown('**', '**')">
 													<span class="format-icon bold">B</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('*', '*')" title="Italic">
+												<button class="format-btn" title="Italic" @click="insertMarkdown('*', '*')">
 													<span class="format-icon italic">I</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('~~', '~~')" title="Strikethrough">
+												<button class="format-btn" title="Strikethrough" @click="insertMarkdown('~~', '~~')">
 													<span class="format-icon strike">S</span>
 												</button>
 											</div>
-											<div class="toolbar-separator"></div>
+											<div class="toolbar-separator" />
 											<div class="toolbar-group">
-												<button class="format-btn" @click="insertMarkdown('- ', '')" title="Bullet List">
+												<button class="format-btn" title="Bullet List" @click="insertMarkdown('- ', '')">
 													<span class="format-icon">•</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('1. ', '')" title="Numbered List">
+												<button class="format-btn" title="Numbered List" @click="insertMarkdown('1. ', '')">
 													<span class="format-icon">1.</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('- [ ] ', '')" title="Checklist">
+												<button class="format-btn" title="Checklist" @click="insertMarkdown('- [ ] ', '')">
 													<span class="format-icon">☐</span>
 												</button>
 											</div>
-											<div class="toolbar-separator"></div>
+											<div class="toolbar-separator" />
 											<div class="toolbar-group">
-												<button class="format-btn" @click="insertMarkdown('[', '](url)')" title="Link">
+												<button class="format-btn" title="Link" @click="insertMarkdown('[', '](url)')">
 													<span class="format-icon">🔗</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('> ', '')" title="Quote">
+												<button class="format-btn" title="Quote" @click="insertMarkdown('> ', '')">
 													<span class="format-icon">"</span>
 												</button>
-												<button class="format-btn" @click="insertMarkdown('```\n', '\n```')" title="Code Block">
+												<button class="format-btn" title="Code Block" @click="insertMarkdown('```\n', '\n```')">
 													<span class="format-icon">&lt;/&gt;</span>
 												</button>
 											</div>
@@ -541,8 +541,8 @@
 												<div v-for="n in lineCount" :key="n" class="line-number">{{ n }}</div>
 											</div>
 											<textarea 
-												v-model="editingDocument.content" 
-												ref="editorTextarea"
+												ref="editorTextarea" 
+												v-model="editingDocument.content"
 												class="markdown-textarea"
 												placeholder="Start writing your document in Markdown format...
 
@@ -557,7 +557,7 @@
 1. Numbered list
 2. Second item"
 												@scroll="syncScroll"
-											></textarea>
+											/>
 										</div>
 									</div>
 									
@@ -565,8 +565,8 @@
 										<div class="preview-header">
 											<span class="preview-label">📖 Preview</span>
 										</div>
-										<div class="preview-content" ref="previewContent">
-											<div class="markdown-rendered" v-html="renderedMarkdown"></div>
+										<div ref="previewContent" class="preview-content">
+											<div class="markdown-rendered" v-html="renderedMarkdown" />
 										</div>
 									</div>
 								</div>
@@ -610,7 +610,7 @@
 									
 									<p class="tile-description">{{ doc.description }}</p>
 									
-									<div class="tile-preview" v-if="doc.content">
+									<div v-if="doc.content" class="tile-preview">
 										<div class="preview-text">{{ getPreviewText(doc.content) }}</div>
 									</div>
 									
@@ -626,16 +626,16 @@
 											</span>
 										</div>
 										<div class="tile-actions">
-											<button class="tile-btn edit" @click="editDocument(doc)" title="Edit">
+											<button class="tile-btn edit" title="Edit" @click="editDocument(doc)">
 												<span class="btn-icon">✏️</span>
 											</button>
-											<button class="tile-btn view" @click="previewDocument(doc)" title="View">
+											<button class="tile-btn view" title="View" @click="previewDocument(doc)">
 												<span class="btn-icon">👁️</span>
 											</button>
-											<button class="tile-btn share" @click="shareDocument(doc)" title="Share">
+											<button class="tile-btn share" title="Share" @click="shareDocument(doc)">
 												<span class="btn-icon">📤</span>
 											</button>
-											<button class="tile-btn delete" @click="deleteDocument(doc)" title="Delete">
+											<button class="tile-btn delete" title="Delete" @click="deleteDocument(doc)">
 												<span class="btn-icon">🗑️</span>
 											</button>
 										</div>
@@ -665,7 +665,7 @@
 						<form @submit.prevent="sendAnnouncement">
 							<div class="form-group">
 								<label>{{ $t('mansion.announcements.subject') || 'Subject' }}</label>
-								<input v-model="announcement.subject" type="text" required />
+								<input v-model="announcement.subject" type="text" required>
 							</div>
 							<div class="form-group">
 								<label>{{ $t('mansion.announcements.category') || 'Category' }}</label>
@@ -678,11 +678,11 @@
 							</div>
 							<div class="form-group">
 								<label>{{ $t('mansion.announcements.message') || 'Message' }}</label>
-								<textarea v-model="announcement.message" rows="5" required></textarea>
+								<textarea v-model="announcement.message" rows="5" required />
 							</div>
 							<div class="form-group">
 								<label>
-									<input v-model="announcement.sendEmail" type="checkbox" />
+									<input v-model="announcement.sendEmail" type="checkbox">
 									{{ $t('mansion.announcements.sendEmail') || 'Also send as email to all residents' }}
 								</label>
 							</div>
@@ -777,203 +777,204 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { getCurrentInstance } from 'vue'
-import { useAuthStore } from '../stores/auth'
+
 import KagiLogo from '../components/KagiLogo.vue'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
+import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
 
-const buildingName = ref('Sakura Tower')
-const activeSection = ref('overview')
-const showMobileMenu = ref(false)
-const searchQuery = ref('')
-const maintenanceFilter = ref('all')
-const currentWeekOffset = ref(0)
+const buildingName = ref( 'Sakura Tower' )
+const activeSection = ref( 'overview' )
+const showMobileMenu = ref( false )
+const searchQuery = ref( '' )
+const maintenanceFilter = ref( 'all' )
+const currentWeekOffset = ref( 0 )
 
 // Modal states
-const showEditModal = ref(false)
-const showContactModal = ref(false)
-const showHistoryModal = ref(false)
-const editingResident = ref({})
-const contactingResident = ref(null)
-const viewingResident = ref(null)
-const historyTab = ref('payments')
-const message = ref({ subject: '', content: '', sendEmail: false })
+const showEditModal = ref( false )
+const showContactModal = ref( false )
+const showHistoryModal = ref( false )
+const editingResident = ref( {} )
+const contactingResident = ref( null )
+const viewingResident = ref( null )
+const historyTab = ref( 'payments' )
+const message = ref( { subject: '', content: '', sendEmail: false } )
 
 // Document editor states
-const editingDocument = ref(null)
-const editorMode = ref('split')
-const docCategory = ref('all')
-const editorTextarea = ref(null)
-const docSearchQuery = ref('')
-const previewContent = ref(null)
+const editingDocument = ref( null )
+const editorMode = ref( 'split' )
+const docCategory = ref( 'all' )
+const editorTextarea = ref( null )
+const docSearchQuery = ref( '' )
+const previewContent = ref( null )
 
 // Document categories configuration
-const documentCategories = ref([
+const documentCategories = ref( [
 	{ id: 'all', label: 'All Documents', icon: '📚' },
 	{ id: 'rules', label: 'Building Rules', icon: '📋' },
 	{ id: 'guides', label: 'Guides', icon: '📖' },
 	{ id: 'forms', label: 'Forms', icon: '📝' },
 	{ id: 'notices', label: 'Notices', icon: '📢' }
-])
+] )
 
 // History data
-const paymentHistory = ref([
+const paymentHistory = ref( [
 	{ id: 1, date: '2024-12-01', description: 'Monthly Rent', amount: '120,000', status: 'paid' },
 	{ id: 2, date: '2024-11-01', description: 'Monthly Rent', amount: '120,000', status: 'paid' },
 	{ id: 3, date: '2024-10-01', description: 'Monthly Rent', amount: '120,000', status: 'paid' }
-])
+] )
 
-const maintenanceHistory = ref([
+const maintenanceHistory = ref( [
 	{ id: 1, date: '2024-11-15', issue: 'Leaky faucet', status: 'completed' },
 	{ id: 2, date: '2024-09-20', issue: 'AC repair', status: 'completed' }
-])
+] )
 
-const menuItems = computed(() => [
-	{ id: 'overview', icon: '📊', label: instance.proxy.$t('mansion.menu.overview') || 'Overview' },
-	{ id: 'residents', icon: '👥', label: instance.proxy.$t('mansion.menu.residents') || 'Residents' },
-	{ id: 'maintenance', icon: '🔧', label: instance.proxy.$t('mansion.menu.maintenance') || 'Maintenance' },
-	{ id: 'bookings', icon: '📅', label: instance.proxy.$t('mansion.menu.bookings') || 'Bookings' },
-	{ id: 'documents', icon: '📄', label: instance.proxy.$t('mansion.menu.documents') || 'Documents' },
-	{ id: 'announcements', icon: '📢', label: instance.proxy.$t('mansion.menu.announcements') || 'Announcements' },
-	{ id: 'reports', icon: '📊', label: instance.proxy.$t('mansion.menu.reports') || 'Reports' }
-])
+const menuItems = computed( () => [
+	{ id: 'overview', icon: '📊', label: instance.proxy.$t( 'mansion.menu.overview' ) || 'Overview' },
+	{ id: 'residents', icon: '👥', label: instance.proxy.$t( 'mansion.menu.residents' ) || 'Residents' },
+	{ id: 'maintenance', icon: '🔧', label: instance.proxy.$t( 'mansion.menu.maintenance' ) || 'Maintenance' },
+	{ id: 'bookings', icon: '📅', label: instance.proxy.$t( 'mansion.menu.bookings' ) || 'Bookings' },
+	{ id: 'documents', icon: '📄', label: instance.proxy.$t( 'mansion.menu.documents' ) || 'Documents' },
+	{ id: 'announcements', icon: '📢', label: instance.proxy.$t( 'mansion.menu.announcements' ) || 'Announcements' },
+	{ id: 'reports', icon: '📊', label: instance.proxy.$t( 'mansion.menu.reports' ) || 'Reports' }
+] )
 
 // Sample data
-const residents = ref([
+const residents = ref( [
 	{ id: 1, name: 'Tanaka Yuki', unit: '502', email: 'tanaka@example.com', phone: '080-1234-5678', moveIn: '2023-04-15', status: 'active' },
 	{ id: 2, name: 'Sato Kenji', unit: '301', email: 'sato@example.com', phone: '090-2345-6789', moveIn: '2022-08-20', status: 'active' },
 	{ id: 3, name: 'Yamada Hana', unit: '105', email: 'yamada@example.com', phone: '080-3456-7890', moveIn: '2024-01-10', status: 'active' }
-])
+] )
 
-const maintenanceRequests = ref([
+const maintenanceRequests = ref( [
 	{ id: 1, title: 'Water leak in bathroom', description: 'Water dripping from ceiling in the bathroom. Need urgent attention as it may damage the floor below.', unit: '502', resident: 'Tanaka Yuki', category: 'Plumbing', priority: 'urgent', status: 'pending', date: '2024-12-28', assignee: null },
 	{ id: 2, title: 'AC not working', description: 'No cold air coming out. Temperature control not responding.', unit: '301', resident: 'Sato Kenji', category: 'HVAC', priority: 'high', status: 'in_progress', date: '2024-12-27', assignee: 'Tech Team A' },
 	{ id: 3, title: 'Broken door lock', description: 'Key gets stuck in the lock sometimes', unit: '105', resident: 'Yamada Hana', category: 'Security', priority: 'normal', status: 'pending', date: '2024-12-26', assignee: null }
-])
+] )
 
-const facilities = ref([
+const facilities = ref( [
 	{ id: 1, name: 'Party Room' },
 	{ id: 2, name: 'Guest Room' },
 	{ id: 3, name: 'Gym' }
-])
+] )
 
-const upcomingBookings = ref([
+const upcomingBookings = ref( [
 	{ id: 1, facility: 'Party Room', month: 'DEC', day: '31', time: '18:00-22:00', user: 'Tanaka (502)', purpose: 'New Year Party' },
 	{ id: 2, facility: 'Gym', month: 'JAN', day: '02', time: '09:00-11:00', user: 'Reserved for maintenance', purpose: 'Equipment check' }
-])
+] )
 
-const documents = ref([
+const documents = ref( [
 	{ id: 1, icon: '📋', title: 'Management Rules', description: 'Building management guidelines and regulations for all residents', category: 'rules', lastUpdated: '2024-12-15', views: 342, content: '# Management Rules\n\n## 1. General Guidelines\n- Respect quiet hours (22:00 - 7:00)\n- Keep common areas clean\n- No smoking in common areas\n- Pets must be registered\n\n## 2. Security\n- Always lock entrance doors\n- Register visitors at front desk\n- Do not share access codes\n\n## 3. Maintenance\n- Report issues promptly\n- Allow access for scheduled maintenance' },
 	{ id: 2, icon: '📑', title: 'Facility Booking Rules', description: 'Guidelines for reserving and using shared facilities', category: 'rules', lastUpdated: '2024-11-20', views: 156, content: '# Facility Usage Guidelines\n\n## Party Room\n- Maximum 20 people\n- Must be reserved 3 days in advance\n- Clean after use\n\n## Gym\n- Open 6:00 - 23:00\n- Wipe equipment after use\n- No loud music' },
 	{ id: 3, icon: '🚗', title: 'Parking Regulations', description: 'Rules for parking spaces and vehicle management', category: 'rules', lastUpdated: '2024-10-10', views: 89, content: '# Parking Regulations\n\n- One car per unit\n- Guest parking available for 3 hours\n- No commercial vehicles\n- Monthly parking fee applies' },
 	{ id: 4, icon: '📝', title: 'Move-in Guide', description: 'Complete guide for new residents moving into the building', category: 'guides', lastUpdated: '2024-09-05', views: 234, content: '# Move-in Guide\n\nWelcome to Sakura Tower!\n\n## First Steps\n1. Register at management office\n2. Get your access cards\n3. Set up utilities\n\n## Important Contacts\n- Management: 03-1234-5678\n- Emergency: 110' },
 	{ id: 5, icon: '📄', title: 'Maintenance Request Form', description: 'Template for submitting maintenance requests', category: 'forms', lastUpdated: '2024-12-01', views: 45, content: '# Maintenance Request Form\n\n**Unit Number:** ___________\n**Name:** ___________\n**Issue:** ___________\n**Urgency:** [ ] Low [ ] Medium [ ] High' },
 	{ id: 6, icon: '📢', title: 'Holiday Schedule 2025', description: 'Building office hours during holidays', category: 'notices', lastUpdated: '2024-12-20', views: 178, content: '# Holiday Schedule 2025\n\n## New Year (Jan 1-3)\n- Office closed\n- Emergency only\n\n## Golden Week (Apr 29 - May 5)\n- Limited hours: 10:00-15:00' }
-])
+] )
 
-const pastAnnouncements = ref([
+const pastAnnouncements = ref( [
 	{ id: 1, subject: 'Fire Drill Notice', message: 'Annual fire drill scheduled for January 10', date: '2024-12-20', category: 'emergency', recipients: 342 },
 	{ id: 2, subject: 'Holiday Schedule', message: 'Office hours during New Year holidays', date: '2024-12-15', category: 'general', recipients: 342 }
-])
+] )
 
-const announcement = ref({
+const announcement = ref( {
 	subject: '',
 	category: 'general',
 	message: '',
 	sendEmail: true
-})
+} )
 
 const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-const currentWeek = computed(() => {
+const currentWeek = computed( () => {
 	const date = new Date()
-	date.setDate(date.getDate() + currentWeekOffset.value * 7)
-	const startOfWeek = new Date(date)
-	startOfWeek.setDate(date.getDate() - date.getDay() + 1)
-	const endOfWeek = new Date(startOfWeek)
-	endOfWeek.setDate(startOfWeek.getDate() + 6)
+	date.setDate( date.getDate() + currentWeekOffset.value * 7 )
+	const startOfWeek = new Date( date )
+	startOfWeek.setDate( date.getDate() - date.getDay() + 1 )
+	const endOfWeek = new Date( startOfWeek )
+	endOfWeek.setDate( startOfWeek.getDate() + 6 )
 	
 	return `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`
-})
+} )
 
-const filteredResidents = computed(() => {
-	if (!searchQuery.value) return residents.value
-	return residents.value.filter(r => 
-		r.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-		r.unit.includes(searchQuery.value)
+const filteredResidents = computed( () => {
+	if ( !searchQuery.value ) return residents.value
+	return residents.value.filter( r => 
+		r.name.toLowerCase().includes( searchQuery.value.toLowerCase() ) ||
+		r.unit.includes( searchQuery.value )
 	)
-})
+} )
 
-const filteredMaintenance = computed(() => {
-	if (maintenanceFilter.value === 'all') return maintenanceRequests.value
-	return maintenanceRequests.value.filter(r => r.status === maintenanceFilter.value || r.priority === maintenanceFilter.value)
-})
+const filteredMaintenance = computed( () => {
+	if ( maintenanceFilter.value === 'all' ) return maintenanceRequests.value
+	return maintenanceRequests.value.filter( r => r.status === maintenanceFilter.value || r.priority === maintenanceFilter.value )
+} )
 
-const filteredDocuments = computed(() => {
-	if (docCategory.value === 'all') return documents.value
-	return documents.value.filter(doc => doc.category === docCategory.value)
-})
+const filteredDocuments = computed( () => {
+	if ( docCategory.value === 'all' ) return documents.value
+	return documents.value.filter( doc => doc.category === docCategory.value )
+} )
 
-const renderedMarkdown = computed(() => {
-	if (!editingDocument.value) return ''
+const renderedMarkdown = computed( () => {
+	if ( !editingDocument.value ) return ''
 	// Simple markdown rendering (you'd use a proper markdown parser in production)
 	let html = editingDocument.value.content
-		.replace(/^### (.*$)/gim, '<h3>$1</h3>')
-		.replace(/^## (.*$)/gim, '<h2>$1</h2>')
-		.replace(/^# (.*$)/gim, '<h1>$1</h1>')
-		.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-		.replace(/\*(.+?)\*/g, '<em>$1</em>')
-		.replace(/~~(.+?)~~/g, '<del>$1</del>')
-		.replace(/^- (.+)$/gim, '<li>$1</li>')
-		.replace(/^> (.+)$/gim, '<blockquote>$1</blockquote>')
-		.replace(/`([^`]+)`/g, '<code>$1</code>')
-		.replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>')
-		.replace(/\n/g, '<br>')
+		.replace( /^### (.*$)/gim, '<h3>$1</h3>' )
+		.replace( /^## (.*$)/gim, '<h2>$1</h2>' )
+		.replace( /^# (.*$)/gim, '<h1>$1</h1>' )
+		.replace( /\*\*(.+?)\*\*/g, '<strong>$1</strong>' )
+		.replace( /\*(.+?)\*/g, '<em>$1</em>' )
+		.replace( /~~(.+?)~~/g, '<del>$1</del>' )
+		.replace( /^- (.+)$/gim, '<li>$1</li>' )
+		.replace( /^> (.+)$/gim, '<blockquote>$1</blockquote>' )
+		.replace( /`([^`]+)`/g, '<code>$1</code>' )
+		.replace( /```([^`]+)```/g, '<pre><code>$1</code></pre>' )
+		.replace( /\n/g, '<br>' )
 	
 	// Wrap list items in ul
-	html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+	html = html.replace( /(<li>.*<\/li>)/s, '<ul>$1</ul>' )
 	return html
-})
+} )
 
-const lineCount = computed(() => {
-	if (!editingDocument.value?.content) return 1
-	return editingDocument.value.content.split('\n').length
-})
+const lineCount = computed( () => {
+	if ( !editingDocument.value?.content ) return 1
+	return editingDocument.value.content.split( '\n' ).length
+} )
 
-const filteredSearchDocuments = computed(() => {
+const filteredSearchDocuments = computed( () => {
 	let docs = filteredDocuments.value
-	if (docSearchQuery.value) {
+	if ( docSearchQuery.value ) {
 		const query = docSearchQuery.value.toLowerCase()
-		docs = docs.filter(doc => 
-			doc.title.toLowerCase().includes(query) ||
-			doc.description.toLowerCase().includes(query) ||
-			doc.content?.toLowerCase().includes(query)
+		docs = docs.filter( doc => 
+			doc.title.toLowerCase().includes( query ) ||
+			doc.description.toLowerCase().includes( query ) ||
+			doc.content?.toLowerCase().includes( query )
 		)
 	}
 	return docs
-})
+} )
 
-const navigateToSection = (section) => {
+const navigateToSection = ( section ) => {
 	activeSection.value = section
 	showMobileMenu.value = false
 }
 
-const changeWeek = (direction) => {
+const changeWeek = ( direction ) => {
 	currentWeekOffset.value += direction
 }
 
-const getBooking = (facilityId, day) => {
+const getBooking = ( facilityId, day ) => {
 	// Mock function to get booking for a specific facility and day
 	return null
 }
 
 const sendAnnouncement = () => {
-	console.log('Sending announcement:', announcement.value)
+	console.log( 'Sending announcement:', announcement.value )
 	// Reset form
 	announcement.value = {
 		subject: '',
@@ -981,40 +982,40 @@ const sendAnnouncement = () => {
 		message: '',
 		sendEmail: true
 	}
-	alert('Announcement sent successfully!')
+	alert( 'Announcement sent successfully!' )
 }
 
 const logout = async () => {
 	await authStore.logout()
-	router.push('/')
+	router.push( '/' )
 }
 
 // Resident management methods
-const editResident = (resident) => {
+const editResident = ( resident ) => {
 	editingResident.value = { ...resident }
 	showEditModal.value = true
 }
 
 const saveResident = () => {
-	const index = residents.value.findIndex(r => r.id === editingResident.value.id)
-	if (index !== -1) {
+	const index = residents.value.findIndex( r => r.id === editingResident.value.id )
+	if ( index !== -1 ) {
 		residents.value[index] = { ...editingResident.value }
 	}
 	showEditModal.value = false
 }
 
-const contactResident = (resident) => {
+const contactResident = ( resident ) => {
 	contactingResident.value = resident
 	showContactModal.value = true
 	message.value = { subject: '', content: '', sendEmail: false }
 }
 
 const sendMessage = () => {
-	console.log('Sending message to', contactingResident.value.name, message.value)
+	console.log( 'Sending message to', contactingResident.value.name, message.value )
 	showContactModal.value = false
 }
 
-const viewHistory = (resident) => {
+const viewHistory = ( resident ) => {
 	viewingResident.value = resident
 	showHistoryModal.value = true
 	historyTab.value = 'payments'
@@ -1032,25 +1033,25 @@ const createNewDocument = () => {
 	editorMode.value = 'split'
 }
 
-const editDocument = (doc) => {
+const editDocument = ( doc ) => {
 	editingDocument.value = { ...doc }
 	editorMode.value = 'split'
 }
 
 const saveDocument = () => {
-	if (editingDocument.value.id) {
-		const index = documents.value.findIndex(d => d.id === editingDocument.value.id)
-		if (index !== -1) {
+	if ( editingDocument.value.id ) {
+		const index = documents.value.findIndex( d => d.id === editingDocument.value.id )
+		if ( index !== -1 ) {
 			documents.value[index] = {
 				...editingDocument.value,
-				lastUpdated: new Date().toISOString().split('T')[0]
+				lastUpdated: new Date().toISOString().split( 'T' )[0]
 			}
 		} else {
-			documents.value.push({
+			documents.value.push( {
 				...editingDocument.value,
-				lastUpdated: new Date().toISOString().split('T')[0],
-				description: editingDocument.value.content.substring(0, 100) + '...'
-			})
+				lastUpdated: new Date().toISOString().split( 'T' )[0],
+				description: editingDocument.value.content.substring( 0, 100 ) + '...'
+			} )
 		}
 	}
 	editingDocument.value = null
@@ -1060,78 +1061,78 @@ const cancelEdit = () => {
 	editingDocument.value = null
 }
 
-const previewDocument = (doc) => {
+const previewDocument = ( doc ) => {
 	editingDocument.value = { ...doc }
 	editorMode.value = 'preview'
 }
 
-const deleteDocument = (doc) => {
-	if (confirm('Are you sure you want to delete this document?')) {
-		const index = documents.value.findIndex(d => d.id === doc.id)
-		if (index !== -1) {
-			documents.value.splice(index, 1)
+const deleteDocument = ( doc ) => {
+	if ( confirm( 'Are you sure you want to delete this document?' ) ) {
+		const index = documents.value.findIndex( d => d.id === doc.id )
+		if ( index !== -1 ) {
+			documents.value.splice( index, 1 )
 		}
 	}
 }
 
-const insertMarkdown = (before, after = '') => {
-	if (!editorTextarea.value) return
+const insertMarkdown = ( before, after = '' ) => {
+	if ( !editorTextarea.value ) return
 	const textarea = editorTextarea.value
 	const start = textarea.selectionStart
 	const end = textarea.selectionEnd
 	const text = textarea.value
-	const selectedText = text.substring(start, end)
+	const selectedText = text.substring( start, end )
 	
-	const newText = text.substring(0, start) + before + selectedText + after + text.substring(end)
+	const newText = text.substring( 0, start ) + before + selectedText + after + text.substring( end )
 	editingDocument.value.content = newText
 	
 	// Set cursor position
-	setTimeout(() => {
+	setTimeout( () => {
 		textarea.focus()
 		textarea.selectionStart = start + before.length
 		textarea.selectionEnd = start + before.length + selectedText.length
-	}, 0)
+	}, 0 )
 }
 
 // New helper methods for improved documents section
-const getCategoryCount = (categoryId) => {
-	if (categoryId === 'all') return documents.value.length
-	return documents.value.filter(doc => doc.category === categoryId).length
+const getCategoryCount = ( categoryId ) => {
+	if ( categoryId === 'all' ) return documents.value.length
+	return documents.value.filter( doc => doc.category === categoryId ).length
 }
 
-const formatDate = (dateString) => {
-	const date = new Date(dateString)
-	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+const formatDate = ( dateString ) => {
+	const date = new Date( dateString )
+	return date.toLocaleDateString( 'en-US', { month: 'short', day: 'numeric', year: 'numeric' } )
 }
 
-const getPreviewText = (content) => {
-	if (!content) return ''
+const getPreviewText = ( content ) => {
+	if ( !content ) return ''
 	// Remove markdown syntax and get first 150 characters
 	const plainText = content
-		.replace(/[#*`~\[\]()>]/g, '')
-		.replace(/\n/g, ' ')
+		.replace( /[#*`~\[\]()>]/g, '' )
+		.replace( /\n/g, ' ' )
 		.trim()
-	return plainText.length > 150 ? plainText.substring(0, 150) + '...' : plainText
+	return plainText.length > 150 ? plainText.substring( 0, 150 ) + '...' : plainText
 }
 
-const getWordCount = (content) => {
-	if (!content) return 0
-	return content.split(/\s+/).filter(word => word.length > 0).length
+const getWordCount = ( content ) => {
+	if ( !content ) return 0
+	return content.split( /\s+/ ).filter( word => word.length > 0 ).length
 }
 
-const shareDocument = (doc) => {
+const shareDocument = ( doc ) => {
 	// Implementation for sharing document
-	console.log('Sharing document:', doc.title)
-	alert(`Document "${doc.title}" sharing link copied to clipboard!`)
+	console.log( 'Sharing document:', doc.title )
+	alert( `Document "${doc.title}" sharing link copied to clipboard!` )
 }
 
 const syncScroll = () => {
 	// Sync scroll between editor and preview in split mode
-	if (editorMode.value === 'split' && editorTextarea.value && previewContent.value) {
+	if ( editorMode.value === 'split' && editorTextarea.value && previewContent.value ) {
 		const scrollPercent = editorTextarea.value.scrollTop / 
-			(editorTextarea.value.scrollHeight - editorTextarea.value.clientHeight)
+			( editorTextarea.value.scrollHeight - editorTextarea.value.clientHeight )
 		previewContent.value.scrollTop = scrollPercent * 
-			(previewContent.value.scrollHeight - previewContent.value.clientHeight)
+			( previewContent.value.scrollHeight - previewContent.value.clientHeight )
 	}
 }
 </script>

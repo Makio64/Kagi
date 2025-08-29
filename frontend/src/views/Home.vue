@@ -12,10 +12,10 @@
 				<p class="subtitle">{{ $t('home.hero.subtitle') }}</p>
 				<p class="description">{{ $t('home.hero.description') }}</p>
 				<div class="cta-buttons">
-					<button @click="$router.push('/login')" class="btn btn-primary">
+					<button class="btn btn-primary" @click="$router.push('/login')">
 						{{ $t('home.hero.getStarted') }}
 					</button>
-					<button @click="scrollToFeatures" class="btn btn-secondary">
+					<button class="btn btn-secondary" @click="scrollToFeatures">
 						{{ $t('home.hero.learnMore') }}
 					</button>
 				</div>
@@ -133,10 +133,10 @@ export default {
 		LanguageSwitcher
 	},
 	setup() {
-		const featuresSection = ref(null)
+		const featuresSection = ref( null )
 
 		const scrollToFeatures = () => {
-			featuresSection.value?.scrollIntoView({ behavior: 'smooth' })
+			featuresSection.value?.scrollIntoView( { behavior: 'smooth' } )
 		}
 
 		return {

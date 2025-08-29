@@ -82,8 +82,8 @@
 								'selected': selectedTime === slot.time,
 								'unavailable': slot.booked
 							}]"
-							@click="selectTime(slot)"
 							:disabled="slot.booked"
+							@click="selectTime(slot)"
 						>
 							<span class="slot-time">{{ slot.time }}</span>
 							<span v-if="slot.booked" class="slot-status">{{ $t('booking.booked') || 'Booked' }}</span>
@@ -134,7 +134,7 @@
 							v-model="bookingPurpose" 
 							type="text" 
 							:placeholder="$t('booking.purposePlaceholder') || 'e.g., Birthday party, Meeting, etc.'"
-						/>
+						>
 					</div>
 
 					<div v-if="facility.id === 'party'" class="form-group">
@@ -145,7 +145,7 @@
 							min="1" 
 							:max="facility.maxCapacity"
 							:placeholder="`Maximum ${facility.maxCapacity} guests`"
-						/>
+						>
 					</div>
 
 					<div class="form-group">
@@ -158,7 +158,7 @@
 					</div>
 
 					<div class="terms-checkbox">
-						<input v-model="agreeToTerms" type="checkbox" id="terms" />
+						<input id="terms" v-model="agreeToTerms" type="checkbox">
 						<label for="terms">
 							{{ $t('booking.agreeTerms') || 'I agree to the facility usage guidelines and will follow all rules' }}
 						</label>
@@ -167,8 +167,8 @@
 
 				<button 
 					class="confirm-booking-btn" 
-					@click="confirmBooking"
 					:disabled="!agreeToTerms || processingBooking"
+					@click="confirmBooking"
 				>
 					{{ processingBooking ? ($t('booking.processing') || 'Processing...') : ($t('booking.confirmBooking') || 'Confirm Booking') }}
 				</button>
@@ -202,12 +202,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 
-const props = defineProps({
+const props = defineProps( {
 	facility: {
 		type: Object,
-		default: () => ({
+		default: () => ( {
 			id: 'party',
 			name: 'Party Room',
 			icon: '🎉',
@@ -217,31 +217,31 @@ const props = defineProps({
 			price: '¥2,000/hour',
 			priceValue: 2000,
 			amenities: 'Kitchen, Audio system'
-		})
+		} )
 	}
-})
+} )
 
-const emit = defineEmits(['close'])
+const emit = defineEmits( ['close'] )
 
 // Calendar state
 const currentDate = new Date()
-const selectedMonth = ref(currentDate.getMonth())
-const selectedYear = ref(currentDate.getFullYear())
-const selectedDate = ref(null)
-const selectedTime = ref(null)
+const selectedMonth = ref( currentDate.getMonth() )
+const selectedYear = ref( currentDate.getFullYear() )
+const selectedDate = ref( null )
+const selectedTime = ref( null )
 
 // Booking form state
-const duration = ref(2)
-const bookingPurpose = ref('')
-const guestCount = ref(10)
-const specialNotes = ref('')
-const agreeToTerms = ref(false)
-const processingBooking = ref(false)
-const bookingSuccess = ref(false)
-const bookingReference = ref('')
+const duration = ref( 2 )
+const bookingPurpose = ref( '' )
+const guestCount = ref( 10 )
+const specialNotes = ref( '' )
+const agreeToTerms = ref( false )
+const processingBooking = ref( false )
+const bookingSuccess = ref( false )
+const bookingReference = ref( '' )
 
 // Sample existing bookings
-const userBookings = ref([
+const userBookings = ref( [
 	{
 		id: 1,
 		facility: 'Party Room',
@@ -251,53 +251,65 @@ const userBookings = ref([
 		duration: '2 hours',
 		purpose: 'Birthday celebration'
 	}
-])
+] )
 
 const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-const timeSlots = computed(() => {
+const timeSlots = computed( () => {
 	const slots = []
-	for (let hour = 9; hour < 21; hour++) {
-		slots.push({
-			time: `${hour.toString().padStart(2, '0')}:00`,
+	for ( let hour = 9; hour < 21; hour++ ) {
+		slots.push( {
+			time: `${hour.toString().padStart( 2, '0' )}:00`,
 			booked: Math.random() > 0.7 // Randomly mark some as booked
-		})
+		} )
 	}
 	return slots
-})
+} )
 
-const currentMonthYear = computed(() => {
-	const months = ['January', 'February', 'March', 'April', 'May', 'June',
-		'July', 'August', 'September', 'October', 'November', 'December']
+const currentMonthYear = computed( () => {
+	const months = [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'November',
+		'December'
+	]
 	return `${months[selectedMonth.value]} ${selectedYear.value}`
-})
+} )
 
-const calendarDays = computed(() => {
+const calendarDays = computed( () => {
 	const days = []
-	const firstDay = new Date(selectedYear.value, selectedMonth.value, 1)
-	const lastDay = new Date(selectedYear.value, selectedMonth.value + 1, 0)
-	const prevLastDay = new Date(selectedYear.value, selectedMonth.value, 0)
+	const firstDay = new Date( selectedYear.value, selectedMonth.value, 1 )
+	const lastDay = new Date( selectedYear.value, selectedMonth.value + 1, 0 )
+	const prevLastDay = new Date( selectedYear.value, selectedMonth.value, 0 )
 	
 	const startPadding = firstDay.getDay()
 	const endPadding = 6 - lastDay.getDay()
 	
 	// Previous month padding
-	for (let i = startPadding - 1; i >= 0; i--) {
-		days.push({
+	for ( let i = startPadding - 1; i >= 0; i-- ) {
+		days.push( {
 			key: `prev-${i}`,
 			day: prevLastDay.getDate() - i,
 			otherMonth: true,
 			past: true
-		})
+		} )
 	}
 	
 	// Current month days
 	const today = new Date()
-	for (let day = 1; day <= lastDay.getDate(); day++) {
-		const date = new Date(selectedYear.value, selectedMonth.value, day)
+	for ( let day = 1; day <= lastDay.getDate(); day++ ) {
+		const date = new Date( selectedYear.value, selectedMonth.value, day )
 		const isToday = date.toDateString() === today.toDateString()
 		const isPast = date < today && !isToday
-		days.push({
+		days.push( {
 			key: `current-${day}`,
 			day,
 			date,
@@ -306,46 +318,46 @@ const calendarDays = computed(() => {
 			selected: selectedDate.value?.getDate() === day,
 			hasBooking: Math.random() > 0.9, // Random bookings
 			unavailable: Math.random() > 0.85 // Random unavailable days
-		})
+		} )
 	}
 	
 	// Next month padding
-	for (let day = 1; day <= endPadding; day++) {
-		days.push({
+	for ( let day = 1; day <= endPadding; day++ ) {
+		days.push( {
 			key: `next-${day}`,
 			day,
 			otherMonth: true
-		})
+		} )
 	}
 	
 	return days
-})
+} )
 
-const formatSelectedDate = computed(() => {
-	if (!selectedDate.value) return ''
-	return selectedDate.value.toLocaleDateString('en-US', {
+const formatSelectedDate = computed( () => {
+	if ( !selectedDate.value ) return ''
+	return selectedDate.value.toLocaleDateString( 'en-US', {
 		weekday: 'long',
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric'
-	})
-})
+	} )
+} )
 
-const calculateCost = computed(() => {
+const calculateCost = computed( () => {
 	const cost = props.facility.priceValue * duration.value
 	return `¥${cost.toLocaleString()}`
-})
+} )
 
-const changeMonth = (direction) => {
-	if (direction === -1) {
-		if (selectedMonth.value === 0) {
+const changeMonth = ( direction ) => {
+	if ( direction === -1 ) {
+		if ( selectedMonth.value === 0 ) {
 			selectedMonth.value = 11
 			selectedYear.value--
 		} else {
 			selectedMonth.value--
 		}
 	} else {
-		if (selectedMonth.value === 11) {
+		if ( selectedMonth.value === 11 ) {
 			selectedMonth.value = 0
 			selectedYear.value++
 		} else {
@@ -354,37 +366,37 @@ const changeMonth = (direction) => {
 	}
 }
 
-const selectDate = (date) => {
-	if (date.otherMonth || date.unavailable || date.past) return
+const selectDate = ( date ) => {
+	if ( date.otherMonth || date.unavailable || date.past ) return
 	selectedDate.value = date.date
 	selectedTime.value = null // Reset time when date changes
 }
 
-const selectTime = (slot) => {
-	if (slot.booked) return
+const selectTime = ( slot ) => {
+	if ( slot.booked ) return
 	selectedTime.value = slot.time
 }
 
 const confirmBooking = async () => {
 	processingBooking.value = true
 	// Simulate API call
-	await new Promise(resolve => setTimeout(resolve, 2000))
+	await new Promise( resolve => setTimeout( resolve, 2000 ) )
 	
 	// Add new booking to the list
 	const newBooking = {
 		id: Date.now(),
 		facility: props.facility.name,
-		month: selectedDate.value.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
+		month: selectedDate.value.toLocaleDateString( 'en-US', { month: 'short' } ).toUpperCase(),
 		day: selectedDate.value.getDate().toString(),
 		time: `${selectedTime.value} - ${calculateEndTime()}`,
 		duration: `${duration.value} hour${duration.value > 1 ? 's' : ''}`,
 		purpose: bookingPurpose.value || 'Personal use'
 	}
-	userBookings.value.unshift(newBooking)
+	userBookings.value.unshift( newBooking )
 	
 	processingBooking.value = false
 	bookingSuccess.value = true
-	bookingReference.value = `BK${Date.now().toString().slice(-8)}`
+	bookingReference.value = `BK${Date.now().toString().slice( -8 )}`
 	
 	// Hide form sections after booking
 	selectedDate.value = null
@@ -392,14 +404,14 @@ const confirmBooking = async () => {
 }
 
 const calculateEndTime = () => {
-	const [hours, minutes] = selectedTime.value.split(':').map(Number)
+	const [hours, minutes] = selectedTime.value.split( ':' ).map( Number )
 	const endHour = hours + duration.value
-	return `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+	return `${endHour.toString().padStart( 2, '0' )}:${minutes.toString().padStart( 2, '0' )}`
 }
 
-const cancelBooking = (bookingId) => {
-	if (confirm('Are you sure you want to cancel this booking?')) {
-		userBookings.value = userBookings.value.filter(b => b.id !== bookingId)
+const cancelBooking = ( bookingId ) => {
+	if ( confirm( 'Are you sure you want to cancel this booking?' ) ) {
+		userBookings.value = userBookings.value.filter( b => b.id !== bookingId )
 	}
 }
 

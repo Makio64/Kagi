@@ -108,7 +108,7 @@
 					
 					<div v-if="rsvpStatus === 'attending'" class="guest-count">
 						<label>{{ $t('events.numberOfGuests') || 'Number of guests (including yourself)' }}</label>
-						<input v-model.number="guestCount" type="number" min="1" max="5" />
+						<input v-model.number="guestCount" type="number" min="1" max="5">
 					</div>
 
 					<textarea 
@@ -117,7 +117,7 @@
 						:placeholder="$t('events.commentPlaceholder') || 'Any dietary restrictions or comments? (optional)'"
 					/>
 
-					<button class="submit-rsvp-btn" @click="submitRSVP" :disabled="!rsvpStatus">
+					<button class="submit-rsvp-btn" :disabled="!rsvpStatus" @click="submitRSVP">
 						{{ $t('events.submitRsvp') || 'Submit RSVP' }}
 					</button>
 				</div>
@@ -172,10 +172,10 @@
 <script setup>
 import { ref } from 'vue'
 
-const props = defineProps({
+const props = defineProps( {
 	event: {
 		type: Object,
-		default: () => ({
+		default: () => ( {
 			id: 1,
 			title: 'Christmas Party',
 			subtitle: 'Annual building celebration',
@@ -202,18 +202,18 @@ const props = defineProps({
 			organizer: 'Building Management Committee',
 			organizerRole: 'Event Coordination Team',
 			past: false
-		})
+		} )
 	}
-})
+} )
 
-const emit = defineEmits(['close'])
+const emit = defineEmits( ['close'] )
 
-const rsvpStatus = ref(null)
-const guestCount = ref(1)
-const rsvpComment = ref('')
-const rsvpSubmitted = ref(false)
+const rsvpStatus = ref( null )
+const guestCount = ref( 1 )
+const rsvpComment = ref( '' )
+const rsvpSubmitted = ref( false )
 
-const relatedEvents = ref([
+const relatedEvents = ref( [
 	{
 		id: 2,
 		month: 'JAN',
@@ -230,13 +230,13 @@ const relatedEvents = ref([
 		time: '10:00 AM',
 		location: 'All Areas'
 	}
-])
+] )
 
 const submitRSVP = () => {
 	// Simulate RSVP submission
-	setTimeout(() => {
+	setTimeout( () => {
 		rsvpSubmitted.value = true
-	}, 500)
+	}, 500 )
 }
 </script>
 

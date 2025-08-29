@@ -30,7 +30,7 @@
 
 		<!-- Send Message Tab -->
 		<div v-if="activeTab === 'message'" class="tab-content">
-			<form @submit.prevent="sendMessage" class="message-form">
+			<form class="message-form" @submit.prevent="sendMessage">
 				<div class="form-group">
 					<label>{{ $t('contact.subject') || 'Subject' }}</label>
 					<input
@@ -86,7 +86,7 @@
 					<p>{{ $t('ai.description') || 'I can help you with building rules, facilities information, and general inquiries. How can I assist you today?' }}</p>
 				</div>
 
-				<div class="chat-messages" ref="chatContainer">
+				<div ref="chatContainer" class="chat-messages">
 					<div v-for="msg in chatMessages" :key="msg.id" :class="['message', msg.type]">
 						<div class="message-bubble">
 							<div v-if="msg.type === 'ai'" class="message-avatar">🤖</div>
@@ -98,15 +98,15 @@
 						<div class="message-bubble">
 							<div class="message-avatar">🤖</div>
 							<div class="typing-indicator">
-								<span></span>
-								<span></span>
-								<span></span>
+								<span />
+								<span />
+								<span />
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<form @submit.prevent="sendAIMessage" class="chat-input">
+				<form class="chat-input" @submit.prevent="sendAIMessage">
 					<input
 						v-model="aiInput"
 						type="text"
@@ -144,53 +144,53 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 
-defineEmits(['close'])
+defineEmits( ['close'] )
 
-const activeTab = ref('message')
-const sending = ref(false)
-const messageSent = ref(false)
-const aiTyping = ref(false)
-const chatContainer = ref(null)
+const activeTab = ref( 'message' )
+const sending = ref( false )
+const messageSent = ref( false )
+const aiTyping = ref( false )
+const chatContainer = ref( null )
 
-const messageForm = ref({
+const messageForm = ref( {
 	subject: '',
 	category: '',
 	message: ''
-})
+} )
 
-const aiInput = ref('')
-const chatMessages = ref([
+const aiInput = ref( '' )
+const chatMessages = ref( [
 	{
 		id: 1,
 		type: 'ai',
 		text: 'Hello! I\'m your AI building assistant. I can help you with questions about building rules, facility bookings, maintenance procedures, and more. What would you like to know?',
 		timestamp: new Date()
 	}
-])
+] )
 
-const messageHistory = ref([
+const messageHistory = ref( [
 	{
 		id: 1,
 		subject: 'Gym access hours inquiry',
 		preview: 'I wanted to know if the gym hours could be extended...',
-		date: new Date('2024-01-15'),
+		date: new Date( '2024-01-15' ),
 		status: 'responded'
 	},
 	{
 		id: 2,
 		subject: 'Noise complaint - Unit 405',
 		preview: 'There has been excessive noise coming from unit 405...',
-		date: new Date('2024-01-10'),
+		date: new Date( '2024-01-10' ),
 		status: 'closed'
 	}
-])
+] )
 
 const sendMessage = async () => {
 	sending.value = true
 	// Simulate API call
-	await new Promise(resolve => setTimeout(resolve, 1500))
+	await new Promise( resolve => setTimeout( resolve, 1500 ) )
 	sending.value = false
 	messageSent.value = true
 	
@@ -202,13 +202,13 @@ const sendMessage = async () => {
 	}
 	
 	// Hide success message after 5 seconds
-	setTimeout(() => {
+	setTimeout( () => {
 		messageSent.value = false
-	}, 5000)
+	}, 5000 )
 }
 
 const sendAIMessage = async () => {
-	if (!aiInput.value.trim() || aiTyping.value) return
+	if ( !aiInput.value.trim() || aiTyping.value ) return
 	
 	const userMessage = {
 		id: Date.now(),
@@ -217,67 +217,67 @@ const sendAIMessage = async () => {
 		timestamp: new Date()
 	}
 	
-	chatMessages.value.push(userMessage)
+	chatMessages.value.push( userMessage )
 	const question = aiInput.value
 	aiInput.value = ''
 	aiTyping.value = true
 	
 	// Scroll to bottom
 	await nextTick()
-	if (chatContainer.value) {
+	if ( chatContainer.value ) {
 		chatContainer.value.scrollTop = chatContainer.value.scrollHeight
 	}
 	
 	// Simulate AI response
-	await new Promise(resolve => setTimeout(resolve, 1500))
+	await new Promise( resolve => setTimeout( resolve, 1500 ) )
 	
 	const aiResponse = {
 		id: Date.now() + 1,
 		type: 'ai',
-		text: getAIResponse(question),
+		text: getAIResponse( question ),
 		timestamp: new Date()
 	}
 	
-	chatMessages.value.push(aiResponse)
+	chatMessages.value.push( aiResponse )
 	aiTyping.value = false
 	
 	// Scroll to bottom
 	await nextTick()
-	if (chatContainer.value) {
+	if ( chatContainer.value ) {
 		chatContainer.value.scrollTop = chatContainer.value.scrollHeight
 	}
 }
 
-const getAIResponse = (question) => {
+const getAIResponse = ( question ) => {
 	// Simple mock responses
 	const lowercaseQ = question.toLowerCase()
 	
-	if (lowercaseQ.includes('gym') || lowercaseQ.includes('fitness')) {
+	if ( lowercaseQ.includes( 'gym' ) || lowercaseQ.includes( 'fitness' ) ) {
 		return 'The fitness gym is open daily from 6:00 AM to 10:00 PM. It\'s located on the 2nd floor. You can book time slots through the Facility Booking section in your dashboard. The gym is free to use for all residents.'
-	} else if (lowercaseQ.includes('parking')) {
+	} else if ( lowercaseQ.includes( 'parking' ) ) {
 		return 'Parking spaces are assigned to each unit. Guest parking is available on B1 level for up to 24 hours. For long-term guest parking, please contact the building manager. Monthly parking fees are included in your management fee.'
-	} else if (lowercaseQ.includes('noise') || lowercaseQ.includes('quiet')) {
+	} else if ( lowercaseQ.includes( 'noise' ) || lowercaseQ.includes( 'quiet' ) ) {
 		return 'Quiet hours are from 10:00 PM to 7:00 AM. During these hours, please keep noise to a minimum. If you experience noise issues, you can file a complaint through the Contact Manager or speak directly with building management.'
-	} else if (lowercaseQ.includes('maintenance')) {
+	} else if ( lowercaseQ.includes( 'maintenance' ) ) {
 		return 'For maintenance requests, please use the Maintenance section in your dashboard. Emergency maintenance is available 24/7 by calling 0120-123-456. Regular maintenance requests are typically addressed within 48 hours.'
 	} else {
 		return 'I can help you with various building-related inquiries including facilities, rules, maintenance, and general information. Could you please be more specific about what you\'d like to know?'
 	}
 }
 
-const formatTime = (date) => {
-	return new Intl.DateTimeFormat('en-US', {
+const formatTime = ( date ) => {
+	return new Intl.DateTimeFormat( 'en-US', {
 		hour: '2-digit',
 		minute: '2-digit'
-	}).format(date)
+	} ).format( date )
 }
 
-const formatDate = (date) => {
-	return new Intl.DateTimeFormat('en-US', {
+const formatDate = ( date ) => {
+	return new Intl.DateTimeFormat( 'en-US', {
 		month: 'short',
 		day: 'numeric',
 		year: 'numeric'
-	}).format(date)
+	} ).format( date )
 }
 </script>
 

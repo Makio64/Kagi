@@ -14,7 +14,7 @@
 			<h3 v-if="title">{{ title }}</h3>
 			<p v-if="description" class="card-description">{{ description }}</p>
 			<div v-if="info" class="card-info">{{ info }}</div>
-			<slot></slot>
+			<slot />
 		</div>
 		<div v-if="actions || $slots.actions" class="card-actions">
 			<slot name="actions">
@@ -37,7 +37,7 @@
 <script setup>
 import { getCurrentInstance } from 'vue'
 
-const props = defineProps({
+const props = defineProps( {
 	icon: String,
 	image: String,
 	title: String,
@@ -48,16 +48,16 @@ const props = defineProps({
 	active: Boolean,
 	actions: Array,
 	badge: Object
-})
+} )
 
-const emit = defineEmits(['click'])
+const emit = defineEmits( ['click'] )
 const instance = getCurrentInstance()
 
 const handleClick = () => {
-	if (props.to) {
-		instance?.proxy.$router.push(props.to)
-	} else if (props.clickable) {
-		emit('click')
+	if ( props.to ) {
+		instance?.proxy.$router.push( props.to )
+	} else if ( props.clickable ) {
+		emit( 'click' )
 	}
 }
 </script>

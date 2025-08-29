@@ -132,12 +132,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 
-const props = defineProps({
+const props = defineProps( {
 	bill: {
 		type: Object,
-		default: () => ({
+		default: () => ( {
 			id: 1,
 			icon: '🏢',
 			title: 'Management Fee',
@@ -148,21 +148,21 @@ const props = defineProps({
 			period: 'December 2024',
 			status: 'unpaid',
 			paid: false
-		})
+		} )
 	}
-})
+} )
 
-const emit = defineEmits(['close', 'payment'])
+const emit = defineEmits( ['close', 'payment'] )
 
-const selectedMethod = ref('credit')
-const processingPayment = ref(false)
+const selectedMethod = ref( 'credit' )
+const processingPayment = ref( false )
 
-const breakdown = computed(() => [
+const breakdown = computed( () => [
 	{ name: 'Basic Management Fee', amount: '¥15,000' },
 	{ name: 'Common Area Maintenance', amount: '¥5,000' },
 	{ name: 'Security Services', amount: '¥3,000' },
 	{ name: 'Utilities (Common Areas)', amount: '¥2,000' }
-])
+] )
 
 const paymentMethods = [
 	{ id: 'credit', icon: '💳', name: 'Credit Card' },
@@ -174,9 +174,9 @@ const paymentMethods = [
 const processPayment = async () => {
 	processingPayment.value = true
 	// Simulate payment processing
-	await new Promise(resolve => setTimeout(resolve, 2000))
+	await new Promise( resolve => setTimeout( resolve, 2000 ) )
 	processingPayment.value = false
-	emit('payment', { method: selectedMethod.value, billId: props.bill.id })
+	emit( 'payment', { method: selectedMethod.value, billId: props.bill.id } )
 }
 </script>
 

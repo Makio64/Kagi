@@ -148,13 +148,13 @@
 				</section>
 
 				<!-- Document Viewer -->
-				<section v-if="activeSection === 'documents' && props.routeParams?.documentId" class="section">
+				<section v-if="activeSection === 'documents' && props.routeParams?.documentId" class="section document-viewer-section">
 					<DocumentViewer
 						:title="getCurrentDocumentTitle()"
 						:content="getCurrentDocumentContent()"
-						:lastUpdated="getCurrentDocumentDate()"
-						:documentId="props.routeParams?.documentId"
-						:isAdmin="authStore.user?.role === 'admin'"
+						:last-updated="getCurrentDocumentDate()"
+						:document-id="props.routeParams?.documentId"
+						:is-admin="authStore.user?.role === 'admin'"
 						@close="router.push('/dashboard/documents')"
 						@save="saveDocument"
 					/>
@@ -1571,6 +1571,19 @@ watch( showMobileMenu, ( newVal ) => {
 	padding 2rem
 	// box-shadow 0 8px 25px rgba(255, 193, 7, 0.08)
 	// border 1px solid rgba(255, 193, 7, 0.1)
+	
+	// Special case for document viewer - remove padding
+	.document-viewer-section
+		margin -2rem
+		
+		@media (max-width: 768px)
+			margin -1rem
+			
+		@media (max-width: 550px)
+			margin -0.75rem
+		
+		.document-viewer
+			border-radius 20px
 
 .section-header
 	background linear-gradient(135deg, #FFC107 0%, #FFD54F 100%)
