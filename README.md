@@ -111,6 +111,43 @@ The application includes a test mode for development without SMTP configuration:
 - Admin login accepts any password
 - Set `VITE_TEST_MODE=true` in frontend/.env
 
+### Test Login Credentials
+
+#### 🏠 As a Resident
+1. Navigate to `/login`
+2. Select the **"Resident"** tab
+3. Enter any email (e.g., `resident@example.com`)
+4. Click **"Send Magic Link"**
+5. A popup will display the magic link - click it to login
+
+#### 🏢 As Building Admin (Full Access)
+1. Navigate to `/login`
+2. Select the **"Admin"** tab
+3. Enter any email (e.g., `admin@example.com`)
+4. Enter any password (e.g., `password`)
+5. Click **"Login"**
+
+#### 🏘️ As Mansion Admin
+1. Navigate to `/login`
+2. Select the **"Admin"** tab
+3. Enter any email (e.g., `mansion.admin@example.com`)
+4. Enter any password
+5. System will assign mansion admin role
+
+### Test User Roles
+- **admin**: Full system access, can edit all documents and settings
+- **mansion_admin**: Manage specific mansion/building
+- **resident**: Regular user access to all resident services
+- **landlord**: Property owner with special permissions
+
+### Pre-populated Test Data
+- **Mansion ID**: `mansion_001` (auto-assigned)
+- **Documents**: Management Rules, Facility Rules, Parking Rules (with markdown content)
+- **Events**: Christmas Party (12/25), Fire Drill (01/10)
+- **Bills**: Management Fee (¥25,000), Repair Fund (¥10,000)
+- **Facilities**: Party Room, Guest Room, Gym (bookable)
+- **Emergency Contacts**: Fire (119), Police (110), Building Manager
+
 ### Running Tests
 ```bash
 # Frontend tests

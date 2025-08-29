@@ -4,7 +4,7 @@
 			<div class="header-content">
 				<div class="header-left" style="cursor: pointer;" @click="navigateToSection('home')">
 					<KagiLogo :size="40" />
-					<h1>Kagi</h1>
+					<h1>Dresser Tower</h1>
 				</div>
 				<div class="header-right">
 					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
@@ -95,14 +95,6 @@
 					</div>
 					<div class="cards-grid">
 						<DashboardCard
-							icon="🤖"
-							:title="$t('dashboard.contact.ai.title')"
-							:description="$t('dashboard.contact.ai.description')"
-							clickable
-							:actions="[{ text: $t('dashboard.contact.ai.button'), class: 'booking', handler: startAIChat }]"
-							@click="startAIChat"
-						/>
-						<DashboardCard
 							icon="👤"
 							:title="$t('dashboard.contact.manager.title')"
 							:description="$t('dashboard.contact.manager.description')"
@@ -123,7 +115,7 @@
 				</section>
 
 				<!-- Documents Section -->
-				<section v-if="activeSection === 'documents'" class="section">
+				<section v-if="activeSection === 'documents' && !props.routeParams?.documentId" class="section">
 					<div class="section-header">
 						<h2 class="section-title"><span class="section-icon">📄</span> {{ $t('dashboard.documents.title') }}</h2>
 					</div>
@@ -155,8 +147,21 @@
 					</div>
 				</section>
 
+				<!-- Document Viewer -->
+				<section v-if="activeSection === 'documents' && props.routeParams?.documentId" class="section">
+					<DocumentViewer
+						:title="getCurrentDocumentTitle()"
+						:content="getCurrentDocumentContent()"
+						:lastUpdated="getCurrentDocumentDate()"
+						:documentId="props.routeParams?.documentId"
+						:isAdmin="authStore.user?.role === 'admin'"
+						@close="router.push('/dashboard/documents')"
+						@save="saveDocument"
+					/>
+				</section>
+
 				<!-- Booking Section -->
-				<section v-if="activeSection === 'booking'" class="section">
+				<section v-if="activeSection === 'booking' && !selectedFacility" class="section">
 					<div class="section-header">
 						<h2 class="section-title"><span class="section-icon">📅</span> {{ $t('dashboard.booking.title') }}</h2>
 					</div>
@@ -186,6 +191,14 @@
 							@click="bookFacility('gym')"
 						/>
 					</div>
+				</section>
+
+				<!-- Facility Booking -->
+				<section v-if="activeSection === 'booking' && selectedFacility" class="section">
+					<FacilityBooking
+						:facility="selectedFacility"
+						@close="selectedFacility = null"
+					/>
 				</section>
 
 				<!-- Maintenance Section -->
@@ -231,7 +244,12 @@
 						<button class="back-btn" @click="selectedMaintenanceCategory = null">
 							← Back to categories
 						</button>
-						<div class="maintenance-form">
+						<div v-if="showMaintenanceSuccess" class="success-message">
+							<div class="success-icon">✅</div>
+							<h3>{{ $t('maintenance.success.title') || 'Request Submitted Successfully!' }}</h3>
+							<p>{{ $t('maintenance.success.description') || 'Thank you for your maintenance request. We\'ll get back to you as soon as possible, typically within 24-48 hours.' }}</p>
+						</div>
+						<div v-else class="maintenance-form">
 							<form @submit.prevent="submitMaintenance">
 								<div class="selected-category">
 									<span class="category-icon">{{ getCategoryIcon(selectedMaintenanceCategory) }}</span>
@@ -245,19 +263,19 @@
 									<label>{{ $t('dashboard.maintenance.details') }}</label>
 									<textarea v-model="maintenanceForm.description" rows="4" :placeholder="$t('dashboard.maintenance.detailsPlaceholder')" />
 								</div>
-								<button type="submit" class="submit-btn">{{ $t('dashboard.maintenance.submit') }}</button>
+								<button type="submit" class="submit-btn-primary">{{ $t('dashboard.maintenance.submit') }}</button>
 							</form>
 						</div>
 					</div>
 				</section>
 
 				<!-- Events Section -->
-				<section v-if="activeSection === 'events'" class="section">
+				<section v-if="activeSection === 'events' && !selectedEvent" class="section">
 					<div class="section-header">
 						<h2 class="section-title"><span class="section-icon">📢</span> {{ $t('dashboard.events.title') }}</h2>
 					</div>
 					<div class="events-list">
-						<div class="event-card">
+						<div class="event-card clickable" @click="viewEventDetails('christmas')">
 							<div class="event-date">
 								<div class="date-month">12</div>
 								<div class="date-day">25</div>
@@ -266,8 +284,9 @@
 								<h3>{{ $t('dashboard.events.christmasParty.title') }}</h3>
 								<p>{{ $t('dashboard.events.christmasParty.description') }}</p>
 							</div>
+							<span class="event-arrow">→</span>
 						</div>
-						<div class="event-card">
+						<div class="event-card clickable" @click="viewEventDetails('drill')">
 							<div class="event-date">
 								<div class="date-month">01</div>
 								<div class="date-day">10</div>
@@ -276,12 +295,21 @@
 								<h3>{{ $t('dashboard.events.fireDrill.title') }}</h3>
 								<p>{{ $t('dashboard.events.fireDrill.description') }}</p>
 							</div>
+							<span class="event-arrow">→</span>
 						</div>
 					</div>
 				</section>
 
+				<!-- Event Details -->
+				<section v-if="activeSection === 'events' && selectedEvent" class="section">
+					<EventDetails
+						:event="selectedEvent"
+						@close="selectedEvent = null"
+					/>
+				</section>
+
 				<!-- Bills Section -->
-				<section v-if="activeSection === 'bills'" class="section">
+				<section v-if="activeSection === 'bills' && !selectedBill" class="section">
 					<div class="section-header">
 						<h2 class="section-title"><span class="section-icon">💳</span> {{ $t('dashboard.bills.title') }}</h2>
 					</div>
@@ -293,8 +321,8 @@
 							</div>
 							<p>{{ $t('dashboard.bills.dueDate') }}: 2024/12/31</p>
 							<div class="bill-actions">
-								<button class="details-btn">{{ $t('dashboard.bills.details') }}</button>
-								<button class="pay-btn-primary">{{ $t('dashboard.bills.payNow') }}</button>
+								<button class="details-btn" @click="viewBillDetails('management')">{{ $t('dashboard.bills.details') }}</button>
+								<button class="pay-btn-primary" @click="viewBillDetails('management')">{{ $t('dashboard.bills.payNow') }}</button>
 							</div>
 						</div>
 						<div class="bill-card paid">
@@ -304,11 +332,39 @@
 							</div>
 							<p>{{ $t('dashboard.bills.paidDate') }}: 2024/11/30</p>
 							<div class="bill-status">{{ $t('dashboard.bills.paid') }}</div>
+							<button class="details-btn full-width" @click="viewBillDetails('repair')">{{ $t('dashboard.bills.details') }}</button>
 						</div>
 					</div>
 				</section>
+
+				<!-- Bill Details -->
+				<section v-if="activeSection === 'bills' && selectedBill" class="section">
+					<BillDetails
+						:bill="selectedBill"
+						@close="selectedBill = null"
+						@payment="handlePayment"
+					/>
+				</section>
 			</main>
 		</div>
+
+		<!-- Emergency Contacts Modal -->
+		<Teleport to="body">
+			<div v-if="showEmergency" class="modal-overlay" @click.self="showEmergency = false">
+				<div class="modal-content">
+					<EmergencyContacts @close="showEmergency = false" />
+				</div>
+			</div>
+		</Teleport>
+
+		<!-- Contact Manager Modal -->
+		<Teleport to="body">
+			<div v-if="showContactManager" class="modal-overlay" @click.self="showContactManager = false">
+				<div class="modal-content">
+					<ContactManager @close="showContactManager = false" />
+				</div>
+			</div>
+		</Teleport>
 	</div>
 </template>
 
@@ -316,7 +372,13 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 
+import BillDetails from '../components/BillDetails.vue'
+import ContactManager from '../components/ContactManager.vue'
 import DashboardCard from '../components/DashboardCard.vue'
+import DocumentViewer from '../components/DocumentViewer.vue'
+import EmergencyContacts from '../components/EmergencyContacts.vue'
+import EventDetails from '../components/EventDetails.vue'
+import FacilityBooking from '../components/FacilityBooking.vue'
 import KagiLogo from '../components/KagiLogo.vue'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import { useAuthStore } from '../stores/auth'
@@ -332,6 +394,15 @@ const props = defineProps( {
 const authStore = useAuthStore()
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
+
+// Check user role and redirect if needed
+onMounted( () => {
+	if ( authStore.user?.role === 'admin' ) {
+		router.push( '/admin-dashboard' )
+	} else if ( authStore.user?.role === 'mansion_admin' ) {
+		router.push( '/mansion-dashboard' )
+	}
+} )
 
 // Use computed to make activeSection reactive to route params
 const activeSection = computed( () => {
@@ -358,6 +429,14 @@ const maintenanceForm = reactive( {
 } )
 
 const selectedMaintenanceCategory = ref( null )
+const showMaintenanceSuccess = ref( false )
+const showDocumentViewer = ref( false )
+const currentDocument = ref( null )
+const showEmergency = ref( false )
+const showContactManager = ref( false )
+const selectedBill = ref( null )
+const selectedEvent = ref( null )
+const selectedFacility = ref( null )
 
 const logout = async () => {
 	await authStore.logout()
@@ -367,40 +446,706 @@ const logout = async () => {
 const submitMaintenance = () => {
 	maintenanceForm.category = selectedMaintenanceCategory.value
 	console.log( 'Maintenance request:', maintenanceForm )
-	// API call would go here
-	alert( instance.proxy.$t( 'dashboard.maintenance.submit' ) )
-	// Reset form
-	selectedMaintenanceCategory.value = null
-	maintenanceForm.title = ''
-	maintenanceForm.description = ''
+	// Show success message
+	showMaintenanceSuccess.value = true
+	// Reset form after a short delay to show success
+	setTimeout( () => {
+		selectedMaintenanceCategory.value = null
+		maintenanceForm.title = ''
+		maintenanceForm.description = ''
+		showMaintenanceSuccess.value = false
+	}, 3000 )
 }
 
 // Contact actions
-const startAIChat = () => {
-	console.log( 'Starting AI chat...' )
-	// Implement AI chat
-}
-
 const contactManager = () => {
-	console.log( 'Contacting manager...' )
-	// Implement manager contact
+	showContactManager.value = true
 }
 
 const viewEmergency = () => {
-	console.log( 'Viewing emergency contacts...' )
-	// Show emergency contacts
+	showEmergency.value = true
+}
+
+const viewBillDetails = ( billType ) => {
+	const bills = {
+		management: {
+			id: 1,
+			icon: '🏢',
+			title: instance.proxy.$t( 'dashboard.bills.managementFee' ),
+			amount: '¥25,000',
+			billNumber: '#2024-12-001',
+			issueDate: '2024/12/01',
+			dueDate: '2024/12/31',
+			period: 'December 2024',
+			status: 'unpaid',
+			paid: false
+		},
+		repair: {
+			id: 2,
+			icon: '🔧',
+			title: instance.proxy.$t( 'dashboard.bills.repairFund' ),
+			amount: '¥10,000',
+			billNumber: '#2024-11-001',
+			issueDate: '2024/11/01',
+			dueDate: '2024/11/30',
+			paidDate: '2024/11/30',
+			period: 'November 2024',
+			status: 'paid',
+			paid: true,
+			paymentMethod: 'Credit Card',
+			reference: 'TXN-2024-11-30-001'
+		}
+	}
+	selectedBill.value = bills[billType]
+}
+
+const handlePayment = ( paymentData ) => {
+	// Handle payment
+	console.log( 'Payment processed:', paymentData )
+	selectedBill.value = null
+	// Show success message
+	alert( instance.proxy.$t( 'bills.paymentSuccess' ) || 'Payment successful!' )
+}
+
+const viewEventDetails = ( eventType ) => {
+	const events = {
+		christmas: {
+			id: 1,
+			title: instance.proxy.$t( 'dashboard.events.christmasParty.title' ) || 'Christmas Party',
+			subtitle: 'Annual building celebration',
+			month: 'DEC',
+			day: '25',
+			time: '6:00 PM - 10:00 PM',
+			location: '1st Floor Lobby',
+			attendees: '50-70 residents',
+			fee: 'Free',
+			description: instance.proxy.$t( 'dashboard.events.christmasParty.description' ) || 'Join us for our annual Christmas celebration!',
+			agenda: [
+				'6:00 PM - Welcome and opening remarks',
+				'6:30 PM - Dinner buffet opens',
+				'7:30 PM - Christmas carol singing',
+				'8:00 PM - Gift exchange (optional)',
+				'9:00 PM - Dancing and socializing'
+			],
+			notes: [
+				'Children are welcome',
+				'Bring a wrapped gift (¥1000 value) for gift exchange',
+				'Vegetarian and halal options available'
+			],
+			organizer: 'Building Management Committee',
+			organizerRole: 'Event Coordination Team',
+			past: false
+		},
+		drill: {
+			id: 2,
+			title: instance.proxy.$t( 'dashboard.events.fireDrill.title' ) || 'Fire Drill',
+			subtitle: 'Mandatory safety exercise',
+			month: 'JAN',
+			day: '10',
+			time: '10:00 AM - 11:00 AM',
+			location: 'All Areas',
+			attendees: 'All residents (mandatory)',
+			fee: 'N/A',
+			description: instance.proxy.$t( 'dashboard.events.fireDrill.description' ) || 'Annual fire drill. All residents must participate.',
+			agenda: [
+				'10:00 AM - Alarm will sound',
+				'10:05 AM - Evacuation begins',
+				'10:20 AM - Roll call at assembly point',
+				'10:40 AM - Safety briefing',
+				'11:00 AM - Return to units'
+			],
+			notes: [
+				'This is a mandatory drill',
+				'Please evacuate via stairs only',
+				'Assembly point: Front parking area',
+				'Bring your emergency kit if you have one'
+			],
+			organizer: 'Building Safety Committee',
+			organizerRole: 'Fire Safety Team',
+			past: false
+		}
+	}
+	selectedEvent.value = events[eventType]
 }
 
 // Document actions
 const viewDocument = ( type ) => {
-	console.log( 'Viewing document:', type )
-	// Implement document viewer
+	const titleMap = {
+		management: 'Management-Rules',
+		facility: 'Facility-Rules',
+		parking: 'Parking-Rules'
+	}
+	router.push( `/dashboard/documents/${titleMap[type]}` )
+}
+
+const getCurrentDocumentTitle = () => {
+	const id = props.routeParams?.documentId
+	const titleMap = {
+		'Management-Rules': instance.proxy.$t( 'dashboard.documents.managementRules' ),
+		'Facility-Rules': instance.proxy.$t( 'dashboard.documents.facilityRules' ),
+		'Parking-Rules': instance.proxy.$t( 'dashboard.documents.parkingRules' )
+	}
+	return titleMap[id] || id
+}
+
+const getCurrentDocumentContent = () => {
+	const id = props.routeParams?.documentId
+	const typeMap = {
+		'Management-Rules': 'management',
+		'Facility-Rules': 'facility',
+		'Parking-Rules': 'parking'
+	}
+	return getDocumentContent( typeMap[id] || 'management' )
+}
+
+const getCurrentDocumentDate = () => {
+	const id = props.routeParams?.documentId
+	const typeMap = {
+		'Management-Rules': 'management',
+		'Facility-Rules': 'facility',
+		'Parking-Rules': 'parking'
+	}
+	return getDocumentDate( typeMap[id] || 'management' )
+}
+
+const getDocumentContent = ( type ) => {
+	// Friendly, polite markdown content
+	const contents = {
+		management: `# Building Management Rules and Guidelines
+
+Welcome to our community! These management rules help ensure a comfortable and harmonious living environment for all residents. We appreciate your cooperation in maintaining our wonderful building.
+
+![Building Exterior](/images/docs/placeholder.svg)
+
+## Article 1: General Provisions
+
+### 1.1 Purpose
+These rules are established to promote the health, safety, comfort, and general welfare of all residents. We strive to create a pleasant community where everyone can enjoy their home peacefully.
+
+### 1.2 Applicability
+These rules apply to all residents, their family members, guests, and any visitors to the property. We kindly ask that you share these guidelines with your guests to ensure everyone's comfort.
+
+### 1.3 Amendments
+Rules may be updated periodically based on resident feedback and changing needs. We'll always notify you well in advance of any changes, and your input is always welcome.
+
+## Article 2: Common Areas
+
+### 2.1 General Use
+Our common areas are for everyone to enjoy! Please help us keep them clean and welcoming:
+- **Cleanliness**: Please dispose of trash properly and clean up after yourself
+- **Respect**: Be mindful of others using the space
+- **Hours**: Common areas are available from 6:00 AM to 11:00 PM daily
+
+### 2.2 Lobby and Hallways
+The lobby is the first impression of our home. Please:
+- Keep noise levels moderate, especially during evening hours
+- Don't leave personal belongings in hallways (for safety reasons)
+- Use designated areas for deliveries and packages
+
+### 2.3 Elevators
+To ensure smooth operation for everyone:
+- Please allow exiting passengers to leave first
+- Hold the door for others when safe to do so
+- Contact management if you notice any issues
+
+## Article 3: Quiet Hours
+
+We value everyone's right to peaceful enjoyment of their home:
+- **Weekdays**: 10:00 PM to 7:00 AM
+- **Weekends**: 11:00 PM to 8:00 AM
+
+During these hours, please:
+- Keep TV and music at moderate volumes
+- Avoid using washing machines or vacuum cleaners
+- Walk softly if you have hardwood floors
+
+## Article 4: Pets
+
+We love our furry friends! If you have pets, please:
+- Register them with the management office
+- Keep dogs on leashes in all common areas
+- Clean up after your pets immediately
+- Ensure pets don't disturb neighbors with excessive noise
+
+## Article 5: Renovations and Modifications
+
+Want to personalize your space? We understand! Please:
+- Submit renovation plans to management for approval
+- Schedule work during permitted hours (9:00 AM - 5:00 PM weekdays)
+- Use licensed contractors for major work
+- Notify neighbors of planned work in advance
+
+## Article 6: Safety and Security
+
+Your safety is our priority:
+- Don't prop open security doors
+- Report suspicious activity immediately
+- Familiarize yourself with emergency exits
+- Keep your contact information updated with management
+
+## Article 7: Waste Disposal
+
+Help us maintain a clean environment:
+- **Burnable waste**: Tuesdays and Fridays
+- **Non-burnable waste**: 1st and 3rd Wednesdays
+- **Recyclables**: Every Thursday
+- **Large items**: Please schedule with management
+
+## Article 8: Community Spirit
+
+We encourage a friendly, supportive community:
+- Greet your neighbors when you see them
+- Participate in building events when possible
+- Consider joining the residents' committee
+- Share concerns or suggestions with management
+
+---
+
+*Thank you for taking the time to read these guidelines. If you have any questions or suggestions, please don't hesitate to contact the management office. Together, we can make our building a wonderful place to call home!*`,
+
+		facility: `# Facility Usage Guidelines
+
+Welcome! Our building offers wonderful facilities for all residents to enjoy. These guidelines help ensure everyone has a pleasant experience.
+
+## Fitness Gym
+
+### Hours of Operation
+- **Daily**: 6:00 AM to 10:00 PM
+- **Holidays**: 8:00 AM to 8:00 PM
+
+### General Guidelines
+
+#### Getting Started
+Welcome to our fully-equipped fitness center! Whether you're a fitness enthusiast or just starting your wellness journey, we're here to support you:
+
+- **First-time users**: Please attend a brief orientation (available daily at 10 AM and 6 PM)
+- **Access**: Use your resident key card for entry
+- **Guest policy**: Residents may bring one guest (guest fee: ¥500)
+
+#### Equipment Use
+We have a variety of equipment for your fitness needs:
+- **Cardio machines**: Treadmills, ellipticals, and stationary bikes
+- **Weight training**: Free weights and resistance machines
+- **Stretching area**: Yoga mats and foam rollers available
+
+Please help us maintain our equipment:
+- Wipe down equipment after each use (sanitizing stations available)
+- Return weights to their designated spots
+- Report any equipment issues immediately
+
+#### Gym Etiquette
+Let's create a comfortable environment for everyone:
+- **Time limits**: 30 minutes on cardio equipment during peak hours (6-8 AM, 6-8 PM)
+- **Noise**: Please use headphones and avoid dropping weights
+- **Attire**: Clean athletic wear and closed-toe shoes required
+- **Towels**: Bring your own or rent from reception (¥100)
+
+#### Safety First
+- Warm up before exercising
+- Stay hydrated (water fountains available)
+- If you feel unwell, stop exercising immediately
+- Emergency button located near the entrance
+
+## Party Room
+
+### Making Your Celebration Special
+
+Our party room is perfect for birthdays, anniversaries, and gatherings! 
+
+#### Booking Information
+- **Capacity**: Up to 20 guests comfortably
+- **Hours**: 10:00 AM to 10:00 PM
+- **Rate**: ¥2,000 per hour (minimum 2 hours)
+- **Booking**: Reserve up to 3 months in advance
+
+#### Room Features
+- Fully equipped kitchen with refrigerator and microwave
+- Tables and chairs for 20 people
+- Audio system with Bluetooth connectivity
+- Projector and screen for presentations
+- Child-friendly with safety locks
+
+#### Reservation Process
+1. Check availability on the booking calendar
+2. Submit reservation form at least 48 hours in advance
+3. Pay deposit (¥5,000, refundable after inspection)
+4. Receive confirmation and access code
+
+#### Usage Guidelines
+We want your event to be memorable:
+- **Setup/Cleanup**: Included in your booking time
+- **Decorations**: Welcome! Please use removable adhesives only
+- **Catering**: Outside catering is permitted
+- **Alcohol**: Allowed for guests 20 years and older
+
+#### After Your Event
+- Please leave the room as you found it
+- Dispose of garbage in designated areas
+- Turn off all appliances and lights
+- Return the key by 10:30 PM
+
+## Guest Rooms
+
+### Your Home Away from Home
+
+Perfect for visiting family and friends!
+
+#### Room Details
+- **Available**: 2 guest suites
+- **Capacity**: Up to 2 guests per room
+- **Rate**: ¥5,000 per night
+- **Maximum stay**: 7 consecutive nights
+
+#### Amenities Included
+- Queen-size bed with fresh linens
+- Private bathroom with towels
+- Mini-refrigerator and electric kettle
+- Wi-Fi access
+- Air conditioning and heating
+
+#### Booking Policy
+- Residents may book up to 2 weeks per month
+- Reservations accepted up to 2 months in advance
+- Check-in: 3:00 PM / Check-out: 11:00 AM
+- Cancellation: 24 hours notice required
+
+#### House Rules for Guests
+Please inform your guests:
+- Register at the management office upon arrival
+- Respect building quiet hours
+- No smoking in rooms
+- No additional overnight guests
+
+## Rooftop Garden
+
+### Your Urban Oasis
+
+Enjoy stunning city views and fresh air!
+
+#### Access Hours
+- **Spring/Summer**: 6:00 AM to 9:00 PM
+- **Fall/Winter**: 7:00 AM to 7:00 PM
+- **Closed during severe weather**
+
+#### Garden Features
+- Seating areas with umbrellas
+- BBQ grills (reservation required)
+- Children's play area
+- Herb and vegetable garden (communal)
+
+#### BBQ Area Reservations
+- **Time slots**: 11:00 AM - 2:00 PM or 5:00 PM - 8:00 PM
+- **Fee**: ¥1,000 per session
+- **Includes**: Grill, basic utensils, and cleaning supplies
+- Please bring your own charcoal
+
+#### Garden Guidelines
+- Children must be supervised at all times
+- Please water plants if you harvest herbs
+- Keep noise moderate after 8:00 PM
+- No glass containers for safety
+
+## Kids' Playroom
+
+### A Safe Space for Little Ones
+
+#### Hours
+- **Daily**: 9:00 AM to 7:00 PM
+- **Age range**: 0-10 years old
+
+#### Safety Rules
+- Adult supervision required at all times
+- Maximum 10 children at once
+- Please remove shoes
+- Clean up toys after playing
+
+#### Available Toys and Equipment
+- Age-appropriate toys and books
+- Soft play area for toddlers
+- Art supplies (please supervise)
+- Hand sanitizer stations
+
+---
+
+*We hope you enjoy these wonderful facilities! For bookings or questions, please visit the management office or call extension 100. Thank you for helping us maintain these spaces for everyone's enjoyment!*`,
+
+		parking: `# Parking Regulations and Guidelines
+
+Thank you for helping us maintain a safe and organized parking environment for all residents.
+
+## General Parking Policies
+
+### Overview
+Our parking facilities are designed to accommodate all residents safely and efficiently. Your cooperation helps ensure smooth access for everyone, including emergency vehicles.
+
+### Parking Assignments
+
+#### Resident Parking
+Each unit is allocated parking based on the following:
+- **Studio/1-bedroom**: 1 parking space
+- **2-bedroom**: 1 parking space (additional available upon request)
+- **3-bedroom+**: 2 parking spaces
+
+#### Space Assignment Process
+1. Parking spaces are assigned by management
+2. Your assigned space number is on your lease agreement
+3. Space transfers require management approval
+4. Please display your parking permit at all times
+
+### Parking Levels Guide
+
+#### B2 Level - Resident Parking
+- Reserved for residents only
+- 24/7 access with key card
+- Direct elevator access to all floors
+- Electric vehicle charging stations available (Spaces B2-01 to B2-10)
+
+#### B1 Level - Mixed Use
+- Resident overflow parking
+- Visitor parking (limited hours)
+- Motorcycle and bicycle parking area
+- Loading zone for deliveries
+
+#### Ground Level
+- Handicapped parking spaces (with valid permit)
+- 15-minute temporary parking for loading/unloading
+- Emergency vehicle access - keep clear at all times
+
+## Vehicle Registration
+
+### Required Information
+Please register all vehicles with management:
+- Vehicle make, model, and color
+- License plate number
+- Proof of insurance
+- Driver's license copy
+
+### Parking Permits
+- Permits must be displayed on rearview mirror
+- Replacement permits: ¥1,000
+- Temporary permits available for rental cars
+- Update management when changing vehicles
+
+## Guest and Visitor Parking
+
+### Visitor Policy
+We welcome your guests! Please note:
+- **Hours**: 8:00 AM to 11:00 PM daily
+- **Duration**: Maximum 24 hours
+- **Location**: B1 level, marked visitor spaces only
+- **Registration**: Required at management office
+
+### Overnight Guest Parking
+- Must be pre-approved by management
+- Maximum 3 consecutive nights
+- Fee: ¥1,000 per night
+- Guest pass required
+
+### Contractor and Delivery Vehicles
+- Use loading zones only
+- Maximum 2 hours parking
+- Must display contractor permit
+- Schedule large deliveries with management
+
+## Parking Rules and Etiquette
+
+### Do's
+✓ Park within designated lines
+✓ Lock your vehicle
+✓ Report suspicious activity
+✓ Keep your space clean
+✓ Respect handicapped spaces
+✓ Follow directional arrows
+
+### Don'ts
+✗ Don't block other vehicles
+✗ Don't park in unassigned spaces
+✗ Don't store items in parking areas
+✗ Don't perform major vehicle repairs
+✗ Don't idle engines unnecessarily
+✗ Don't use parking for commercial purposes
+
+## Special Parking Areas
+
+### Electric Vehicle Charging
+- 10 charging stations available
+- First-come, first-served basis
+- Maximum 4 hours charging time
+- Move vehicle promptly after charging
+- Monthly unlimited charging pass: ¥3,000
+
+### Motorcycle Parking
+- Designated area in B1 level
+- Must be registered with management
+- Monthly fee: ¥3,000
+- Secure your motorcycle properly
+
+### Bicycle Parking
+- Free for residents
+- Registration required (security measure)
+- Use designated racks only
+- Remove abandoned bicycles monthly
+
+### Car Wash Area
+- Located on B1 level
+- Hours: 8:00 AM to 6:00 PM
+- Please clean up after use
+- No commercial washing
+
+## Safety and Security
+
+### Security Features
+- 24-hour CCTV monitoring
+- Emergency call boxes on each level
+- Adequate lighting throughout
+- Regular security patrols
+- Automatic gate system
+
+### Safety Guidelines
+- Drive slowly (5 km/h maximum)
+- Watch for pedestrians
+- Report accidents immediately
+- Keep valuables out of sight
+- Report suspicious persons or vehicles
+
+### Emergency Procedures
+- Emergency exits clearly marked
+- Fire extinguishers on each level
+- In case of fire, evacuate immediately
+- Assembly point: Front courtyard
+- Emergency contact: Extension 911
+
+## Violations and Enforcement
+
+### Common Violations
+We prefer friendly reminders, but repeated violations may result in:
+
+#### Warning Stage
+- 1st violation: Friendly reminder
+- 2nd violation: Written warning
+- 3rd violation: Meeting with management
+
+#### Penalties
+- Unauthorized parking: ¥5,000 fine
+- Blocking emergency routes: Immediate towing
+- Abandoned vehicles: Removed after 30 days notice
+
+### Towing Policy
+Vehicles may be towed if:
+- Blocking emergency access
+- Parked in handicapped space without permit
+- Abandoned for over 30 days
+- Repeated violations
+
+**Towing cost**: Owner's responsibility (approximately ¥20,000)
+
+## Maintenance and Cleaning
+
+### Scheduled Maintenance
+- Monthly cleaning: First Sunday
+- Line repainting: Annually in April
+- Light inspection: Quarterly
+- Notice given 1 week in advance
+
+### During Maintenance
+- Temporary parking arrangements available
+- Follow posted signs
+- Remove vehicles if requested
+- Maintenance hours: 9:00 AM to 5:00 PM
+
+## Additional Services
+
+### Valet Parking
+- Available for elderly or disabled residents
+- Prior arrangement required
+- No additional fee
+- Contact management for details
+
+### Car Sharing Program
+- 2 shared vehicles available
+- Hourly or daily rental
+- Residents get priority booking
+- Details at management office
+
+## Contact and Support
+
+### Management Office Hours
+- Monday-Friday: 9:00 AM to 6:00 PM
+- Saturday: 9:00 AM to 1:00 PM
+- Emergency: 24/7 hotline
+
+### How to Reach Us
+- Office: Extension 100
+- Emergency: Extension 911
+- Email: parking@buildingmanagement.jp
+- Suggestion box in lobby
+
+---
+
+*Your cooperation makes our parking facilities safe and convenient for everyone. If you have suggestions for improving our parking system, we'd love to hear from you. Thank you for being a considerate member of our community!*
+
+**Remember**: A well-organized parking area reflects our community's commitment to harmony and mutual respect.`
+	}
+	return contents[type] || ''
+}
+
+const getDocumentDate = ( type ) => {
+	const dates = {
+		management: '2024/01',
+		facility: '2024/03',
+		parking: '2023/12'
+	}
+	return dates[type] || '2024/01'
+}
+
+const saveDocument = ( data ) => {
+	console.log( 'Saving document:', data )
+	// API call would go here
+	// For now, just update the local content
+	if ( currentDocument.value ) {
+		currentDocument.value.content = data.content
+	}
+	showDocumentViewer.value = false
 }
 
 // Booking actions
-const bookFacility = ( facility ) => {
-	console.log( 'Booking facility:', facility )
-	// Implement booking
+const bookFacility = ( facilityType ) => {
+	const facilities = {
+		party: {
+			id: 'party',
+			name: instance.proxy.$t( 'dashboard.booking.partyRoom' ) || 'Party Room',
+			icon: '🎉',
+			description: 'Perfect for celebrations and gatherings with friends and family',
+			capacity: '20 people',
+			maxCapacity: 20,
+			price: '¥2,000/hour',
+			priceValue: 2000,
+			amenities: 'Kitchen, Audio system, Projector'
+		},
+		guest: {
+			id: 'guest',
+			name: instance.proxy.$t( 'dashboard.booking.guestRoom' ) || 'Guest Room',
+			icon: '🛏️',
+			description: 'Comfortable accommodation for your visiting guests',
+			capacity: '2 people',
+			maxCapacity: 2,
+			price: '¥5,000/night',
+			priceValue: 5000,
+			amenities: 'Bed, Bathroom, Mini-fridge'
+		},
+		gym: {
+			id: 'gym',
+			name: instance.proxy.$t( 'dashboard.booking.gym' ) || 'Fitness Gym',
+			icon: '💪',
+			description: 'Fully equipped gym for your fitness needs',
+			capacity: '10 people',
+			maxCapacity: 10,
+			price: 'Free',
+			priceValue: 0,
+			amenities: 'Cardio machines, Weights, Yoga area'
+		}
+	}
+	selectedFacility.value = facilities[facilityType]
 }
 
 // Maintenance helpers
@@ -1161,22 +1906,42 @@ watch( showMobileMenu, ( newVal ) => {
 				box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
 				background white
 
-.submit-btn
+.submit-btn-primary
 	padding 1rem 3rem
-	background linear-gradient(135deg, #4CAF50 0%, #45A049 100%)
-	color white
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+	color #333
 	border none
 	border-radius 50px
 	font-size 1.1rem
 	font-weight 600
 	cursor pointer
 	transition all 0.3s ease
-	box-shadow 0 4px 15px rgba(76, 175, 80, 0.25)
+	box-shadow 0 4px 15px rgba(255, 193, 7, 0.25)
 
 	&:hover
-		background linear-gradient(135deg, #45A049 0%, #388E3C 100%)
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
 		transform translateY(-2px)
-		box-shadow 0 6px 20px rgba(76, 175, 80, 0.35)
+		box-shadow 0 6px 20px rgba(255, 193, 7, 0.35)
+
+.success-message
+	text-align center
+	padding 2rem
+	background linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%)
+	border-radius 15px
+	margin-bottom 2rem
+
+	.success-icon
+		font-size 3rem
+		margin-bottom 1rem
+
+	h3
+		color #2E7D32
+		margin-bottom 0.5rem
+		font-size 1.3rem
+
+	p
+		color #558B2F
+		line-height 1.5
 
 // Events Section
 .events-list
@@ -1192,6 +1957,25 @@ watch( showMobileMenu, ( newVal ) => {
 	border-radius 15px
 	transition all 0.3s ease
 	border 1px solid rgba(255, 193, 7, 0.1)
+	position relative
+	
+	&.clickable
+		cursor pointer
+		
+		&:hover
+			transform translateY(-2px)
+			box-shadow 0 8px 20px rgba(255, 193, 7, 0.15)
+			border-color #FFC107
+			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+	
+	.event-arrow
+		position absolute
+		right 1.5rem
+		top 50%
+		transform translateY(-50%)
+		color #FFC107
+		font-size 1.5rem
+		font-weight bold
 
 	&:hover
 		box-shadow 0 8px 20px rgba(255, 193, 7, 0.15)
@@ -1284,6 +2068,10 @@ watch( showMobileMenu, ( newVal ) => {
 	font-weight 500
 	transition all 0.3s ease
 	box-shadow 0 2px 8px rgba(0, 0, 0, 0.05)
+	
+	&.full-width
+		width 100%
+		margin-top 1rem
 
 	&:hover
 		background #f5f5f5
@@ -1339,4 +2127,39 @@ watch( showMobileMenu, ( newVal ) => {
 
 	.maintenance-form
 		padding 1rem
+
+// Modal styles
+.modal-overlay
+	position fixed
+	top 0
+	left 0
+	right 0
+	bottom 0
+	background rgba(0, 0, 0, 0.5)
+	z-index 9999
+	display flex
+	align-items center
+	justify-content center
+	padding 1rem
+
+.modal-content
+	width 90%
+	max-width 900px
+	max-height 90vh
+	overflow hidden
+	display flex
+	flex-direction column
+	animation slideIn 0.3s ease-out
+
+	@media (max-width: 768px)
+		width 95%
+		max-height 95vh
+
+@keyframes slideIn
+	from
+		opacity 0
+		transform translateY(-20px)
+	to
+		opacity 1
+		transform translateY(0)
 </style>

@@ -16,9 +16,11 @@ import { contentLoaded } from '@/store'
 engine.timeUnit = 's'
 
 // Import Kagi views
+import AdminDashboard from '@/views/AdminDashboard'
 import Dashboard from '@/views/Dashboard'
 import Home from '@/views/Home'
 import Login from '@/views/Login'
+import MansionAdminDashboard from '@/views/MansionAdminDashboard'
 
 export default {
 	name: 'App',
@@ -47,8 +49,20 @@ export default {
 					component: Dashboard,
 				},
 				{
+					path: '/dashboard/:section/:documentId',
+					component: Dashboard,
+				},
+				{
 					path: '/auth/verify',
 					component: Login,
+				},
+				{
+					path: '/admin-dashboard',
+					component: AdminDashboard,
+				},
+				{
+					path: '/mansion-dashboard',
+					component: MansionAdminDashboard,
 				},
 			]
 		},

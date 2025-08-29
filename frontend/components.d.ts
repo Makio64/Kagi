@@ -8,10 +8,16 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BillDetails: typeof import('./src/components/BillDetails.vue')['default']
     BurgerButton: typeof import('./src/components/ui/BurgerButton.vue')['default']
     ButtonFX: typeof import('./src/components/ui/ButtonFX.vue')['default']
+    ContactManager: typeof import('./src/components/ContactManager.vue')['default']
     DashboardCard: typeof import('./src/components/DashboardCard.vue')['default']
+    DocumentViewer: typeof import('./src/components/DocumentViewer.vue')['default']
     EmailPopup: typeof import('./src/components/EmailPopup.vue')['default']
+    EmergencyContacts: typeof import('./src/components/EmergencyContacts.vue')['default']
+    EventDetails: typeof import('./src/components/EventDetails.vue')['default']
+    FacilityBooking: typeof import('./src/components/FacilityBooking.vue')['default']
     GradientButton: typeof import('./src/components/ui/GradientButton.vue')['default']
     ImgNext: typeof import('./src/components/ui/ImgNext.vue')['default']
     KagiLogo: typeof import('./src/components/KagiLogo.vue')['default']

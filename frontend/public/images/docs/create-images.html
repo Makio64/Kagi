@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Building Images</title>
+</head>
+<body>
+    <h1>Building Management Document Images</h1>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const images = [
+            { name: 'building-exterior', title: 'Modern Building Exterior', colors: ['#FFE082', '#FFCA28', '#FFB300'] },
+            { name: 'lobby', title: 'Building Lobby', colors: ['#E1F5FE', '#81D4FA', '#4FC3F7'] },
+            { name: 'gym', title: 'Fitness Center', colors: ['#F3E5F5', '#CE93D8', '#AB47BC'] },
+            { name: 'party-room', title: 'Party Room', colors: ['#FFE0B2', '#FFCC80', '#FFB74D'] },
+            { name: 'guest-room', title: 'Guest Room', colors: ['#E8F5E9', '#A5D6A7', '#66BB6A'] },
+            { name: 'parking', title: 'Parking Area', colors: ['#ECEFF1', '#90A4AE', '#607D8B'] },
+            { name: 'pool', title: 'Swimming Pool', colors: ['#E0F7FA', '#4DD0E1', '#00ACC1'] },
+            { name: 'garden', title: 'Rooftop Garden', colors: ['#F1F8E9', '#AED581', '#8BC34A'] },
+            { name: 'security', title: 'Security System', colors: ['#FFF3E0', '#FFCC80', '#FF9800'] },
+            { name: 'mailroom', title: 'Mail Room', colors: ['#F3E5F5', '#E1BEE7', '#CE93D8'] }
+        ];
+        
+        function createImage(config) {
+            canvas.width = 800;
+            canvas.height = 600;
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, config.colors[0]);
+            gradient.addColorStop(0.5, config.colors[1]);
+            gradient.addColorStop(1, config.colors[2]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add pattern overlay
+            ctx.globalAlpha = 0.1;
+            for (let i = 0; i < 20; i++) {
+                for (let j = 0; j < 15; j++) {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(i * 40 + 10, j * 40 + 10, 20, 20);
+                }
+            }
+            ctx.globalAlpha = 1;
+            
+            // Add title
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            ctx.fillText(config.title, canvas.width / 2, canvas.height / 2);
+            
+            // Add decorative elements
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3;
+            ctx.globalAlpha = 0.5;
+            
+            // Top left corner
+            ctx.beginPath();
+            ctx.moveTo(50, 50);
+            ctx.lineTo(150, 50);
+            ctx.moveTo(50, 50);
+            ctx.lineTo(50, 150);
+            ctx.stroke();
+            
+            // Top right corner
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - 50, 50);
+            ctx.lineTo(canvas.width - 150, 50);
+            ctx.moveTo(canvas.width - 50, 50);
+            ctx.lineTo(canvas.width - 50, 150);
+            ctx.stroke();
+            
+            // Bottom left corner
+            ctx.beginPath();
+            ctx.moveTo(50, canvas.height - 50);
+            ctx.lineTo(150, canvas.height - 50);
+            ctx.moveTo(50, canvas.height - 50);
+            ctx.lineTo(50, canvas.height - 150);
+            ctx.stroke();
+            
+            // Bottom right corner
+            ctx.beginPath();
+            ctx.moveTo(canvas.width - 50, canvas.height - 50);
+            ctx.lineTo(canvas.width - 150, canvas.height - 50);
+            ctx.moveTo(canvas.width - 50, canvas.height - 50);
+            ctx.lineTo(canvas.width - 50, canvas.height - 150);
+            ctx.stroke();
+            
+            // Convert to blob and download
+            canvas.toBlob(function(blob) {
+                const link = document.createElement('a');
+                link.download = config.name + '.jpg';
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            }, 'image/jpeg', 0.9);
+        }
+        
+        // Generate all images with delay
+        let index = 0;
+        const interval = setInterval(() => {
+            if (index < images.length) {
+                createImage(images[index]);
+                index++;
+            } else {
+                clearInterval(interval);
+                document.body.innerHTML += '<p>All images generated!</p>';
+            }
+        }, 500);
+    </script>
+</body>
+</html>
