@@ -3,8 +3,8 @@ import { createApp } from 'vue'
 import { TinyRouterInstall } from 'vue-tiny-router'
 import TranslatePlugin, { loadTranslations } from 'vue-tiny-translation'
 
-import App from '@/App.vue'
-import { detectLang } from '@/makio/utils/detect.js'
+import App from './App.vue'
+import { detectLang } from './makio/utils/detect.js'
 
 async function init() {
 	// Detect user's language
