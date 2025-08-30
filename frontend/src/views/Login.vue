@@ -160,6 +160,7 @@ onMounted( async () => {
 		loading.value = true
 		try {
 			await authStore.verifyMagicLink( token )
+			// Magic link is only used for residents, always redirect to /dashboard
 			router.push( '/dashboard' )
 		} catch ( err ) {
 			error.value = instance.proxy.$t( 'login.errors.invalidLink' )
@@ -177,17 +178,8 @@ const requestMagicLink = async () => {
 		
 		// In mock mode, immediately redirect to appropriate dashboard
 		if ( result.mockLogin ) {
-			// Get the user role from the auth store
-			const userRole = authStore.user?.role
-			
-			// Redirect based on role
-			if ( residentEmail.value === 'makio' || residentEmail.value.includes('makio') || userRole === 'admin' ) {
-				router.push( '/admin-dashboard' )
-			} else if ( residentEmail.value.includes('resident') || userRole === 'resident' ) {
-				router.push( '/dashboard' )  // Regular resident dashboard
-			} else {
-				router.push( '/mansion-dashboard' )  // Mansion admin dashboard for others
-			}
+			// Resident tab always goes to /dashboard
+			router.push( '/dashboard' )
 			return
 		}
 		
