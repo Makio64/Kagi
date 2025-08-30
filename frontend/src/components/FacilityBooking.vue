@@ -827,7 +827,7 @@ const resetBooking = () => {
 	50%
 		transform scale(1.02)
 
-	.booking-date
+.booking-date
 		background white
 		border-radius 8px
 		padding 0.75rem
