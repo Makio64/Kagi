@@ -7,9 +7,6 @@
 			"@/*": [
 				"./src/*"
 			],
-			"anime": [
-				"./src/lib/anime.esm.js"
-			],
 			"three/webgpu": [
 				"node_modules/three/build/three.webgpu.js"
 			],

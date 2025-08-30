@@ -1,14 +1,74 @@
 <template>
-	<DashboardLayout 
-		:title="buildingName"
-		:user-email="authStore.user?.email"
-		:user-role="'Mansion Admin'"
-		:menu-items="menuItems"
-		:active-section="activeSection"
-		@navigate="navigateToSection"
-		@logout="handleLogout"
-		@logo-click="handleLogoClick"
-	>
+	<div class="dashboard">
+		<header class="header">
+			<div class="header-content">
+				<div class="header-left" style="cursor: pointer;" @click="navigateToSection('overview')">
+					<KagiLogo :size="40" />
+					<h1>{{ buildingName }}</h1>
+				</div>
+				<div class="header-right">
+					<span class="user-badge">Mansion Admin</span>
+					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
+						<span class="user-email">{{ authStore.user?.email }}</span>
+						<span class="menu-arrow">▼</span>
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<!-- Mobile Settings Menu -->
+		<transition name="slide">
+			<div v-if="showMobileMenu" class="mobile-settings-menu">
+				<div class="mobile-menu-header">
+					<h3>{{ $t('common.settings') || 'Settings' }}</h3>
+					<button class="close-menu-btn" @click="showMobileMenu = false">✕</button>
+				</div>
+				<div class="mobile-menu-content">
+					<div class="mobile-user-info">
+						<div class="user-email">{{ authStore.user?.email }}</div>
+						<div class="user-role">Mansion Admin</div>
+					</div>
+					<div class="mobile-lang-section">
+						<LanguageSwitcher />
+					</div>
+					<button class="mobile-logout-btn" @click="handleLogout">
+						{{ $t('nav.logout') || 'Logout' }}
+					</button>
+				</div>
+			</div>
+		</transition>
+
+		<div class="dashboard-content">
+			<aside class="sidebar">
+				<nav class="nav-menu">
+					<button
+						v-for="item in menuItems"
+						:key="item.id"
+						:class="['nav-item', { active: activeSection === item.id }]"
+						@click="navigateToSection(item.id)"
+					>
+						<span class="nav-icon">{{ item.icon }}</span>
+						<span class="nav-label">{{ item.label }}</span>
+					</button>
+				</nav>
+
+				<!-- Mobile menu with circular icons -->
+				<nav class="nav-menu-mobile">
+					<button
+						v-for="item in menuItems"
+						:key="item.id"
+						:class="['nav-item-mobile', { active: activeSection === item.id }]"
+						@click="navigateToSection(item.id)"
+					>
+						<div class="nav-icon-circle">
+							<span class="nav-icon">{{ item.icon }}</span>
+						</div>
+						<span class="nav-label-mobile">{{ item.label }}</span>
+					</button>
+				</nav>
+			</aside>
+
+			<main class="main-content">
 		<!-- Overview Section -->
 		<section v-if="activeSection === 'overview'" class="section">
 			<SectionHeader 
@@ -592,19 +652,21 @@
 				</div>
 			</div>
 		</transition>
-	</DashboardLayout>
+			</main>
+		</div>
+	</div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 
+import KagiLogo from '../components/KagiLogo.vue'
 import KButton from '../components/core/KButton.vue'
 import KCard from '../components/core/KCard.vue'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import SectionHeader from '../components/dashboard/SectionHeader.vue'
 import StatCard from '../components/dashboard/StatCard.vue'
-// Components
-import DashboardLayout from '../components/layout/DashboardLayout.vue'
 // Stores
 import { useAuthStore } from '../stores/auth'
 
@@ -617,6 +679,7 @@ const buildingName = ref( 'Sakura Tower' )
 
 // Navigation
 const activeSection = ref( 'overview' )
+const showMobileMenu = ref( false )
 
 // Menu items for sidebar
 const menuItems = ref( [
@@ -638,10 +701,6 @@ const navigateToSection = ( section ) => {
 const handleLogout = async () => {
 	await authStore.logout()
 	router.push( '/login' )
-}
-
-const handleLogoClick = () => {
-	activeSection.value = 'overview'
 }
 
 // Sample Data
@@ -765,6 +824,375 @@ const nextWeek = () => {
 <style lang="stylus" scoped>
 @import '../styles/tokens.styl'
 
+.dashboard
+	min-height 100vh
+	display flex
+	flex-direction column
+	background linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)
+	box-sizing border-box
+
+// Global box-sizing fix
+*, *::before, *::after
+	box-sizing border-box
+
+.header
+	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+	box-shadow 0 4px 20px rgba(255, 193, 7, 0.15)
+	position sticky
+	top 0
+	z-index 100
+
+.header-content
+	max-width 1400px
+	margin 0 auto
+	padding 1rem 2rem
+	display flex
+	justify-content space-between
+	align-items center
+
+.header-left
+	display flex
+	align-items center
+	gap 1rem
+	
+	h1
+		font-size 1.5rem
+		color #333
+		margin 0
+
+.header-right
+	display flex
+	align-items center
+	gap 1rem
+
+.user-badge
+	padding 0.5rem 1rem
+	background #FFC107
+	color white
+	border-radius 50px
+	font-size 0.9rem
+	font-weight 600
+
+.user-menu-btn
+	display flex
+	align-items center
+	gap 0.5rem
+	padding 0.6rem 1.2rem
+	background white
+	color #333
+	border 2px solid rgba(255, 193, 7, 0.3)
+	border-radius 50px
+	cursor pointer
+	transition all 0.3s ease
+	box-shadow 0 2px 10px rgba(255, 193, 7, 0.1)
+	font-size 0.95rem
+	
+	.user-email
+		font-weight 500
+		max-width 200px
+		overflow hidden
+		text-overflow ellipsis
+		white-space nowrap
+		
+		@media (max-width: 480px)
+			max-width 120px
+			font-size 0.9rem
+	
+	.menu-arrow
+		font-size 0.7rem
+		transition transform 0.3s ease
+	
+	&:hover
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+		border-color #FFC107
+		box-shadow 0 4px 15px rgba(255, 193, 7, 0.25)
+	
+	&.active
+		.menu-arrow
+			transform rotate(180deg)
+
+// Mobile Settings Menu
+.mobile-settings-menu
+	position fixed
+	top 0
+	right 0
+	width 280px
+	height 100vh
+	background white
+	box-shadow -2px 0 10px rgba(0, 0, 0, 0.15)
+	z-index 1000
+	display flex
+	flex-direction column
+
+.mobile-menu-header
+	display flex
+	justify-content space-between
+	align-items center
+	padding 1.5rem
+	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+	border-bottom 2px solid #FFC107
+	
+	h3
+		margin 0
+		color #333
+
+.close-menu-btn
+	background none
+	border none
+	font-size 1.5rem
+	color #666
+	cursor pointer
+	padding 0
+	width 30px
+	height 30px
+	display flex
+	align-items center
+	justify-content center
+	border-radius 50%
+	transition all 0.2s ease
+	
+	&:hover
+		background rgba(0, 0, 0, 0.1)
+		color #333
+
+.mobile-menu-content
+	flex 1
+	padding 1.5rem
+	display flex
+	flex-direction column
+	gap 1.5rem
+
+.mobile-user-info
+	background #f9f9f9
+	padding 1rem
+	border-radius 10px
+	
+	.user-email
+		font-weight 600
+		color #333
+		margin-bottom 0.5rem
+		word-break break-all
+	
+	.user-role
+		font-size 0.9rem
+		color #666
+		text-transform capitalize
+
+.mobile-lang-section
+	padding 1rem 0
+	border-top 1px solid #e0e0e0
+	border-bottom 1px solid #e0e0e0
+
+.mobile-logout-btn
+	width 100%
+	padding 1rem
+	background white
+	color #666
+	border 2px solid #e0e0e0
+	border-radius 50px
+	font-size 1rem
+	font-weight 500
+	cursor pointer
+	transition all 0.3s ease
+	margin-top auto
+	
+	&:hover
+		background #f5f5f5
+		border-color #999
+		color #333
+
+// Slide animation for mobile menu
+.slide-enter-active, .slide-leave-active
+	transition transform 0.3s ease
+
+.slide-enter-from, .slide-leave-to
+	transform translateX(100%)
+
+.dashboard-content
+	display flex
+	flex 1
+	max-width 1400px
+	margin 0 auto
+	width 100%
+	gap 2rem
+	padding 2rem
+	
+	@media (max-width: 768px)
+		padding 1rem
+		gap 1rem
+	
+	@media (max-width: 550px)
+		padding 0.5rem
+		gap 0.5rem
+
+.sidebar
+	width 250px
+	background white
+	border-radius 20px
+	padding 1.5rem
+	box-shadow 0 8px 25px rgba(255, 193, 7, 0.08)
+	height fit-content
+	position sticky
+	top 100px
+	border 1px solid rgba(255, 193, 7, 0.15)
+	
+	@media (max-width: 768px)
+		width 100%
+		padding 0.75rem 0
+		border-radius 0
+		box-shadow none
+		background #f9f9f9
+		position static
+		border-bottom 2px solid #e0e0e0
+
+.nav-menu
+	display flex
+	flex-direction column
+	gap 0.5rem
+	
+	@media (max-width: 768px)
+		display none
+
+// Mobile menu - hidden on desktop
+.nav-menu-mobile
+	display none
+	
+	@media (max-width: 768px)
+		display flex
+		flex-direction row
+		gap 0.75rem
+		padding-bottom 0.5rem
+		overflow-x auto
+		overflow-y hidden
+		-webkit-overflow-scrolling touch
+		scrollbar-width thin
+		
+		&::-webkit-scrollbar
+			height 4px
+		
+		&::-webkit-scrollbar-track
+			background #f0f0f0
+			border-radius 2px
+		
+		&::-webkit-scrollbar-thumb
+			background #ccc
+			border-radius 2px
+	
+	@media (max-width: 550px)
+		gap 0.4rem
+
+.nav-item
+	display flex
+	align-items center
+	gap 1rem
+	padding 1rem
+	background transparent
+	border none
+	border-radius 15px
+	cursor pointer
+	transition all 0.3s ease
+	text-align left
+	text-decoration none
+	color #666
+	width 100%
+	font-size 0.95rem
+	font-family inherit
+	
+	&:hover
+		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+		color #333
+		transform translateX(5px)
+	
+	&.active
+		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+		color white
+		font-weight 600
+		box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
+	
+	.nav-icon
+		font-size 1.2rem
+	
+	.nav-label
+		font-size 0.95rem
+
+// Mobile navigation items
+.nav-item-mobile
+	display flex
+	flex-direction column
+	align-items center
+	gap 0.5rem
+	padding 0.5rem
+	background transparent
+	border none
+	cursor pointer
+	transition all 0.2s ease
+	min-width 70px
+	flex-shrink 0
+	
+	@media (max-width: 550px)
+		min-width 60px
+		padding 0.25rem
+	
+	.nav-icon-circle
+		width 50px
+		height 50px
+		border-radius 50%
+		background white
+		display flex
+		align-items center
+		justify-content center
+		box-shadow 0 2px 8px rgba(0, 0, 0, 0.1)
+		transition all 0.2s ease
+		
+		@media (max-width: 550px)
+			width 45px
+			height 45px
+	
+	.nav-icon
+		font-size 1.5rem
+		
+		@media (max-width: 550px)
+			font-size 1.3rem
+	
+	.nav-label-mobile
+		font-size 0.75rem
+		color #666
+		text-align center
+		
+		@media (max-width: 550px)
+			font-size 0.7rem
+	
+	&:hover
+		.nav-icon-circle
+			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+			transform scale(1.05)
+	
+	&.active
+		.nav-icon-circle
+			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+			box-shadow 0 4px 12px rgba(255, 193, 7, 0.4)
+		
+		.nav-label-mobile
+			color #333
+			font-weight 600
+
+.main-content
+	flex 1
+	background white
+	border-radius 20px
+	padding 2rem
+	box-shadow 0 8px 25px rgba(255, 193, 7, 0.08)
+	border 1px solid rgba(255, 193, 7, 0.15)
+	overflow-x hidden
+	
+	@media (max-width: 768px)
+		padding 1.5rem
+		border-radius 15px
+	
+	@media (max-width: 550px)
+		padding 1rem
+		border-radius 10px
+
 .section
 	animation fadeIn 0.3s ease
 
@@ -783,17 +1211,76 @@ const nextWeek = () => {
 	gap 1.5rem
 	margin-bottom 2rem
 
-// Actions grid
+// Actions grid - Quick Actions buttons
 .actions-grid
 	display grid
 	grid-template-columns repeat(auto-fit, minmax(200px, 1fr))
 	gap 1rem
+	
+	// Make KCard components look like clickable buttons
+	:deep(.k-card)
+		background white
+		border 2px solid rgba(255, 193, 7, 0.2)
+		border-radius 15px
+		padding 1.5rem
+		cursor pointer
+		transition all 0.3s ease
+		box-shadow 0 2px 8px rgba(0, 0, 0, 0.05)
+		text-align center
+		
+		&:hover
+			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+			border-color #FFC107
+			transform translateY(-3px)
+			box-shadow 0 6px 20px rgba(255, 193, 7, 0.25)
+		
+		.k-card-header
+			padding 0
+			border-bottom none
+			
+			.k-card-icon
+				font-size 2rem
+				margin-bottom 0.5rem
+			
+			.k-card-title
+				font-size 1rem
+				font-weight 600
+				color #333
 
 // Residents grid
 .residents-grid
 	display grid
 	grid-template-columns repeat(auto-fill, minmax(350px, 1fr))
 	gap 1.5rem
+	
+	// Style KCard components in residents grid
+	:deep(.k-card)
+		background white
+		border 2px solid rgba(255, 193, 7, 0.15)
+		border-radius 15px
+		padding 1.5rem
+		box-shadow 0 3px 10px rgba(0, 0, 0, 0.08)
+		transition all 0.3s ease
+		
+		&:hover
+			border-color rgba(255, 193, 7, 0.3)
+			box-shadow 0 5px 15px rgba(255, 193, 7, 0.15)
+			transform translateY(-2px)
+		
+		.k-card-header
+			padding 0 0 1rem 0
+			border-bottom 1px solid #f0f0f0
+			margin-bottom 1rem
+			
+			.k-card-title
+				font-size 1.1rem
+				font-weight 600
+				color #333
+		
+		.k-card-footer
+			padding-top 1rem
+			margin-top 1rem
+			border-top 1px solid #f0f0f0
 
 .resident-details
 	p
@@ -820,6 +1307,34 @@ const nextWeek = () => {
 	display flex
 	flex-direction column
 	gap 1rem
+	
+	// Style KCard components in maintenance list
+	:deep(.k-card)
+		background white
+		border 2px solid rgba(255, 193, 7, 0.15)
+		border-radius 15px
+		padding 1.5rem
+		box-shadow 0 3px 10px rgba(0, 0, 0, 0.08)
+		transition all 0.3s ease
+		
+		&:hover
+			border-color rgba(255, 193, 7, 0.3)
+			box-shadow 0 5px 15px rgba(255, 193, 7, 0.15)
+			transform translateY(-2px)
+		
+		.k-card-header
+			padding 0
+			border-bottom none
+			
+			.k-card-title
+				font-size 1.05rem
+				font-weight 600
+				color #333
+		
+		.k-card-footer
+			padding-top 1rem
+			margin-top 1rem
+			border-top 1px solid #f0f0f0
 
 .maintenance-card
 	&.urgent
@@ -935,6 +1450,35 @@ const nextWeek = () => {
 	display flex
 	flex-direction column
 	gap 1rem
+	
+	// Style KCard components in announcements list
+	:deep(.k-card)
+		background white
+		border 2px solid rgba(255, 193, 7, 0.15)
+		border-radius 15px
+		padding 1.5rem
+		box-shadow 0 3px 10px rgba(0, 0, 0, 0.08)
+		transition all 0.3s ease
+		
+		&:hover
+			border-color rgba(255, 193, 7, 0.3)
+			box-shadow 0 5px 15px rgba(255, 193, 7, 0.15)
+			transform translateY(-2px)
+		
+		.k-card-header
+			padding 0 0 1rem 0
+			border-bottom 1px solid #f0f0f0
+			margin-bottom 1rem
+			
+			.k-card-title
+				font-size 1.1rem
+				font-weight 600
+				color #333
+		
+		.k-card-footer
+			padding-top 1rem
+			margin-top 1rem
+			border-top 1px solid #f0f0f0
 
 .announcement-category
 	padding 0.25rem 0.75rem
@@ -977,6 +1521,39 @@ const nextWeek = () => {
 	display grid
 	grid-template-columns repeat(auto-fill, minmax(300px, 1fr))
 	gap 1.5rem
+	
+	// Style KCard components in documents grid
+	:deep(.k-card)
+		background white
+		border 2px solid rgba(255, 193, 7, 0.15)
+		border-radius 15px
+		padding 1.5rem
+		box-shadow 0 3px 10px rgba(0, 0, 0, 0.08)
+		transition all 0.3s ease
+		
+		&:hover
+			border-color rgba(255, 193, 7, 0.3)
+			box-shadow 0 5px 15px rgba(255, 193, 7, 0.15)
+			transform translateY(-2px)
+		
+		.k-card-header
+			padding 0 0 1rem 0
+			border-bottom 1px solid #f0f0f0
+			margin-bottom 1rem
+			
+			.k-card-icon
+				font-size 1.5rem
+				margin-bottom 0.5rem
+			
+			.k-card-title
+				font-size 1.05rem
+				font-weight 600
+				color #333
+		
+		.k-card-footer
+			padding-top 1rem
+			margin-top 1rem
+			border-top 1px solid #f0f0f0
 
 .doc-description
 	margin 0.5rem 0
@@ -1052,6 +1629,42 @@ const nextWeek = () => {
 	display grid
 	grid-template-columns repeat(auto-fit, minmax(250px, 1fr))
 	gap 1.5rem
+	
+	// Style KCard components in reports grid
+	:deep(.k-card)
+		background white
+		border 2px solid rgba(255, 193, 7, 0.15)
+		border-radius 15px
+		padding 1.5rem
+		box-shadow 0 3px 10px rgba(0, 0, 0, 0.08)
+		transition all 0.3s ease
+		cursor pointer
+		
+		&:hover
+			border-color rgba(255, 193, 7, 0.3)
+			box-shadow 0 5px 15px rgba(255, 193, 7, 0.15)
+			transform translateY(-2px)
+			background linear-gradient(135deg, #FFFBF0 0%, #FFF9E6 100%)
+		
+		.k-card-header
+			padding 0
+			border-bottom none
+			text-align center
+			
+			.k-card-icon
+				font-size 2.5rem
+				margin-bottom 0.75rem
+			
+			.k-card-title
+				font-size 1.1rem
+				font-weight 600
+				color #333
+				margin-bottom 0.5rem
+		
+		.k-card-body
+			text-align center
+			color #666
+			font-size 0.95rem
 
 // Settings
 .settings-grid
