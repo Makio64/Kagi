@@ -13,6 +13,7 @@ declare module 'vue' {
     ButtonFX: typeof import('./src/components/ui/ButtonFX.vue')['default']
     ContactManager: typeof import('./src/components/ContactManager.vue')['default']
     DashboardCard: typeof import('./src/components/DashboardCard.vue')['default']
+    DashboardLayout: typeof import('./src/components/layout/DashboardLayout.vue')['default']
     DocumentViewer: typeof import('./src/components/DocumentViewer.vue')['default']
     EmailPopup: typeof import('./src/components/EmailPopup.vue')['default']
     EmergencyContacts: typeof import('./src/components/EmergencyContacts.vue')['default']
@@ -21,11 +22,15 @@ declare module 'vue' {
     GradientButton: typeof import('./src/components/ui/GradientButton.vue')['default']
     ImgNext: typeof import('./src/components/ui/ImgNext.vue')['default']
     KagiLogo: typeof import('./src/components/KagiLogo.vue')['default']
+    KButton: typeof import('./src/components/core/KButton.vue')['default']
+    KCard: typeof import('./src/components/core/KCard.vue')['default']
     LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
     ProgressBar: typeof import('./src/components/ui/ProgressBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SectionHeader: typeof import('./src/components/dashboard/SectionHeader.vue')['default']
     Spinner: typeof import('./src/components/ui/Spinner.vue')['default']
+    StatCard: typeof import('./src/components/dashboard/StatCard.vue')['default']
     SVGCircle: typeof import('./src/components/ui/SVGCircle.vue')['default']
   }
 }

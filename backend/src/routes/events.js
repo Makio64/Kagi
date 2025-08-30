@@ -1,4 +1,5 @@
 import fp from 'fastify-plugin'
+
 import { prisma } from '../utils/prisma.js'
 
 export default fp(async function (fastify, opts) {
@@ -19,5 +20,5 @@ export default fp(async function (fastify, opts) {
 			fastify.log.error(error)
 			return reply.code(500).send({ error: 'Failed to fetch events' })
 		}
-	})
+	}
 })

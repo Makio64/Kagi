@@ -10,7 +10,9 @@
     "build:frontend": "cd frontend && pnpm build",
     "install:all": "pnpm install && cd frontend && pnpm install && cd ../backend && pnpm install",
     "lint": "cd frontend && pnpm lint",
-    "test": "echo \"No tests yet\""
+    "test": "echo \"No tests yet\"",
+    "storybook": "cd frontend && pnpm storybook",
+    "build-storybook": "cd frontend && pnpm build-storybook"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

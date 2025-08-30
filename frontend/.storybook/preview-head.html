@@ -1,0 +1,39 @@
+<!-- Load custom fonts for Storybook -->
+<style>
+  /* BlackHanSans font face declarations */
+  @font-face {
+    font-family: 'BlackHanSans';
+    src: url('/fonts/subset-BlackHanSans-Regular.woff2') format('woff2'),
+         url('/fonts/subset-BlackHanSans-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Apply system font stack globally - matching tokens.styl */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Global styles matching the main app */
+  html {
+    background: #f5f5f5;
+  }
+
+  body, html {
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+  }
+
+  @media screen and (prefers-reduced-motion: reduce) {
+    body, html {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+
+<!-- Preload critical fonts for better performance -->
+<link rel="preload" href="/fonts/subset-BlackHanSans-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">

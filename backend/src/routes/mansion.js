@@ -1,4 +1,5 @@
 import fp from 'fastify-plugin'
+
 import { prisma } from '../utils/prisma.js'
 
 export default fp(async function (fastify, opts) {
@@ -14,17 +15,16 @@ export default fp(async function (fastify, opts) {
 							users: true,
 							events: true,
 							facilities: true
-						}
-					}
-				}
+						})
+					})
+				})
 			})
 			return reply.send({ mansions })
 		} catch (error) {
 			fastify.log.error(error)
 			return reply.code(500).send({ error: 'Failed to fetch mansions' })
 		}
-	})
-
+	}
 	// Get single mansion details
 	fastify.get('/:id', {
 		preHandler: [fastify.authenticate]
@@ -35,7 +35,7 @@ export default fp(async function (fastify, opts) {
 			// Check if user has access to this mansion
 			if (request.user.role !== 'admin' && request.user.mansionId !== id) {
 				return reply.code(403).send({ error: 'Access denied' })
-			}
+			})
 
 			const mansion = await prisma.mansion.findUnique({
 				where: { id },
@@ -52,22 +52,21 @@ export default fp(async function (fastify, opts) {
 						select: {
 							users: true,
 							documents: true
-						}
-					}
-				}
+						})
+					})
+				})
 			})
 
 			if (!mansion) {
 				return reply.code(404).send({ error: 'Mansion not found' })
-			}
+			})
 
 			return reply.send({ mansion })
 		} catch (error) {
 			fastify.log.error(error)
 			return reply.code(500).send({ error: 'Failed to fetch mansion' })
 		}
-	})
-
+	}
 	// Create mansion (admin only)
 	fastify.post('/', {
 		preHandler: [fastify.authorizeRole(['admin'])]
@@ -86,7 +85,7 @@ export default fp(async function (fastify, opts) {
 					description,
 					facilities,
 					rules
-				}
+				})
 			})
 
 			return reply.code(201).send({ mansion })
@@ -94,8 +93,7 @@ export default fp(async function (fastify, opts) {
 			fastify.log.error(error)
 			return reply.code(500).send({ error: 'Failed to create mansion' })
 		}
-	})
-
+	}
 	// Update mansion (admin or mansion_admin)
 	fastify.put('/:id', {
 		preHandler: [fastify.authorizeRole(['admin', 'mansion_admin'])]
@@ -107,7 +105,7 @@ export default fp(async function (fastify, opts) {
 			// Check if mansion_admin has access to this mansion
 			if (request.user.role === 'mansion_admin' && request.user.mansionId !== id) {
 				return reply.code(403).send({ error: 'Access denied' })
-			}
+			})
 
 			const mansion = await prisma.mansion.update({
 				where: { id },
@@ -117,7 +115,7 @@ export default fp(async function (fastify, opts) {
 					description,
 					facilities,
 					rules
-				}
+				})
 			})
 
 			return reply.send({ mansion })
@@ -125,5 +123,5 @@ export default fp(async function (fastify, opts) {
 			fastify.log.error(error)
 			return reply.code(500).send({ error: 'Failed to update mansion' })
 		}
-	})
+	}
 })

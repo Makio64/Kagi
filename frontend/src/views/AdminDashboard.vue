@@ -1,353 +1,470 @@
 <template>
-	<div class="admin-dashboard">
-		<header class="header">
-			<div class="header-content">
-				<div class="header-left" style="cursor: pointer;" @click="navigateToSection('overview')">
-					<KagiLogo :size="40" />
-					<h1>Kagi Admin</h1>
-				</div>
-				<div class="header-right">
-					<span class="admin-badge">{{ $t('admin.role') || 'Administrator' }}</span>
-					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
-						<span class="user-email">{{ authStore.user?.email }}</span>
-						<span class="menu-arrow">▼</span>
-					</button>
-				</div>
+	<DashboardLayout user-type="admin" :user-name="authStore.user?.email">
+		<!-- Overview Section -->
+		<section v-if="activeSection === 'overview'" class="section">
+			<SectionHeader 
+				:title="$t('admin.overview.title') || 'Management Overview'"
+				icon="📊"
+			/>
+			
+			<!-- Statistics Cards -->
+			<div class="stats-grid">
+				<StatCard
+					icon="🏢"
+					:label="$t('admin.stats.buildings') || 'Buildings'"
+					:value="12"
+					variant="primary"
+					:trend="{ text: '+2 this month', positive: true }"
+				/>
+				<StatCard
+					icon="👥"
+					:label="$t('admin.stats.residents') || 'Total Residents'"
+					:value="1248"
+					variant="secondary"
+					:trend="{ text: '+48 this month', positive: true }"
+				/>
+				<StatCard
+					icon="🔧"
+					:label="$t('admin.stats.maintenance') || 'Open Requests'"
+					:value="23"
+					variant="warning"
+					:trend="{ text: '8 urgent', positive: false }"
+				/>
+				<StatCard
+					icon="💰"
+					:label="$t('admin.stats.revenue') || 'Monthly Revenue'"
+					:value="12500000"
+					format="currency"
+					variant="success"
+					:trend="{ text: '+12%', positive: true }"
+				/>
 			</div>
-		</header>
 
-		<!-- Mobile Settings Menu -->
-		<transition name="slide">
-			<div v-if="showMobileMenu" class="mobile-settings-menu">
-				<div class="mobile-menu-header">
-					<h3>{{ $t('common.settings') }}</h3>
-					<button class="close-menu-btn" @click="showMobileMenu = false">✕</button>
-				</div>
-				<div class="mobile-menu-content">
-					<div class="mobile-user-info">
-						<div class="user-email">{{ authStore.user?.email }}</div>
-						<div class="user-role">{{ authStore.user?.role }}</div>
+			<!-- Recent Activities -->
+			<KCard title="Recent Activity" icon="🔔" variant="default" elevated>
+				<div class="activity-list">
+					<div class="activity-item">
+						<span class="activity-icon">🔧</span>
+						<div class="activity-content">
+							<p>New maintenance request from Unit 502</p>
+							<span class="activity-time">5 minutes ago</span>
+						</div>
 					</div>
-					<div class="mobile-lang-section">
+					<div class="activity-item">
+						<span class="activity-icon">📅</span>
+						<div class="activity-content">
+							<p>Party Room booked for Dec 25</p>
+							<span class="activity-time">1 hour ago</span>
+						</div>
+					</div>
+					<div class="activity-item">
+						<span class="activity-icon">💳</span>
+						<div class="activity-content">
+							<p>15 residents paid management fees</p>
+							<span class="activity-time">Today</span>
+						</div>
+					</div>
+				</div>
+			</KCard>
+		</section>
+
+		<!-- Buildings Management -->
+		<section v-if="activeSection === 'buildings'" class="section">
+			<SectionHeader 
+				:title="$t('admin.buildings.title') || 'Buildings Management'"
+				icon="🏢"
+			>
+				<template #actions>
+					<KButton variant="primary" icon="➕" @click="showAddBuildingModal = true">
+						{{ $t('admin.buildings.add') || 'Add Building' }}
+					</KButton>
+				</template>
+			</SectionHeader>
+			
+			<div class="buildings-list">
+				<KCard
+					v-for="building in buildings"
+					:key="building.id"
+					:title="building.name"
+					variant="default"
+					outlined
+				>
+					<template #badge>
+						<span class="building-status" :class="building.status">{{ building.status }}</span>
+					</template>
+					<div class="building-info">
+						<p><strong>{{ $t('admin.buildings.address') || 'Address' }}:</strong> {{ building.address }}</p>
+						<p><strong>{{ $t('admin.buildings.units') || 'Units' }}:</strong> {{ building.units }}</p>
+						<p><strong>{{ $t('admin.buildings.occupancy') || 'Occupancy' }}:</strong> {{ building.occupancy }}%</p>
+					</div>
+					<template #footer>
+						<div class="building-actions">
+							<KButton size="sm" variant="secondary">{{ $t('common.edit') || 'Edit' }}</KButton>
+							<KButton size="sm" variant="primary">{{ $t('admin.buildings.manage') || 'Manage' }}</KButton>
+							<KButton size="sm" variant="danger">{{ $t('common.delete') || 'Delete' }}</KButton>
+						</div>
+					</template>
+				</KCard>
+			</div>
+		</section>
+
+		<!-- Users Management -->
+		<section v-if="activeSection === 'users'" class="section">
+			<SectionHeader 
+				:title="$t('admin.users.title') || 'Users Management'"
+				icon="👥"
+				searchable
+				search-placeholder="Search users..."
+			>
+				<template #actions>
+					<KButton variant="primary" icon="➕">
+						{{ $t('admin.users.invite') || 'Invite User' }}
+					</KButton>
+				</template>
+			</SectionHeader>
+			
+			<KCard elevated no-padding>
+				<div class="users-table">
+					<table>
+						<thead>
+							<tr>
+								<th>{{ $t('admin.users.name') || 'Name' }}</th>
+								<th>{{ $t('admin.users.email') || 'Email' }}</th>
+								<th>{{ $t('admin.users.role') || 'Role' }}</th>
+								<th>{{ $t('admin.users.building') || 'Building' }}</th>
+								<th>{{ $t('admin.users.status') || 'Status' }}</th>
+								<th>{{ $t('admin.users.actions') || 'Actions' }}</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="user in users" :key="user.id">
+								<td>{{ user.name }}</td>
+								<td>{{ user.email }}</td>
+								<td><span class="role-badge" :class="user.role">{{ user.role }}</span></td>
+								<td>{{ user.building }}</td>
+								<td><span class="status-badge" :class="user.status">{{ user.status }}</span></td>
+								<td>
+									<KButton size="xs" icon="✏️" variant="ghost" />
+									<KButton size="xs" icon="🗑️" variant="ghost" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</KCard>
+		</section>
+
+		<!-- Maintenance Overview -->
+		<section v-if="activeSection === 'maintenance'" class="section">
+			<SectionHeader 
+				:title="$t('admin.maintenance.title') || 'Maintenance Overview'"
+				icon="🔧"
+			/>
+			
+			<div class="maintenance-stats">
+				<StatCard
+					icon="🚨"
+					:label="$t('admin.maintenance.urgent') || 'Urgent'"
+					:value="8"
+					variant="danger"
+				/>
+				<StatCard
+					icon="⏳"
+					:label="$t('admin.maintenance.pending') || 'Pending'"
+					:value="15"
+					variant="warning"
+				/>
+				<StatCard
+					icon="🔧"
+					:label="$t('admin.maintenance.inProgress') || 'In Progress'"
+					:value="12"
+					variant="info"
+				/>
+				<StatCard
+					icon="✅"
+					:label="$t('admin.maintenance.completed') || 'Completed'"
+					:value="142"
+					variant="success"
+				/>
+			</div>
+
+			<KCard 
+				:title="$t('admin.maintenance.recent') || 'Recent Requests'"
+				elevated
+			>
+				<div class="requests-list">
+					<div v-for="request in maintenanceRequests" :key="request.id" class="request-card">
+						<div class="request-header">
+							<span class="priority" :class="request.priority">{{ request.priority }}</span>
+							<h4>{{ request.title }}</h4>
+							<span class="request-time">{{ request.time }}</span>
+						</div>
+						<p>{{ request.description }}</p>
+						<div class="request-footer">
+							<span class="request-unit">Unit {{ request.unit }}</span>
+							<KButton size="sm" variant="primary">
+								{{ $t('admin.maintenance.assign') || 'Assign' }}
+							</KButton>
+						</div>
+					</div>
+				</div>
+			</KCard>
+		</section>
+
+		<!-- Financial Reports -->
+		<section v-if="activeSection === 'financial'" class="section">
+			<SectionHeader 
+				:title="$t('admin.financial.title') || 'Financial Reports'"
+				icon="💰"
+			>
+				<template #actions>
+					<KButton variant="secondary" icon="📥">
+						{{ $t('admin.financial.export') || 'Export Report' }}
+					</KButton>
+				</template>
+			</SectionHeader>
+			
+			<div class="financial-summary">
+				<StatCard
+					icon="💵"
+					:label="$t('admin.financial.revenue') || 'Total Revenue'"
+					:value="152340000"
+					format="currency"
+					subtext="This Year"
+					variant="primary"
+				/>
+				<StatCard
+					icon="💸"
+					:label="$t('admin.financial.expenses') || 'Total Expenses'"
+					:value="98200000"
+					format="currency"
+					subtext="This Year"
+					variant="secondary"
+				/>
+				<StatCard
+					icon="💰"
+					:label="$t('admin.financial.profit') || 'Net Profit'"
+					:value="54140000"
+					format="currency"
+					subtext="This Year"
+					variant="success"
+				/>
+			</div>
+
+			<KCard 
+				:title="$t('admin.financial.paymentStatus') || 'Payment Status by Building'"
+				elevated
+			>
+				<div class="payment-grid">
+					<div v-for="building in buildingPayments" :key="building.id" class="payment-card">
+						<h4>{{ building.name }}</h4>
+						<div class="payment-bar">
+							<div class="payment-progress" :style="`width: ${building.percentage}%`" />
+						</div>
+						<p>{{ building.percentage }}% collected ({{ building.collected }}/{{ building.total }})</p>
+					</div>
+				</div>
+			</KCard>
+		</section>
+
+		<!-- Settings -->
+		<section v-if="activeSection === 'settings'" class="section">
+			<SectionHeader 
+				:title="$t('admin.settings.title') || 'System Settings'"
+				icon="⚙️"
+			/>
+			
+			<div class="settings-sections">
+				<KCard 
+					:title="$t('admin.settings.notifications') || 'Notification Settings'"
+					icon="🔔"
+					outlined
+				>
+					<div class="setting-item">
+						<label>
+							<input type="checkbox" checked>
+							{{ $t('admin.settings.emailNotifications') || 'Email notifications for urgent requests' }}
+						</label>
+					</div>
+					<div class="setting-item">
+						<label>
+							<input type="checkbox" checked>
+							{{ $t('admin.settings.dailyReports') || 'Daily summary reports' }}
+						</label>
+					</div>
+				</KCard>
+
+				<KCard 
+					:title="$t('admin.settings.security') || 'Security Settings'"
+					icon="🔐"
+					outlined
+				>
+					<div class="setting-item">
+						<label>{{ $t('admin.settings.twoFactor') || 'Two-factor authentication' }}</label>
+						<KButton size="sm" variant="primary">
+							{{ $t('admin.settings.enable') || 'Enable' }}
+						</KButton>
+					</div>
+					<div class="setting-item">
+						<label>{{ $t('admin.settings.sessionTimeout') || 'Session timeout' }}</label>
+						<select>
+							<option>30 minutes</option>
+							<option>1 hour</option>
+							<option>2 hours</option>
+						</select>
+					</div>
+				</KCard>
+
+				<KCard 
+					:title="$t('admin.settings.appearance') || 'Appearance'"
+					icon="🎨"
+					outlined
+				>
+					<div class="setting-item">
+						<label>{{ $t('common.language') || 'Language' }}</label>
 						<LanguageSwitcher />
 					</div>
-					<button class="mobile-logout-btn" @click="logout">
-						{{ $t('nav.logout') }}
-					</button>
+				</KCard>
+			</div>
+		</section>
+
+		<!-- Add Building Modal -->
+		<transition name="modal">
+			<div v-if="showAddBuildingModal" class="modal-overlay" @click.self="closeAddBuildingModal">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h3>{{ $t('admin.buildings.addNew') || 'Add New Building' }}</h3>
+						<button class="modal-close" @click="closeAddBuildingModal">✕</button>
+					</div>
+					<form class="modal-body" @submit.prevent="addBuilding">
+						<div class="form-group">
+							<label for="building-name">{{ $t('admin.buildings.name') || 'Building Name' }} *</label>
+							<input 
+								id="building-name"
+								v-model="newBuilding.name"
+								type="text" 
+								required
+								placeholder="e.g. Sakura Tower"
+							>
+						</div>
+						<div class="form-group">
+							<label for="building-address">{{ $t('admin.buildings.address') || 'Address' }} *</label>
+							<input 
+								id="building-address"
+								v-model="newBuilding.address"
+								type="text" 
+								required
+								placeholder="e.g. 1-2-3 Shibuya, Tokyo"
+							>
+						</div>
+						<div class="form-group">
+							<label for="building-description">{{ $t('admin.buildings.description') || 'Description' }}</label>
+							<textarea 
+								id="building-description"
+								v-model="newBuilding.description"
+								rows="3"
+								placeholder="Brief description of the building..."
+							/>
+						</div>
+						<div class="form-row">
+							<div class="form-group">
+								<label for="building-units">{{ $t('admin.buildings.totalUnits') || 'Total Units' }}</label>
+								<input 
+									id="building-units"
+									v-model.number="newBuilding.units"
+									type="number" 
+									min="1"
+									placeholder="120"
+								>
+							</div>
+							<div class="form-group">
+								<label for="building-floors">{{ $t('admin.buildings.floors') || 'Floors' }}</label>
+								<input 
+									id="building-floors"
+									v-model.number="newBuilding.floors"
+									type="number" 
+									min="1"
+									placeholder="15"
+								>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>{{ $t('admin.buildings.facilities') || 'Facilities' }}</label>
+							<div class="facilities-checkboxes">
+								<label class="checkbox-label">
+									<input v-model="newBuilding.facilities" type="checkbox" value="gym">
+									<span>{{ $t('facilities.gym') || 'Gym' }}</span>
+								</label>
+								<label class="checkbox-label">
+									<input v-model="newBuilding.facilities" type="checkbox" value="pool">
+									<span>{{ $t('facilities.pool') || 'Pool' }}</span>
+								</label>
+								<label class="checkbox-label">
+									<input v-model="newBuilding.facilities" type="checkbox" value="parking">
+									<span>{{ $t('facilities.parking') || 'Parking' }}</span>
+								</label>
+								<label class="checkbox-label">
+									<input v-model="newBuilding.facilities" type="checkbox" value="lounge">
+									<span>{{ $t('facilities.lounge') || 'Lounge' }}</span>
+								</label>
+								<label class="checkbox-label">
+									<input v-model="newBuilding.facilities" type="checkbox" value="rooftop">
+									<span>{{ $t('facilities.rooftop') || 'Rooftop' }}</span>
+								</label>
+								<label class="checkbox-label">
+									<input v-model="newBuilding.facilities" type="checkbox" value="laundry">
+									<span>{{ $t('facilities.laundry') || 'Laundry' }}</span>
+								</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="building-rules">{{ $t('admin.buildings.rules') || 'Building Rules' }}</label>
+							<textarea 
+								id="building-rules"
+								v-model="newBuilding.rules"
+								rows="4"
+								placeholder="Enter building rules and regulations..."
+							/>
+						</div>
+						<div class="modal-actions">
+							<KButton type="button" variant="secondary" @click="closeAddBuildingModal">
+								{{ $t('common.cancel') || 'Cancel' }}
+							</KButton>
+							<KButton type="submit" variant="primary" :loading="isAddingBuilding">
+								{{ $t('common.save') || 'Save Building' }}
+							</KButton>
+						</div>
+					</form>
 				</div>
 			</div>
 		</transition>
-
-		<div class="dashboard-content">
-			<aside class="sidebar">
-				<nav class="nav-menu">
-					<button
-						v-for="item in menuItems"
-						:key="item.id"
-						:class="['nav-item', { active: activeSection === item.id }]"
-						@click="navigateToSection(item.id)"
-					>
-						<span class="nav-icon">{{ item.icon }}</span>
-						<span class="nav-label">{{ item.label }}</span>
-					</button>
-				</nav>
-			</aside>
-
-			<main class="main-content">
-				<!-- Overview Section -->
-				<section v-if="activeSection === 'overview'" class="section">
-					<div class="section-header">
-						<h2 class="section-title">📊 {{ $t('admin.overview.title') || 'Management Overview' }}</h2>
-					</div>
-					
-					<!-- Statistics Cards -->
-					<div class="stats-grid">
-						<div class="stat-card">
-							<span class="stat-icon">🏢</span>
-							<div class="stat-content">
-								<h3>{{ $t('admin.stats.buildings') || 'Buildings' }}</h3>
-								<p class="stat-value">12</p>
-								<span class="stat-change positive">+2 this month</span>
-							</div>
-						</div>
-						<div class="stat-card">
-							<span class="stat-icon">👥</span>
-							<div class="stat-content">
-								<h3>{{ $t('admin.stats.residents') || 'Total Residents' }}</h3>
-								<p class="stat-value">1,248</p>
-								<span class="stat-change positive">+48 this month</span>
-							</div>
-						</div>
-						<div class="stat-card">
-							<span class="stat-icon">🔧</span>
-							<div class="stat-content">
-								<h3>{{ $t('admin.stats.maintenance') || 'Open Requests' }}</h3>
-								<p class="stat-value">23</p>
-								<span class="stat-change negative">8 urgent</span>
-							</div>
-						</div>
-						<div class="stat-card">
-							<span class="stat-icon">💰</span>
-							<div class="stat-content">
-								<h3>{{ $t('admin.stats.revenue') || 'Monthly Revenue' }}</h3>
-								<p class="stat-value">¥12.5M</p>
-								<span class="stat-change positive">+12%</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- Recent Activities -->
-					<div class="activity-section">
-						<h3>🔔 {{ $t('admin.recentActivity') || 'Recent Activity' }}</h3>
-						<div class="activity-list">
-							<div class="activity-item">
-								<span class="activity-icon">🔧</span>
-								<div class="activity-content">
-									<p>New maintenance request from Unit 502</p>
-									<span class="activity-time">5 minutes ago</span>
-								</div>
-							</div>
-							<div class="activity-item">
-								<span class="activity-icon">📅</span>
-								<div class="activity-content">
-									<p>Party Room booked for Dec 25</p>
-									<span class="activity-time">1 hour ago</span>
-								</div>
-							</div>
-							<div class="activity-item">
-								<span class="activity-icon">💳</span>
-								<div class="activity-content">
-									<p>15 residents paid management fees</p>
-									<span class="activity-time">Today</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</section>
-
-				<!-- Buildings Management -->
-				<section v-if="activeSection === 'buildings'" class="section">
-					<div class="section-header">
-						<h2 class="section-title">🏢 {{ $t('admin.buildings.title') || 'Buildings Management' }}</h2>
-						<button class="add-btn">+ {{ $t('admin.buildings.add') || 'Add Building' }}</button>
-					</div>
-					
-					<div class="buildings-list">
-						<div v-for="building in buildings" :key="building.id" class="building-card">
-							<div class="building-header">
-								<h3>{{ building.name }}</h3>
-								<span class="building-status" :class="building.status">{{ building.status }}</span>
-							</div>
-							<div class="building-info">
-								<p><strong>{{ $t('admin.buildings.address') || 'Address' }}:</strong> {{ building.address }}</p>
-								<p><strong>{{ $t('admin.buildings.units') || 'Units' }}:</strong> {{ building.units }}</p>
-								<p><strong>{{ $t('admin.buildings.occupancy') || 'Occupancy' }}:</strong> {{ building.occupancy }}%</p>
-							</div>
-							<div class="building-actions">
-								<button class="action-btn">{{ $t('common.edit') || 'Edit' }}</button>
-								<button class="action-btn">{{ $t('admin.buildings.manage') || 'Manage' }}</button>
-								<button class="action-btn danger">{{ $t('common.delete') || 'Delete' }}</button>
-							</div>
-						</div>
-					</div>
-				</section>
-
-				<!-- Users Management -->
-				<section v-if="activeSection === 'users'" class="section">
-					<div class="section-header">
-						<h2 class="section-title">👥 {{ $t('admin.users.title') || 'Users Management' }}</h2>
-						<div class="header-actions">
-							<input type="search" placeholder="Search users..." class="search-input">
-							<button class="add-btn">+ {{ $t('admin.users.invite') || 'Invite User' }}</button>
-						</div>
-					</div>
-					
-					<div class="users-table">
-						<table>
-							<thead>
-								<tr>
-									<th>{{ $t('admin.users.name') || 'Name' }}</th>
-									<th>{{ $t('admin.users.email') || 'Email' }}</th>
-									<th>{{ $t('admin.users.role') || 'Role' }}</th>
-									<th>{{ $t('admin.users.building') || 'Building' }}</th>
-									<th>{{ $t('admin.users.status') || 'Status' }}</th>
-									<th>{{ $t('admin.users.actions') || 'Actions' }}</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr v-for="user in users" :key="user.id">
-									<td>{{ user.name }}</td>
-									<td>{{ user.email }}</td>
-									<td><span class="role-badge" :class="user.role">{{ user.role }}</span></td>
-									<td>{{ user.building }}</td>
-									<td><span class="status-badge" :class="user.status">{{ user.status }}</span></td>
-									<td>
-										<button class="table-action">✏️</button>
-										<button class="table-action">🗑️</button>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</section>
-
-				<!-- Maintenance Overview -->
-				<section v-if="activeSection === 'maintenance'" class="section">
-					<div class="section-header">
-						<h2 class="section-title">🔧 {{ $t('admin.maintenance.title') || 'Maintenance Overview' }}</h2>
-					</div>
-					
-					<div class="maintenance-stats">
-						<div class="status-card urgent">
-							<h4>{{ $t('admin.maintenance.urgent') || 'Urgent' }}</h4>
-							<p class="count">8</p>
-						</div>
-						<div class="status-card pending">
-							<h4>{{ $t('admin.maintenance.pending') || 'Pending' }}</h4>
-							<p class="count">15</p>
-						</div>
-						<div class="status-card in-progress">
-							<h4>{{ $t('admin.maintenance.inProgress') || 'In Progress' }}</h4>
-							<p class="count">12</p>
-						</div>
-						<div class="status-card completed">
-							<h4>{{ $t('admin.maintenance.completed') || 'Completed' }}</h4>
-							<p class="count">142</p>
-						</div>
-					</div>
-
-					<div class="requests-list">
-						<h3>{{ $t('admin.maintenance.recent') || 'Recent Requests' }}</h3>
-						<div v-for="request in maintenanceRequests" :key="request.id" class="request-card">
-							<div class="request-header">
-								<span class="priority" :class="request.priority">{{ request.priority }}</span>
-								<h4>{{ request.title }}</h4>
-								<span class="request-time">{{ request.time }}</span>
-							</div>
-							<p>{{ request.description }}</p>
-							<div class="request-footer">
-								<span class="request-unit">Unit {{ request.unit }}</span>
-								<button class="assign-btn">{{ $t('admin.maintenance.assign') || 'Assign' }}</button>
-							</div>
-						</div>
-					</div>
-				</section>
-
-				<!-- Financial Reports -->
-				<section v-if="activeSection === 'financial'" class="section">
-					<div class="section-header">
-						<h2 class="section-title">💰 {{ $t('admin.financial.title') || 'Financial Reports' }}</h2>
-						<button class="export-btn">📥 {{ $t('admin.financial.export') || 'Export Report' }}</button>
-					</div>
-					
-					<div class="financial-summary">
-						<div class="summary-card">
-							<h3>{{ $t('admin.financial.revenue') || 'Total Revenue' }}</h3>
-							<p class="amount">¥152,340,000</p>
-							<span class="period">This Year</span>
-						</div>
-						<div class="summary-card">
-							<h3>{{ $t('admin.financial.expenses') || 'Total Expenses' }}</h3>
-							<p class="amount">¥98,200,000</p>
-							<span class="period">This Year</span>
-						</div>
-						<div class="summary-card profit">
-							<h3>{{ $t('admin.financial.profit') || 'Net Profit' }}</h3>
-							<p class="amount">¥54,140,000</p>
-							<span class="period">This Year</span>
-						</div>
-					</div>
-
-					<div class="payment-status">
-						<h3>{{ $t('admin.financial.paymentStatus') || 'Payment Status by Building' }}</h3>
-						<div class="payment-grid">
-							<div v-for="building in buildingPayments" :key="building.id" class="payment-card">
-								<h4>{{ building.name }}</h4>
-								<div class="payment-bar">
-									<div class="payment-progress" :style="`width: ${building.percentage}%`" />
-								</div>
-								<p>{{ building.percentage }}% collected ({{ building.collected }}/{{ building.total }})</p>
-							</div>
-						</div>
-					</div>
-				</section>
-
-				<!-- Settings -->
-				<section v-if="activeSection === 'settings'" class="section">
-					<div class="section-header">
-						<h2 class="section-title">⚙️ {{ $t('admin.settings.title') || 'System Settings' }}</h2>
-					</div>
-					
-					<div class="settings-sections">
-						<div class="settings-card">
-							<h3>🔔 {{ $t('admin.settings.notifications') || 'Notification Settings' }}</h3>
-							<div class="setting-item">
-								<label>
-									<input type="checkbox" checked>
-									{{ $t('admin.settings.emailNotifications') || 'Email notifications for urgent requests' }}
-								</label>
-							</div>
-							<div class="setting-item">
-								<label>
-									<input type="checkbox" checked>
-									{{ $t('admin.settings.dailyReports') || 'Daily summary reports' }}
-								</label>
-							</div>
-						</div>
-
-						<div class="settings-card">
-							<h3>🔐 {{ $t('admin.settings.security') || 'Security Settings' }}</h3>
-							<div class="setting-item">
-								<label>{{ $t('admin.settings.twoFactor') || 'Two-factor authentication' }}</label>
-								<button class="setting-btn">{{ $t('admin.settings.enable') || 'Enable' }}</button>
-							</div>
-							<div class="setting-item">
-								<label>{{ $t('admin.settings.sessionTimeout') || 'Session timeout' }}</label>
-								<select>
-									<option>30 minutes</option>
-									<option>1 hour</option>
-									<option>2 hours</option>
-								</select>
-							</div>
-						</div>
-
-						<div class="settings-card">
-							<h3>🎨 {{ $t('admin.settings.appearance') || 'Appearance' }}</h3>
-							<div class="setting-item">
-								<label>{{ $t('common.language') || 'Language' }}</label>
-								<LanguageSwitcher />
-							</div>
-						</div>
-					</div>
-				</section>
-			</main>
-		</div>
-	</div>
+	</DashboardLayout>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { provide, ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 
-import KagiLogo from '../components/KagiLogo.vue'
+import KButton from '../components/core/KButton.vue'
+import KCard from '../components/core/KCard.vue'
+import SectionHeader from '../components/dashboard/SectionHeader.vue'
+import StatCard from '../components/dashboard/StatCard.vue'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
+// Components
+import DashboardLayout from '../components/layout/DashboardLayout.vue'
+// Stores
 import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
 
+// Provide activeSection for DashboardLayout navigation
 const activeSection = ref( 'overview' )
-const showMobileMenu = ref( false )
-
-const menuItems = computed( () => [
-	{ id: 'overview', icon: '📊', label: instance.proxy.$t( 'admin.menu.overview' ) || 'Overview' },
-	{ id: 'buildings', icon: '🏢', label: instance.proxy.$t( 'admin.menu.buildings' ) || 'Buildings' },
-	{ id: 'users', icon: '👥', label: instance.proxy.$t( 'admin.menu.users' ) || 'Users' },
-	{ id: 'maintenance', icon: '🔧', label: instance.proxy.$t( 'admin.menu.maintenance' ) || 'Maintenance' },
-	{ id: 'financial', icon: '💰', label: instance.proxy.$t( 'admin.menu.financial' ) || 'Financial' },
-	{ id: 'settings', icon: '⚙️', label: instance.proxy.$t( 'admin.menu.settings' ) || 'Settings' }
-] )
+provide( 'activeSection', activeSection )
+provide( 'navigateToSection', ( section ) => {
+	activeSection.value = section
+} )
 
 // Sample data
 const buildings = ref( [
@@ -374,188 +491,111 @@ const buildingPayments = ref( [
 	{ id: 3, name: 'Ocean View', percentage: 78, collected: '156', total: '200' }
 ] )
 
-const navigateToSection = ( section ) => {
-	activeSection.value = section
-	showMobileMenu.value = false
+// Add Building Modal State
+const showAddBuildingModal = ref( false )
+const isAddingBuilding = ref( false )
+const newBuilding = ref( {
+	name: '',
+	address: '',
+	description: '',
+	units: null,
+	floors: null,
+	facilities: [],
+	rules: ''
+} )
+
+const closeAddBuildingModal = () => {
+	showAddBuildingModal.value = false
+	// Reset form
+	newBuilding.value = {
+		name: '',
+		address: '',
+		description: '',
+		units: null,
+		floors: null,
+		facilities: [],
+		rules: ''
+	}
 }
 
-const logout = async () => {
-	await authStore.logout()
-	router.push( '/' )
+const addBuilding = async () => {
+	if ( !newBuilding.value.name || !newBuilding.value.address ) {
+		alert( 'Please fill in required fields' )
+		return
+	}
+
+	isAddingBuilding.value = true
+
+	try {
+		// Prepare the data for API
+		const buildingData = {
+			name: newBuilding.value.name,
+			address: newBuilding.value.address,
+			description: newBuilding.value.description || '',
+			facilities: newBuilding.value.facilities.join( ', ' ),
+			rules: newBuilding.value.rules || ''
+		}
+
+		// Check if we're in test mode or real mode
+		if ( authStore.TEST_MODE ) {
+			// In test mode, just add to local array
+			const newId = Math.max( ...buildings.value.map( b => b.id ) ) + 1
+			buildings.value.push( {
+				id: newId,
+				name: newBuilding.value.name,
+				address: newBuilding.value.address,
+				units: newBuilding.value.units || 0,
+				occupancy: 0,
+				status: 'active'
+			} )
+			
+			// Show success message
+			alert( `Building "${newBuilding.value.name}" added successfully!` )
+		} else {
+			// Make API call to backend
+			const response = await fetch( 'http://localhost:3333/api/mansions', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${authStore.token}`
+				},
+				credentials: 'include',
+				body: JSON.stringify( buildingData )
+			} )
+
+			if ( !response.ok ) {
+				throw new Error( 'Failed to add building' )
+			}
+
+			const data = await response.json()
+			
+			// Add to local array
+			buildings.value.push( {
+				id: data.mansion.id,
+				name: data.mansion.name,
+				address: data.mansion.address,
+				units: newBuilding.value.units || 0,
+				occupancy: 0,
+				status: 'active'
+			} )
+
+			// Show success message
+			alert( `Building "${data.mansion.name}" added successfully!` )
+		}
+
+		// Close modal
+		closeAddBuildingModal()
+	} catch ( error ) {
+		console.error( 'Error adding building:', error )
+		alert( 'Failed to add building. Please try again.' )
+	} finally {
+		isAddingBuilding.value = false
+	}
 }
 </script>
 
 <style lang="stylus" scoped>
-// Base dashboard styles
-.admin-dashboard
-	min-height 100vh
-	display flex
-	flex-direction column
-	background #f5f5f5
-
-.header
-	background white
-	box-shadow 0 2px 4px rgba(0, 0, 0, 0.08)
-	position sticky
-	top 0
-	z-index 100
-
-.header-content
-	display flex
-	justify-content space-between
-	align-items center
-	padding 1rem 2rem
-	max-width 1400px
-	margin 0 auto
-
-.header-left
-	display flex
-	align-items center
-	gap 1rem
-
-	h1
-		margin 0
-		color #333
-		font-size 1.5rem
-
-.header-right
-	display flex
-	align-items center
-	gap 1rem
-
-.user-menu-btn
-	display flex
-	align-items center
-	gap 0.5rem
-	padding 0.5rem 1rem
-	background transparent
-	border 1px solid #e0e0e0
-	border-radius 50px
-	cursor pointer
-	transition all 0.2s ease
-
-	&:hover
-		background #f5f5f5
-
-	.user-email
-		color #666
-
-	.menu-arrow
-		color #999
-		font-size 0.8rem
-
-.mobile-settings-menu
-	position fixed
-	top 0
-	right 0
-	width 300px
-	height 100vh
-	background white
-	box-shadow -4px 0 20px rgba(0, 0, 0, 0.1)
-	z-index 200
-	transition transform 0.3s ease
-
-.mobile-menu-header
-	display flex
-	justify-content space-between
-	align-items center
-	padding 1.5rem
-	border-bottom 1px solid #e0e0e0
-
-	h3
-		margin 0
-		color #333
-
-.close-menu-btn
-	background none
-	border none
-	font-size 1.5rem
-	cursor pointer
-	color #999
-
-.mobile-menu-content
-	padding 1.5rem
-
-.mobile-user-info
-	margin-bottom 1.5rem
-	padding-bottom 1.5rem
-	border-bottom 1px solid #e0e0e0
-
-	.user-email
-		font-weight 600
-		color #333
-		margin-bottom 0.25rem
-
-	.user-role
-		color #666
-		font-size 0.9rem
-
-.mobile-lang-section
-	margin-bottom 1.5rem
-
-.mobile-logout-btn
-	width 100%
-	padding 0.75rem
-	background #FF5252
-	color white
-	border none
-	border-radius 50px
-	cursor pointer
-	font-weight 500
-	transition all 0.2s ease
-
-	&:hover
-		background #FF6B6B
-
-.dashboard-content
-	display flex
-	flex 1
-	max-width 1400px
-	width 100%
-	margin 0 auto
-
-.sidebar
-	width 240px
-	background white
-	border-right 1px solid #e0e0e0
-	padding 1rem 0
-
-.nav-menu
-	display flex
-	flex-direction column
-
-.nav-item
-	display flex
-	align-items center
-	gap 0.75rem
-	padding 0.75rem 1.5rem
-	background transparent
-	border none
-	cursor pointer
-	transition all 0.2s ease
-	color #666
-	font-size 0.95rem
-
-	&:hover
-		background rgba(255, 193, 7, 0.05)
-		color #333
-
-	&.active
-		background linear-gradient(90deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%)
-		color #FF9800
-		border-left 3px solid #FFC107
-		padding-left calc(1.5rem - 3px)
-
-	.nav-icon
-		font-size 1.2rem
-
-	.nav-label
-		font-weight 500
-
-.main-content
-	flex 1
-	padding 2rem
-	overflow-y auto
+@import '../styles/tokens.styl'
 
 .section
 	animation fadeIn 0.3s ease
@@ -568,85 +608,31 @@ const logout = async () => {
 		opacity 1
 		transform translateY(0)
 
-.section-header
-	display flex
-	justify-content space-between
-	align-items center
-	margin-bottom 2rem
-
-	.section-title
-		margin 0
-		color #333
-		font-size 1.8rem
-		display flex
-		align-items center
-		gap 0.75rem
-
-		.section-icon
-			font-size 1.5rem
-
-// Additional admin-specific styles
-.admin-badge
-	background linear-gradient(135deg, #FF6B6B 0%, #FF8787 100%)
-	color white
-	padding 0.25rem 0.75rem
-	border-radius 20px
-	font-size 0.85rem
-	font-weight 600
-	margin-right 1rem
-
+// Stats grid
 .stats-grid
 	display grid
-	grid-template-columns repeat(auto-fit, minmax(250px, 1fr))
+	grid-template-columns repeat(auto-fit, minmax(280px, 1fr))
 	gap 1.5rem
 	margin-bottom 2rem
 
-.stat-card
-	background white
-	border-radius 15px
-	padding 1.5rem
-	display flex
+// Maintenance stats
+.maintenance-stats
+	display grid
+	grid-template-columns repeat(auto-fit, minmax(250px, 1fr))
 	gap 1rem
-	align-items center
-	box-shadow 0 2px 8px rgba(0, 0, 0, 0.05)
-	border 1px solid #f0f0f0
+	margin-bottom 2rem
 
-	.stat-icon
-		font-size 2.5rem
+// Financial summary
+.financial-summary
+	display grid
+	grid-template-columns repeat(3, 1fr)
+	gap 1.5rem
+	margin-bottom 2rem
+	
+	@media (max-width: 768px)
+		grid-template-columns 1fr
 
-	.stat-content
-		flex 1
-
-		h3
-			margin 0 0 0.5rem 0
-			color #666
-			font-size 0.9rem
-
-		.stat-value
-			margin 0
-			font-size 1.8rem
-			font-weight bold
-			color #333
-
-		.stat-change
-			font-size 0.85rem
-			
-			&.positive
-				color #4CAF50
-
-			&.negative
-				color #F44336
-
-.activity-section
-	background white
-	border-radius 15px
-	padding 1.5rem
-	border 2px solid #FFE082
-
-	h3
-		margin 0 0 1rem 0
-		color #333
-
+// Activity list
 .activity-list
 	display flex
 	flex-direction column
@@ -673,102 +659,47 @@ const logout = async () => {
 			color #999
 			font-size 0.85rem
 
+// Buildings list
 .buildings-list
 	display grid
 	grid-template-columns repeat(auto-fill, minmax(350px, 1fr))
 	gap 1.5rem
 
-.building-card
-	background white
-	border-radius 15px
-	padding 1.5rem
-	border 2px solid #FFE082
+.building-info
+	p
+		margin 0.5rem 0
+		color #666
+		font-size 0.95rem
 
-	.building-header
-		display flex
-		justify-content space-between
-		align-items center
-		margin-bottom 1rem
-
-		h3
-			margin 0
-			color #333
-
-		.building-status
-			padding 0.25rem 0.75rem
-			border-radius 20px
-			font-size 0.85rem
-			
-			&.active
-				background #E8F5E9
-				color #4CAF50
-
-	.building-info
-		p
-			margin 0.5rem 0
-			color #666
-			font-size 0.95rem
-
-	.building-actions
-		display flex
-		gap 0.5rem
-		margin-top 1rem
-
-		.action-btn
-			padding 0.5rem 1rem
-			background white
-			border 1px solid #e0e0e0
-			border-radius 8px
-			cursor pointer
-			font-size 0.85rem
-
-			&:hover
-				background #f5f5f5
-
-			&.danger
-				color #F44336
-				border-color #F44336
-
-.header-actions
+.building-actions
 	display flex
-	gap 1rem
-	align-items center
+	gap 0.5rem
+	width 100%
 
-.search-input
-	padding 0.6rem 1rem
-	border 2px solid #e0e0e0
-	border-radius 50px
-	min-width 200px
+.building-status
+	padding 0.25rem 0.75rem
+	border-radius 20px
+	font-size 0.85rem
+	
+	&.active
+		background #E8F5E9
+		color #4CAF50
 
-.add-btn, .export-btn
-	padding 0.6rem 1.25rem
-	background linear-gradient(135deg, #FFC107 0%, #FFD54F 100%)
-	color white
-	border none
-	border-radius 50px
-	cursor pointer
-	font-weight 500
-
-	&:hover
-		transform translateY(-1px)
-		box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
-
+// Users table
 .users-table
-	background white
-	border-radius 15px
-	overflow hidden
-	border 2px solid #FFE082
+	overflow-x auto
 
 	table
 		width 100%
 		border-collapse collapse
 
 		th
-			background #FFF9C4
+			background $color-bg-tertiary
 			padding 1rem
 			text-align left
 			color #333
 			font-weight 600
+			border-bottom 2px solid $color-primary
 
 		td
 			padding 1rem
@@ -794,75 +725,16 @@ const logout = async () => {
 			background #E8F5E9
 			color #4CAF50
 
-	.table-action
-		background none
-		border none
-		cursor pointer
-		font-size 1.2rem
-		padding 0.25rem
-		margin 0 0.25rem
-
-		&:hover
-			opacity 0.7
-
-.maintenance-stats
-	display grid
-	grid-template-columns repeat(4, 1fr)
-	gap 1rem
-	margin-bottom 2rem
-
-.status-card
-	background white
-	border-radius 15px
-	padding 1.5rem
-	text-align center
-	border 2px solid #e0e0e0
-
-	h4
-		margin 0 0 0.5rem 0
-		color #666
-		font-size 0.9rem
-
-	.count
-		margin 0
-		font-size 2rem
-		font-weight bold
-
-	&.urgent
-		border-color #F44336
-		.count
-			color #F44336
-
-	&.pending
-		border-color #FF9800
-		.count
-			color #FF9800
-
-	&.in-progress
-		border-color #2196F3
-		.count
-			color #2196F3
-
-	&.completed
-		border-color #4CAF50
-		.count
-			color #4CAF50
-
+// Requests list
 .requests-list
-	background white
-	border-radius 15px
-	padding 1.5rem
-	border 2px solid #FFE082
-
-	h3
-		margin 0 0 1rem 0
-		color #333
+	display flex
+	flex-direction column
+	gap 1rem
 
 .request-card
 	padding 1rem
 	background #f9f9f9
 	border-radius 10px
-	margin-bottom 1rem
 
 	.request-header
 		display flex
@@ -911,62 +783,7 @@ const logout = async () => {
 			color #999
 			font-size 0.9rem
 
-		.assign-btn
-			padding 0.4rem 1rem
-			background white
-			border 2px solid #FFC107
-			border-radius 20px
-			cursor pointer
-			font-size 0.85rem
-
-			&:hover
-				background #FFF9C4
-
-.financial-summary
-	display grid
-	grid-template-columns repeat(3, 1fr)
-	gap 1.5rem
-	margin-bottom 2rem
-
-.summary-card
-	background white
-	border-radius 15px
-	padding 2rem
-	text-align center
-	border 2px solid #FFE082
-
-	h3
-		margin 0 0 1rem 0
-		color #666
-		font-size 1rem
-
-	.amount
-		margin 0 0 0.5rem 0
-		font-size 1.8rem
-		font-weight bold
-		color #333
-
-	.period
-		color #999
-		font-size 0.9rem
-
-	&.profit
-		background linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)
-		border-color #4CAF50
-
-		.amount
-			color #4CAF50
-
-.payment-status
-	background white
-	border-radius 15px
-	padding 1.5rem
-	border 2px solid #FFE082
-
-	h3
-		margin 0 0 1.5rem 0
-		color #333
-
+// Payment grid
 .payment-grid
 	display grid
 	grid-template-columns repeat(auto-fill, minmax(300px, 1fr))
@@ -995,19 +812,10 @@ const logout = async () => {
 		color #666
 		font-size 0.9rem
 
+// Settings sections
 .settings-sections
 	display grid
 	gap 1.5rem
-
-.settings-card
-	background white
-	border-radius 15px
-	padding 1.5rem
-	border 2px solid #FFE082
-
-	h3
-		margin 0 0 1rem 0
-		color #333
 
 .setting-item
 	display flex
@@ -1021,19 +829,156 @@ const logout = async () => {
 
 	label
 		color #666
-
-	.setting-btn
-		padding 0.5rem 1rem
-		background white
-		border 2px solid #FFC107
-		border-radius 20px
-		cursor pointer
-
-		&:hover
-			background #FFF9C4
+		display flex
+		align-items center
+		gap 0.5rem
 
 	select
 		padding 0.5rem
 		border 1px solid #e0e0e0
 		border-radius 8px
+
+// Modal Styles
+.modal-overlay
+	position fixed
+	top 0
+	left 0
+	right 0
+	bottom 0
+	background rgba(0, 0, 0, 0.5)
+	display flex
+	align-items center
+	justify-content center
+	z-index 1000
+	padding 1rem
+
+.modal-content
+	background white
+	border-radius 12px
+	max-width 600px
+	width 100%
+	max-height 90vh
+	overflow-y auto
+	box-shadow 0 10px 40px rgba(0, 0, 0, 0.2)
+
+.modal-header
+	display flex
+	justify-content space-between
+	align-items center
+	padding 1.5rem
+	border-bottom 1px solid #e0e0e0
+
+	h3
+		margin 0
+		color #333
+		font-size 1.3rem
+
+.modal-close
+	background none
+	border none
+	font-size 1.5rem
+	cursor pointer
+	color #999
+	padding 0
+	width 30px
+	height 30px
+	display flex
+	align-items center
+	justify-content center
+	border-radius 50%
+	transition all 0.2s
+
+	&:hover
+		background #f5f5f5
+		color #333
+
+.modal-body
+	padding 1.5rem
+
+.form-group
+	margin-bottom 1.2rem
+
+	label
+		display block
+		margin-bottom 0.5rem
+		color #666
+		font-weight 500
+		font-size 0.9rem
+
+	input, textarea, select
+		width 100%
+		padding 0.75rem
+		border 1px solid #ddd
+		border-radius 8px
+		font-size 1rem
+		transition border-color 0.2s
+
+		&:focus
+			outline none
+			border-color $color-primary
+			box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
+
+	textarea
+		resize vertical
+		font-family inherit
+
+.form-row
+	display grid
+	grid-template-columns 1fr 1fr
+	gap 1rem
+
+	@media (max-width: 480px)
+		grid-template-columns 1fr
+
+.facilities-checkboxes
+	display grid
+	grid-template-columns repeat(auto-fill, minmax(150px, 1fr))
+	gap 0.75rem
+	margin-top 0.5rem
+
+.checkbox-label
+	display flex
+	align-items center
+	cursor pointer
+	padding 0.5rem
+	border 1px solid #e0e0e0
+	border-radius 8px
+	transition all 0.2s
+
+	&:hover
+		background $color-bg-tertiary
+		border-color $color-primary
+
+	input[type="checkbox"]
+		margin-right 0.5rem
+
+	span
+		font-size 0.9rem
+		color #333
+
+.modal-actions
+	display flex
+	justify-content flex-end
+	gap 1rem
+	margin-top 2rem
+	padding-top 1.5rem
+	border-top 1px solid #e0e0e0
+
+// Modal animation
+.modal-enter-active, .modal-leave-active
+	transition opacity 0.3s
+
+.modal-enter-from, .modal-leave-to
+	opacity 0
+
+.modal-enter-active .modal-content
+	animation slideUp 0.3s ease-out
+
+@keyframes slideUp
+	from
+		transform translateY(30px)
+		opacity 0
+	to
+		transform translateY(0)
+		opacity 1
 </style>

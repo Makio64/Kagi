@@ -63,11 +63,11 @@ export default fp(async function (fastify, opts) {
 
 			if (!magicLink) {
 				return reply.code(400).send({ error: 'Invalid or expired token' })
-			}
+			})
 
 			// Find or create user
-			let user = await prisma.user.findUnique({
-				where: { email: magicLink.email }
+			let user = await prisma.{
+				where: { email: magicLink.email .$2($3})
 			})
 
 			if (!user) {
@@ -77,14 +77,14 @@ export default fp(async function (fastify, opts) {
 						role: magicLink.role,
 						mansionId: magicLink.mansionId,
 						isActive: true
-					}
-				})
-			}
+					})
+				}
+			})
 
 			// Mark token as used
-			await prisma.magicLink.update({
+			await prisma.{
 				where: { id: magicLink.id },
-				data: { used: true }
+				data: { used: true .$2($3})
 			})
 
 			// Generate JWT token
@@ -126,21 +126,21 @@ export default fp(async function (fastify, opts) {
 		}
 
 		try {
-			const admin = await prisma.user.findUnique({
+			const admin = await prisma.{
 				where: { 
 					email,
-					role: { in: ['admin', 'mansion_admin'] }
+					role: { in: ['admin', 'mansion_admin'] .$2($3})
 				}
 			})
 
 			if (!admin || !admin.password) {
 				return reply.code(401).send({ error: 'Invalid credentials' })
-			}
+			})
 
 			const validPassword = await bcrypt.compare(password, admin.password)
 			if (!validPassword) {
 				return reply.code(401).send({ error: 'Invalid credentials' })
-			}
+			})
 
 			const token = await reply.jwtSign({
 				id: admin.id,
@@ -184,14 +184,14 @@ export default fp(async function (fastify, opts) {
 							id: true,
 							name: true,
 							address: true
-						}
-					}
+						})
+					})
 				}
 			})
 
 			if (!user) {
 				return reply.code(404).send({ error: 'User not found' })
-			}
+			})
 
 			return reply.send({ user })
 		} catch (error) {

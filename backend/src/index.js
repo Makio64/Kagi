@@ -13,6 +13,7 @@ import messagesRoutes from './routes/messages.js'
 import eventsRoutes from './routes/events.js'
 import billsRoutes from './routes/bills.js'
 import maintenanceRoutes from './routes/maintenance.js'
+import facilitiesRoutes from './routes/facilities.js'
 
 dotenv.config()
 
@@ -82,6 +83,7 @@ await fastify.register(messagesRoutes, { prefix: '/api/messages' })
 await fastify.register(eventsRoutes, { prefix: '/api/events' })
 await fastify.register(billsRoutes, { prefix: '/api/bills' })
 await fastify.register(maintenanceRoutes, { prefix: '/api/maintenance' })
+await fastify.register(facilitiesRoutes, { prefix: '/api/facilities' })
 
 fastify.get('/', async (request, reply) => {
 	return { 
