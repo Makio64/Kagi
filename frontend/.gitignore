@@ -25,4 +25,3 @@ pnpm-debug.log*
 stats.html
 .env
 .npmrc
-vite.config.js
