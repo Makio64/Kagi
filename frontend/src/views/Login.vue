@@ -1,5 +1,8 @@
 <template>
 	<div class="login-page">
+		<div class="language-switcher-container">
+			<LanguageSwitcher />
+		</div>
 		<div class="login-container">
 			<div class="login-card">
 				<div class="logo-section">
@@ -132,6 +135,7 @@ import { getCurrentInstance } from 'vue'
 
 import EmailPopup from '../components/EmailPopup.vue'
 import KagiLogo from '../components/KagiLogo.vue'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import { useAuthStore } from '../stores/auth'
 
 const instance = getCurrentInstance()
@@ -170,6 +174,13 @@ const requestMagicLink = async () => {
 	error.value = ''
 	try {
 		const result = await authStore.requestMagicLink( residentEmail.value )
+		
+		// In mock mode, immediately redirect to dashboard
+		if ( result.mockLogin ) {
+			router.push( '/dashboard' )
+			return
+		}
+		
 		if ( result.token ) {
 			// In test mode, show the popup with the magic link
 			magicLinkToken.value = result.token
@@ -208,6 +219,13 @@ const adminLogin = async () => {
 	justify-content center
 	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 	padding 2rem
+	position relative
+
+.language-switcher-container
+	position absolute
+	top 2rem
+	right 2rem
+	z-index 100
 
 .login-container
 	width 100%
