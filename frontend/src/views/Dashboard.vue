@@ -395,15 +395,6 @@ const authStore = useAuthStore()
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
 
-// Check user role and redirect if needed
-onMounted( () => {
-	if ( authStore.user?.role === 'admin' ) {
-		router.push( '/admin-dashboard' )
-	} else if ( authStore.user?.role === 'mansion_admin' ) {
-		router.push( '/mansion-dashboard' )
-	}
-} )
-
 // Use computed to make activeSection reactive to route params
 const activeSection = computed( () => {
 	return props.routeParams?.section || 'home'

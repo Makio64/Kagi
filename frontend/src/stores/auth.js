@@ -28,7 +28,7 @@ export const useAuthStore = defineStore( 'auth', {
 				if ( USE_MOCK_BACKEND ) {
 					// Using mock backend - directly log in the user
 					const auth = await backend.auth()
-					const response = await auth.login( email, 'mock-password' )
+					const response = await auth.login( email, 'mock-password', 'resident' )
 
 					if ( response.success ) {
 						// Set the user data immediately for mock mode

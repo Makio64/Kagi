@@ -175,14 +175,14 @@ const requestMagicLink = async () => {
 	error.value = ''
 	try {
 		const result = await authStore.requestMagicLink( residentEmail.value )
-		
+
 		// In mock mode, immediately redirect to appropriate dashboard
 		if ( result.mockLogin ) {
 			// Resident tab always goes to /dashboard
 			router.push( '/dashboard' )
 			return
 		}
-		
+
 		if ( result.token ) {
 			// In test mode, show the popup with the magic link
 			magicLinkToken.value = result.token
@@ -204,7 +204,7 @@ const adminLogin = async () => {
 	error.value = ''
 	try {
 		await authStore.adminLogin( adminEmail.value, adminPassword.value )
-		
+
 		// Admin login always goes to mansion dashboard, except for specific "admin" email
 		if ( adminEmail.value === 'admin' || adminEmail.value === 'admin@kagi.com' ) {
 			router.push( '/admin-dashboard' )  // Only for exact "admin" email

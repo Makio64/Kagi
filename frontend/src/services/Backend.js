@@ -457,7 +457,7 @@ class Backend {
 	// Authentication methods
 	async auth() {
 		return {
-			login: async ( email, password ) => {
+			login: async ( email, password, forceRole = null ) => {
 				await this.delay()
 
 				if ( this.shouldError() ) {
@@ -469,20 +469,21 @@ class Backend {
 
 				// In mock mode, create user if doesn't exist
 				if ( !user ) {
-					// Determine role based on email
-					let role = 'mansion_admin'  // Default to mansion_admin for most users
+					// Determine role based on forceRole parameter or email
+					let role = forceRole || 'mansion_admin'  // Use forceRole if provided
 					
-					// Special cases for role assignment
-					if ( email === 'admin' || email === 'admin@kagi.com' ) {
-						role = 'admin'  // Only exact "admin" gets admin role
-					} else if ( email === 'makio' || email.includes( 'makio' ) ) {
-						role = 'admin'  // Makio also gets admin role (for resident login)
-					} else if ( email.includes( 'resident' ) ) {
-						role = 'resident'  // Emails with "resident" get resident role
-					} else if ( email.includes( 'manager' ) ) {
-						role = 'manager'  // Emails with "manager" get manager role
+					// Only apply email-based role detection if forceRole is not provided
+					if ( !forceRole ) {
+						// Special cases for role assignment
+						if ( email === 'admin' || email === 'admin@kagi.com' ) {
+							role = 'admin'  // Only exact "admin" gets admin role
+						} else if ( email.includes( 'resident' ) ) {
+							role = 'resident'  // Emails with "resident" get resident role
+						} else if ( email.includes( 'manager' ) ) {
+							role = 'manager'  // Emails with "manager" get manager role
+						}
+						// All other emails get mansion_admin role by default
 					}
-					// All other emails get mansion_admin role by default
 
 					// Create new user
 					user = {
