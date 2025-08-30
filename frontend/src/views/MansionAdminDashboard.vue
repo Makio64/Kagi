@@ -1,5 +1,14 @@
 <template>
-	<DashboardLayout user-type="mansion" :user-name="authStore.user?.email" :user-building="buildingName">
+	<DashboardLayout 
+		:title="buildingName"
+		:user-email="authStore.user?.email"
+		:user-role="'Mansion Admin'"
+		:menu-items="menuItems"
+		:active-section="activeSection"
+		@navigate="navigateToSection"
+		@logout="handleLogout"
+		@logo-click="handleLogoClick"
+	>
 		<!-- Overview Section -->
 		<section v-if="activeSection === 'overview'" class="section">
 			<SectionHeader 
@@ -587,7 +596,7 @@
 </template>
 
 <script setup>
-import { provide, ref } from 'vue'
+import { ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 
 import KButton from '../components/core/KButton.vue'
@@ -606,12 +615,34 @@ const router = instance.proxy.$router
 // Building Information
 const buildingName = ref( 'Sakura Tower' )
 
-// Provide activeSection for DashboardLayout navigation
+// Navigation
 const activeSection = ref( 'overview' )
-provide( 'activeSection', activeSection )
-provide( 'navigateToSection', ( section ) => {
+
+// Menu items for sidebar
+const menuItems = ref( [
+	{ id: 'overview', icon: '📊', label: 'Overview' },
+	{ id: 'residents', icon: '👥', label: 'Residents' },
+	{ id: 'maintenance', icon: '🔧', label: 'Maintenance' },
+	{ id: 'bookings', icon: '📅', label: 'Bookings' },
+	{ id: 'announcements', icon: '📢', label: 'Announcements' },
+	{ id: 'documents', icon: '📄', label: 'Documents' },
+	{ id: 'financial', icon: '💳', label: 'Financial' },
+	{ id: 'reports', icon: '📊', label: 'Reports' },
+	{ id: 'settings', icon: '⚙️', label: 'Settings' }
+] )
+
+const navigateToSection = ( section ) => {
 	activeSection.value = section
-} )
+}
+
+const handleLogout = async () => {
+	await authStore.logout()
+	router.push( '/login' )
+}
+
+const handleLogoClick = () => {
+	activeSection.value = 'overview'
+}
 
 // Sample Data
 const residents = ref( [

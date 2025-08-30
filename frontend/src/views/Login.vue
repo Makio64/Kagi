@@ -175,9 +175,19 @@ const requestMagicLink = async () => {
 	try {
 		const result = await authStore.requestMagicLink( residentEmail.value )
 		
-		// In mock mode, immediately redirect to dashboard
+		// In mock mode, immediately redirect to appropriate dashboard
 		if ( result.mockLogin ) {
-			router.push( '/dashboard' )
+			// Get the user role from the auth store
+			const userRole = authStore.user?.role
+			
+			// Redirect based on role
+			if ( residentEmail.value === 'makio' || residentEmail.value.includes('makio') || userRole === 'admin' ) {
+				router.push( '/admin-dashboard' )
+			} else if ( residentEmail.value.includes('resident') || userRole === 'resident' ) {
+				router.push( '/dashboard' )  // Regular resident dashboard
+			} else {
+				router.push( '/mansion-dashboard' )  // Mansion admin dashboard for others
+			}
 			return
 		}
 		
@@ -202,7 +212,13 @@ const adminLogin = async () => {
 	error.value = ''
 	try {
 		await authStore.adminLogin( adminEmail.value, adminPassword.value )
-		router.push( '/dashboard' )
+		
+		// Admin login always goes to mansion dashboard, except for specific "admin" email
+		if ( adminEmail.value === 'admin' || adminEmail.value === 'admin@kagi.com' ) {
+			router.push( '/admin-dashboard' )  // Only for exact "admin" email
+		} else {
+			router.push( '/mansion-dashboard' )  // All other admin logins go to mansion dashboard
+		}
 	} catch ( err ) {
 		error.value = instance.proxy.$t( 'login.errors.invalidCredentials' )
 	} finally {
