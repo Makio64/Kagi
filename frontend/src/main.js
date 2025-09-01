@@ -1,4 +1,3 @@
-import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { TinyRouterInstall } from 'vue-tiny-router'
 import TranslatePlugin, { loadTranslations } from 'vue-tiny-translation'
@@ -29,9 +28,7 @@ async function init() {
 	localStorage.setItem( 'kagi_language', defaultLang )
 
 	const app = createApp( App )
-	const pinia = createPinia()
 
-	app.use( pinia )
 	app.use( TranslatePlugin )
 	app.use( TinyRouterInstall )
 	app.mount( '#app' )

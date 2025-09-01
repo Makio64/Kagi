@@ -136,11 +136,10 @@ import { getCurrentInstance } from 'vue'
 import EmailPopup from '../components/EmailPopup.vue'
 import KagiLogo from '../components/KagiLogo.vue'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
-import { useAuthStore } from '../stores/auth'
+import * as store from '../store'
 
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
-const authStore = useAuthStore()
 
 const activeTab = ref( 'resident' )
 const residentEmail = ref( '' )
@@ -159,10 +158,10 @@ onMounted( async () => {
 	if ( token ) {
 		loading.value = true
 		try {
-			await authStore.verifyMagicLink( token )
+			await store.verifyMagicLink( token )
 			// Magic link is only used for residents, always redirect to /dashboard
 			router.push( '/dashboard' )
-		} catch ( err ) {
+		} catch ( _err ) {
 			error.value = instance.proxy.$t( 'login.errors.invalidLink' )
 		} finally {
 			loading.value = false
@@ -174,7 +173,7 @@ const requestMagicLink = async () => {
 	loading.value = true
 	error.value = ''
 	try {
-		const result = await authStore.requestMagicLink( residentEmail.value )
+		const result = await store.requestMagicLink( residentEmail.value )
 
 		// In mock mode, immediately redirect to appropriate dashboard
 		if ( result.mockLogin ) {
@@ -192,7 +191,7 @@ const requestMagicLink = async () => {
 		setTimeout( () => {
 			magicLinkSent.value = false
 		}, 10000 )
-	} catch ( err ) {
+	} catch ( _err ) {
 		error.value = instance.proxy.$t( 'login.errors.sendFailed' )
 	} finally {
 		loading.value = false
@@ -203,7 +202,7 @@ const adminLogin = async () => {
 	loading.value = true
 	error.value = ''
 	try {
-		await authStore.adminLogin( adminEmail.value, adminPassword.value )
+		await store.adminLogin( adminEmail.value, adminPassword.value )
 
 		// Admin login always goes to mansion dashboard, except for specific "admin" email
 		if ( adminEmail.value === 'admin' || adminEmail.value === 'admin@kagi.com' ) {
@@ -211,7 +210,7 @@ const adminLogin = async () => {
 		} else {
 			router.push( '/mansion-dashboard' )  // All other admin logins go to mansion dashboard
 		}
-	} catch ( err ) {
+	} catch ( _err ) {
 		error.value = instance.proxy.$t( 'login.errors.invalidCredentials' )
 	} finally {
 		loading.value = false

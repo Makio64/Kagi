@@ -44,11 +44,12 @@
 
 <script setup>
 import { ref } from 'vue'
+
 import KagiLogo from '../KagiLogo.vue'
 import LanguageSwitcher from '../LanguageSwitcher.vue'
 
 // Props
-const props = defineProps({
+const props = defineProps( {
 	title: {
 		type: String,
 		required: true
@@ -73,25 +74,25 @@ const props = defineProps({
 		type: Function,
 		default: null
 	}
-})
+} )
 
 // Emits
-const emit = defineEmits(['logout', 'logo-click'])
+const emit = defineEmits( ['logout', 'logo-click'] )
 
 // State
-const showMobileMenu = ref(false)
+const showMobileMenu = ref( false )
 
 // Methods
 const handleLogout = () => {
 	showMobileMenu.value = false
-	emit('logout')
+	emit( 'logout' )
 }
 
 const handleLogoClick = () => {
-	if (props.onLogoClick) {
+	if ( props.onLogoClick ) {
 		props.onLogoClick()
 	}
-	emit('logo-click')
+	emit( 'logo-click' )
 }
 </script>
 

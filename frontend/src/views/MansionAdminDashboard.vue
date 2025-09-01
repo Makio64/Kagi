@@ -9,7 +9,7 @@
 				<div class="header-right">
 					<span class="user-badge">Mansion Admin</span>
 					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
-						<span class="user-email">{{ authStore.user?.email }}</span>
+						<span class="user-email">{{ user?.email }}</span>
 						<span class="menu-arrow">▼</span>
 					</button>
 				</div>
@@ -25,7 +25,7 @@
 				</div>
 				<div class="mobile-menu-content">
 					<div class="mobile-user-info">
-						<div class="user-email">{{ authStore.user?.email }}</div>
+						<div class="user-email">{{ user?.email }}</div>
 						<div class="user-role">Mansion Admin</div>
 					</div>
 					<div class="mobile-lang-section">
@@ -69,722 +69,724 @@
 			</aside>
 
 			<main class="main-content">
-		<!-- Overview Section -->
-		<section v-if="activeSection === 'overview'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.overview.title') || 'Building Overview'"
-				:subtitle="`Managing ${buildingName}`"
-				icon="📊"
-			/>
-			
-			<!-- Building Stats -->
-			<div class="stats-grid">
-				<StatCard
-					icon="🏠"
-					:label="$t('mansion.stats.units') || 'Total Units'"
-					:value="120"
-					variant="primary"
-					subtext="114 occupied, 6 available"
-				/>
-				<StatCard
-					icon="👥"
-					:label="$t('mansion.stats.residents') || 'Residents'"
-					:value="342"
-					variant="secondary"
-					:trend="{ text: '+5 this month', positive: true }"
-				/>
-				<StatCard
-					icon="🔧"
-					:label="$t('mansion.stats.requests') || 'Maintenance'"
-					:value="8"
-					variant="warning"
-					:badge="{ text: '2 URGENT', variant: 'danger' }"
-				/>
-				<StatCard
-					icon="📅"
-					:label="$t('mansion.stats.bookings') || 'Today\'s Bookings'"
-					:value="3"
-					variant="info"
-					subtext="Party Room, Gym, Meeting"
-				/>
-			</div>
-
-			<!-- Quick Actions -->
-			<KCard 
-				:title="$t('mansion.quickActions') || 'Quick Actions'"
-				icon="⚡"
-				elevated
-			>
-				<div class="actions-grid">
-					<KCard
-						icon="📢"
-						:title="$t('mansion.actions.announcement') || 'Send Announcement'"
-						clickable
-						variant="primary"
-						size="sm"
-						@click="navigateToSection('announcements')"
-					/>
-					<KCard
-						icon="📄"
-						:title="$t('mansion.actions.updateDocs') || 'Update Documents'"
-						clickable
-						size="sm"
-						@click="navigateToSection('documents')"
-					/>
-					<KCard
-						icon="🔧"
-						:title="$t('mansion.actions.maintenance') || 'View Maintenance'"
-						clickable
-						size="sm"
-						@click="navigateToSection('maintenance')"
-					/>
-					<KCard
+				<!-- Overview Section -->
+				<section v-if="activeSection === 'overview'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.overview.title') || 'Building Overview'"
+						:subtitle="`Managing ${buildingName}`"
 						icon="📊"
-						:title="$t('mansion.actions.reports') || 'Generate Reports'"
-						clickable
-						size="sm"
-						@click="navigateToSection('reports')"
 					/>
-				</div>
-			</KCard>
-		</section>
-
-		<!-- Residents Management -->
-		<section v-if="activeSection === 'residents'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.residents.title') || 'Resident Management'"
-				icon="👥"
-				searchable
-				search-placeholder="Search residents..."
-			>
-				<template #actions>
-					<KButton variant="primary" icon="➕">
-						{{ $t('mansion.residents.add') || 'Add Resident' }}
-					</KButton>
-				</template>
-			</SectionHeader>
 			
-			<div class="residents-grid">
-				<KCard
-					v-for="resident in residents"
-					:key="resident.id"
-					:title="resident.name"
-					outlined
-				>
-					<template #badge>
-						<span class="resident-status active">{{ $t('common.active') || 'Active' }}</span>
-					</template>
-					<div class="resident-details">
-						<p><strong>{{ $t('mansion.residents.unit') || 'Unit' }}:</strong> {{ resident.unit }}</p>
-						<p><strong>{{ $t('mansion.residents.email') || 'Email' }}:</strong> {{ resident.email }}</p>
-						<p><strong>{{ $t('mansion.residents.phone') || 'Phone' }}:</strong> {{ resident.phone }}</p>
-						<p><strong>{{ $t('mansion.residents.since') || 'Since' }}:</strong> {{ resident.moveInDate }}</p>
+					<!-- Building Stats -->
+					<div class="stats-grid">
+						<StatCard
+							icon="🏠"
+							:label="$t('mansion.stats.units') || 'Total Units'"
+							:value="120"
+							variant="primary"
+							subtext="114 occupied, 6 available"
+						/>
+						<StatCard
+							icon="👥"
+							:label="$t('mansion.stats.residents') || 'Residents'"
+							:value="342"
+							variant="secondary"
+							:trend="{ text: '+5 this month', positive: true }"
+						/>
+						<StatCard
+							icon="🔧"
+							:label="$t('mansion.stats.requests') || 'Maintenance'"
+							:value="8"
+							variant="warning"
+							:badge="{ text: '2 URGENT', variant: 'danger' }"
+						/>
+						<StatCard
+							icon="📅"
+							:label="$t('mansion.stats.bookings') || 'Today\'s Bookings'"
+							:value="3"
+							variant="info"
+							subtext="Party Room, Gym, Meeting"
+						/>
 					</div>
-					<template #footer>
-						<div class="resident-actions">
-							<KButton size="sm" variant="secondary" icon="✏️" @click="editResident(resident)">
-								{{ $t('common.edit') || 'Edit' }}
-							</KButton>
-							<KButton size="sm" variant="ghost">
-								{{ $t('mansion.residents.message') || 'Message' }}
-							</KButton>
+
+					<!-- Quick Actions -->
+					<KCard 
+						:title="$t('mansion.quickActions') || 'Quick Actions'"
+						icon="⚡"
+						elevated
+					>
+						<div class="actions-grid">
+							<KCard
+								icon="📢"
+								:title="$t('mansion.actions.announcement') || 'Send Announcement'"
+								clickable
+								variant="primary"
+								size="sm"
+								@click="navigateToSection('announcements')"
+							/>
+							<KCard
+								icon="📄"
+								:title="$t('mansion.actions.updateDocs') || 'Update Documents'"
+								clickable
+								size="sm"
+								@click="navigateToSection('documents')"
+							/>
+							<KCard
+								icon="🔧"
+								:title="$t('mansion.actions.maintenance') || 'View Maintenance'"
+								clickable
+								size="sm"
+								@click="navigateToSection('maintenance')"
+							/>
+							<KCard
+								icon="📊"
+								:title="$t('mansion.actions.reports') || 'Generate Reports'"
+								clickable
+								size="sm"
+								@click="navigateToSection('reports')"
+							/>
 						</div>
-					</template>
-				</KCard>
-			</div>
-		</section>
+					</KCard>
+				</section>
 
-		<!-- Maintenance Management -->
-		<section v-if="activeSection === 'maintenance'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.maintenance.title') || 'Maintenance Requests'"
-				icon="🔧"
-			>
-				<template #actions>
-					<KButton variant="secondary" size="sm">
-						{{ $t('mansion.maintenance.export') || 'Export' }}
-					</KButton>
-					<KButton variant="primary" icon="➕" size="sm">
-						{{ $t('mansion.maintenance.create') || 'Create Request' }}
-					</KButton>
-				</template>
-			</SectionHeader>
+				<!-- Residents Management -->
+				<section v-if="activeSection === 'residents'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.residents.title') || 'Resident Management'"
+						icon="👥"
+						searchable
+						search-placeholder="Search residents..."
+					>
+						<template #actions>
+							<KButton variant="primary" icon="➕">
+								{{ $t('mansion.residents.add') || 'Add Resident' }}
+							</KButton>
+						</template>
+					</SectionHeader>
 			
-			<div class="maintenance-list">
-				<KCard
-					v-for="request in maintenanceRequests"
-					:key="request.id"
-					:class="['maintenance-card', request.priority]"
-					outlined
-				>
-					<div class="request-header">
-						<span class="priority-badge" :class="request.priority">
-							{{ request.priority }}
-						</span>
-						<h4>{{ request.title }}</h4>
-						<span class="request-time">{{ request.created }}</span>
+					<div class="residents-grid">
+						<KCard
+							v-for="resident in residents"
+							:key="resident.id"
+							:title="resident.name"
+							outlined
+						>
+							<template #badge>
+								<span class="resident-status active">{{ $t('common.active') || 'Active' }}</span>
+							</template>
+							<div class="resident-details">
+								<p><strong>{{ $t('mansion.residents.unit') || 'Unit' }}:</strong> {{ resident.unit }}</p>
+								<p><strong>{{ $t('mansion.residents.email') || 'Email' }}:</strong> {{ resident.email }}</p>
+								<p><strong>{{ $t('mansion.residents.phone') || 'Phone' }}:</strong> {{ resident.phone }}</p>
+								<p><strong>{{ $t('mansion.residents.since') || 'Since' }}:</strong> {{ resident.moveInDate }}</p>
+							</div>
+							<template #footer>
+								<div class="resident-actions">
+									<KButton size="sm" variant="secondary" icon="✏️" @click="editResident(resident)">
+										{{ $t('common.edit') || 'Edit' }}
+									</KButton>
+									<KButton size="sm" variant="ghost">
+										{{ $t('mansion.residents.message') || 'Message' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
 					</div>
-					<p class="request-description">{{ request.description }}</p>
-					<div class="request-info">
-						<span><strong>Unit:</strong> {{ request.unit }}</span>
-						<span><strong>Status:</strong> {{ request.status }}</span>
-						<span><strong>Assigned:</strong> {{ request.assignedTo || 'Unassigned' }}</span>
+				</section>
+
+				<!-- Maintenance Management -->
+				<section v-if="activeSection === 'maintenance'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.maintenance.title') || 'Maintenance Requests'"
+						icon="🔧"
+					>
+						<template #actions>
+							<KButton variant="secondary" size="sm">
+								{{ $t('mansion.maintenance.export') || 'Export' }}
+							</KButton>
+							<KButton variant="primary" icon="➕" size="sm">
+								{{ $t('mansion.maintenance.create') || 'Create Request' }}
+							</KButton>
+						</template>
+					</SectionHeader>
+			
+					<div class="maintenance-list">
+						<KCard
+							v-for="request in maintenanceRequests"
+							:key="request.id"
+							:class="['maintenance-card', request.priority]"
+							outlined
+						>
+							<div class="request-header">
+								<span class="priority-badge" :class="request.priority">
+									{{ request.priority }}
+								</span>
+								<h4>{{ request.title }}</h4>
+								<span class="request-time">{{ request.created }}</span>
+							</div>
+							<p class="request-description">{{ request.description }}</p>
+							<div class="request-info">
+								<span><strong>Unit:</strong> {{ request.unit }}</span>
+								<span><strong>Status:</strong> {{ request.status }}</span>
+								<span><strong>Assigned:</strong> {{ request.assignedTo || 'Unassigned' }}</span>
+							</div>
+							<template #footer>
+								<div class="request-actions">
+									<KButton size="sm" variant="primary">
+										{{ $t('mansion.maintenance.assign') || 'Assign' }}
+									</KButton>
+									<KButton size="sm" variant="secondary">
+										{{ $t('mansion.maintenance.update') || 'Update Status' }}
+									</KButton>
+									<KButton size="sm" variant="ghost">
+										{{ $t('mansion.maintenance.view') || 'View Details' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
 					</div>
-					<template #footer>
-						<div class="request-actions">
-							<KButton size="sm" variant="primary">
-								{{ $t('mansion.maintenance.assign') || 'Assign' }}
+				</section>
+
+				<!-- Facility Bookings -->
+				<section v-if="activeSection === 'bookings'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.bookings.title') || 'Facility Bookings'"
+						:subtitle="`Week of ${currentWeek}`"
+						icon="📅"
+					>
+						<template #actions>
+							<KButton variant="ghost" icon="◀" @click="previousWeek" />
+							<KButton variant="ghost" icon="▶" @click="nextWeek" />
+							<KButton variant="primary" icon="➕">
+								{{ $t('mansion.bookings.add') || 'New Booking' }}
 							</KButton>
-							<KButton size="sm" variant="secondary">
-								{{ $t('mansion.maintenance.update') || 'Update Status' }}
-							</KButton>
-							<KButton size="sm" variant="ghost">
-								{{ $t('mansion.maintenance.view') || 'View Details' }}
-							</KButton>
+						</template>
+					</SectionHeader>
+			
+					<KCard elevated no-padding>
+						<div class="bookings-table">
+							<table>
+								<thead>
+									<tr>
+										<th>{{ $t('mansion.bookings.facility') || 'Facility' }}</th>
+										<th v-for="day in weekDays" :key="day">{{ day }}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="facility in facilities" :key="facility.id">
+										<td class="facility-name">{{ facility.name }}</td>
+										<td v-for="day in weekDays" :key="day" class="booking-cell">
+											<div v-if="getBooking(facility.id, day)" class="booking-block">
+												<span class="booking-time">{{ getBooking(facility.id, day).time }}</span>
+												<span class="booking-user">{{ getBooking(facility.id, day).user }}</span>
+											</div>
+											<span v-else class="available">{{ $t('mansion.bookings.available') || 'Available' }}</span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
-					</template>
-				</KCard>
-			</div>
-		</section>
+					</KCard>
+				</section>
 
-		<!-- Facility Bookings -->
-		<section v-if="activeSection === 'bookings'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.bookings.title') || 'Facility Bookings'"
-				:subtitle="`Week of ${currentWeek}`"
-				icon="📅"
-			>
-				<template #actions>
-					<KButton variant="ghost" icon="◀" @click="previousWeek" />
-					<KButton variant="ghost" icon="▶" @click="nextWeek" />
-					<KButton variant="primary" icon="➕">
-						{{ $t('mansion.bookings.add') || 'New Booking' }}
-					</KButton>
-				</template>
-			</SectionHeader>
+				<!-- Announcements -->
+				<section v-if="activeSection === 'announcements'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.announcements.title') || 'Announcements'"
+						icon="📢"
+					>
+						<template #actions>
+							<KButton variant="primary" icon="➕" @click="showAnnouncementModal = true">
+								{{ $t('mansion.announcements.create') || 'New Announcement' }}
+							</KButton>
+						</template>
+					</SectionHeader>
 			
-			<KCard elevated no-padding>
-				<div class="bookings-table">
-					<table>
-						<thead>
-							<tr>
-								<th>{{ $t('mansion.bookings.facility') || 'Facility' }}</th>
-								<th v-for="day in weekDays" :key="day">{{ day }}</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="facility in facilities" :key="facility.id">
-								<td class="facility-name">{{ facility.name }}</td>
-								<td v-for="day in weekDays" :key="day" class="booking-cell">
-									<div v-if="getBooking(facility.id, day)" class="booking-block">
-										<span class="booking-time">{{ getBooking(facility.id, day).time }}</span>
-										<span class="booking-user">{{ getBooking(facility.id, day).user }}</span>
-									</div>
-									<span v-else class="available">{{ $t('mansion.bookings.available') || 'Available' }}</span>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</KCard>
-		</section>
-
-		<!-- Announcements -->
-		<section v-if="activeSection === 'announcements'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.announcements.title') || 'Announcements'"
-				icon="📢"
-			>
-				<template #actions>
-					<KButton variant="primary" icon="➕" @click="showAnnouncementModal = true">
-						{{ $t('mansion.announcements.create') || 'New Announcement' }}
-					</KButton>
-				</template>
-			</SectionHeader>
-			
-			<div class="announcements-list">
-				<KCard
-					v-for="announcement in announcements"
-					:key="announcement.id"
-					:title="announcement.title"
-					outlined
-				>
-					<template #badge>
-						<span class="announcement-category" :class="announcement.category">
-							{{ announcement.category }}
-						</span>
-					</template>
-					<p>{{ announcement.content }}</p>
-					<div class="announcement-meta">
-						<span>{{ $t('mansion.announcements.posted') || 'Posted' }}: {{ announcement.date }}</span>
-						<span>{{ $t('mansion.announcements.views') || 'Views' }}: {{ announcement.views }}</span>
+					<div class="announcements-list">
+						<KCard
+							v-for="announcement in announcements"
+							:key="announcement.id"
+							:title="announcement.title"
+							outlined
+						>
+							<template #badge>
+								<span class="announcement-category" :class="announcement.category">
+									{{ announcement.category }}
+								</span>
+							</template>
+							<p>{{ announcement.content }}</p>
+							<div class="announcement-meta">
+								<span>{{ $t('mansion.announcements.posted') || 'Posted' }}: {{ announcement.date }}</span>
+								<span>{{ $t('mansion.announcements.views') || 'Views' }}: {{ announcement.views }}</span>
+							</div>
+							<template #footer>
+								<div class="announcement-actions">
+									<KButton size="sm" variant="secondary">
+										{{ $t('common.edit') || 'Edit' }}
+									</KButton>
+									<KButton size="sm" variant="danger">
+										{{ $t('common.delete') || 'Delete' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
 					</div>
-					<template #footer>
-						<div class="announcement-actions">
-							<KButton size="sm" variant="secondary">
-								{{ $t('common.edit') || 'Edit' }}
+				</section>
+
+				<!-- Documents -->
+				<section v-if="activeSection === 'documents'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.documents.title') || 'Building Documents'"
+						icon="📄"
+						searchable
+						search-placeholder="Search documents..."
+					>
+						<template #actions>
+							<KButton variant="primary" icon="⬆️">
+								{{ $t('mansion.documents.upload') || 'Upload Document' }}
 							</KButton>
-							<KButton size="sm" variant="danger">
-								{{ $t('common.delete') || 'Delete' }}
+						</template>
+					</SectionHeader>
+			
+					<div class="documents-grid">
+						<KCard
+							v-for="doc in documents"
+							:key="doc.id"
+							:icon="doc.icon"
+							:title="doc.name"
+							clickable
+							outlined
+						>
+							<p class="doc-description">{{ doc.description }}</p>
+							<div class="doc-meta">
+								<span>{{ doc.size }}</span>
+								<span>{{ doc.lastModified }}</span>
+							</div>
+							<template #footer>
+								<div class="doc-actions">
+									<KButton size="sm" variant="primary" icon="⬇️">
+										{{ $t('mansion.documents.download') || 'Download' }}
+									</KButton>
+									<KButton size="sm" variant="ghost">
+										{{ $t('common.delete') || 'Delete' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
+					</div>
+				</section>
+
+				<!-- Financial -->
+				<section v-if="activeSection === 'financial'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.financial.title') || 'Financial Overview'"
+						icon="💰"
+					>
+						<template #actions>
+							<KButton variant="secondary" icon="📥">
+								{{ $t('mansion.financial.export') || 'Export Report' }}
 							</KButton>
+						</template>
+					</SectionHeader>
+			
+					<div class="financial-stats">
+						<StatCard
+							icon="💵"
+							:label="$t('mansion.financial.collected') || 'Collected This Month'"
+							:value="9500000"
+							format="currency"
+							variant="success"
+							:trend="{ text: '95% collection rate', positive: true }"
+						/>
+						<StatCard
+							icon="💸"
+							:label="$t('mansion.financial.pending') || 'Pending Payments'"
+							:value="500000"
+							format="currency"
+							variant="warning"
+							subtext="6 units pending"
+						/>
+						<StatCard
+							icon="📊"
+							:label="$t('mansion.financial.expenses') || 'Monthly Expenses'"
+							:value="3200000"
+							format="currency"
+							variant="secondary"
+						/>
+					</div>
+
+					<KCard 
+						:title="$t('mansion.financial.breakdown') || 'Payment Status by Unit'"
+						elevated
+					>
+						<div class="payment-list">
+							<div v-for="payment in unitPayments" :key="payment.unit" class="payment-item">
+								<span class="unit-number">Unit {{ payment.unit }}</span>
+								<span class="resident-name">{{ payment.resident }}</span>
+								<span class="amount">¥{{ payment.amount.toLocaleString() }}</span>
+								<span class="status" :class="payment.status">{{ payment.status }}</span>
+							</div>
 						</div>
-					</template>
-				</KCard>
-			</div>
-		</section>
+					</KCard>
+				</section>
 
-		<!-- Documents -->
-		<section v-if="activeSection === 'documents'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.documents.title') || 'Building Documents'"
-				icon="📄"
-				searchable
-				search-placeholder="Search documents..."
-			>
-				<template #actions>
-					<KButton variant="primary" icon="⬆️">
-						{{ $t('mansion.documents.upload') || 'Upload Document' }}
-					</KButton>
-				</template>
-			</SectionHeader>
+				<!-- Reports -->
+				<section v-if="activeSection === 'reports'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.reports.title') || 'Reports & Analytics'"
+						icon="📊"
+					/>
 			
-			<div class="documents-grid">
-				<KCard
-					v-for="doc in documents"
-					:key="doc.id"
-					:icon="doc.icon"
-					:title="doc.name"
-					clickable
-					outlined
-				>
-					<p class="doc-description">{{ doc.description }}</p>
-					<div class="doc-meta">
-						<span>{{ doc.size }}</span>
-						<span>{{ doc.lastModified }}</span>
-					</div>
-					<template #footer>
-						<div class="doc-actions">
-							<KButton size="sm" variant="primary" icon="⬇️">
-								{{ $t('mansion.documents.download') || 'Download' }}
-							</KButton>
-							<KButton size="sm" variant="ghost">
-								{{ $t('common.delete') || 'Delete' }}
-							</KButton>
-						</div>
-					</template>
-				</KCard>
-			</div>
-		</section>
-
-		<!-- Financial -->
-		<section v-if="activeSection === 'financial'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.financial.title') || 'Financial Overview'"
-				icon="💰"
-			>
-				<template #actions>
-					<KButton variant="secondary" icon="📥">
-						{{ $t('mansion.financial.export') || 'Export Report' }}
-					</KButton>
-				</template>
-			</SectionHeader>
-			
-			<div class="financial-stats">
-				<StatCard
-					icon="💵"
-					:label="$t('mansion.financial.collected') || 'Collected This Month'"
-					:value="9500000"
-					format="currency"
-					variant="success"
-					:trend="{ text: '95% collection rate', positive: true }"
-				/>
-				<StatCard
-					icon="💸"
-					:label="$t('mansion.financial.pending') || 'Pending Payments'"
-					:value="500000"
-					format="currency"
-					variant="warning"
-					subtext="6 units pending"
-				/>
-				<StatCard
-					icon="📊"
-					:label="$t('mansion.financial.expenses') || 'Monthly Expenses'"
-					:value="3200000"
-					format="currency"
-					variant="secondary"
-				/>
-			</div>
-
-			<KCard 
-				:title="$t('mansion.financial.breakdown') || 'Payment Status by Unit'"
-				elevated
-			>
-				<div class="payment-list">
-					<div v-for="payment in unitPayments" :key="payment.unit" class="payment-item">
-						<span class="unit-number">Unit {{ payment.unit }}</span>
-						<span class="resident-name">{{ payment.resident }}</span>
-						<span class="amount">¥{{ payment.amount.toLocaleString() }}</span>
-						<span class="status" :class="payment.status">{{ payment.status }}</span>
-					</div>
-				</div>
-			</KCard>
-		</section>
-
-		<!-- Reports -->
-		<section v-if="activeSection === 'reports'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.reports.title') || 'Reports & Analytics'"
-				icon="📊"
-			/>
-			
-			<div class="reports-grid">
-				<KCard
-					icon="📈"
-					title="Occupancy Report"
-					clickable
-					variant="primary"
-				>
-					<p>Monthly occupancy trends and forecasts</p>
-					<template #footer>
-						<KButton size="sm" variant="primary" block>
-							{{ $t('mansion.reports.generate') || 'Generate Report' }}
-						</KButton>
-					</template>
-				</KCard>
+					<div class="reports-grid">
+						<KCard
+							icon="📈"
+							title="Occupancy Report"
+							clickable
+							variant="primary"
+						>
+							<p>Monthly occupancy trends and forecasts</p>
+							<template #footer>
+								<KButton size="sm" variant="primary" block>
+									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+								</KButton>
+							</template>
+						</KCard>
 				
-				<KCard
-					icon="💰"
-					title="Financial Report"
-					clickable
-					variant="success"
-				>
-					<p>Revenue, expenses, and collection rates</p>
-					<template #footer>
-						<KButton size="sm" variant="primary" block>
-							{{ $t('mansion.reports.generate') || 'Generate Report' }}
-						</KButton>
-					</template>
-				</KCard>
+						<KCard
+							icon="💰"
+							title="Financial Report"
+							clickable
+							variant="success"
+						>
+							<p>Revenue, expenses, and collection rates</p>
+							<template #footer>
+								<KButton size="sm" variant="primary" block>
+									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+								</KButton>
+							</template>
+						</KCard>
 				
-				<KCard
-					icon="🔧"
-					title="Maintenance Report"
-					clickable
-					variant="warning"
-				>
-					<p>Request trends and completion times</p>
-					<template #footer>
-						<KButton size="sm" variant="primary" block>
-							{{ $t('mansion.reports.generate') || 'Generate Report' }}
-						</KButton>
-					</template>
-				</KCard>
+						<KCard
+							icon="🔧"
+							title="Maintenance Report"
+							clickable
+							variant="warning"
+						>
+							<p>Request trends and completion times</p>
+							<template #footer>
+								<KButton size="sm" variant="primary" block>
+									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+								</KButton>
+							</template>
+						</KCard>
 				
-				<KCard
-					icon="👥"
-					title="Resident Report"
-					clickable
-					variant="info"
-				>
-					<p>Demographics and satisfaction metrics</p>
-					<template #footer>
-						<KButton size="sm" variant="primary" block>
-							{{ $t('mansion.reports.generate') || 'Generate Report' }}
-						</KButton>
-					</template>
-				</KCard>
-			</div>
-		</section>
+						<KCard
+							icon="👥"
+							title="Resident Report"
+							clickable
+							variant="info"
+						>
+							<p>Demographics and satisfaction metrics</p>
+							<template #footer>
+								<KButton size="sm" variant="primary" block>
+									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+								</KButton>
+							</template>
+						</KCard>
+					</div>
+				</section>
 
-		<!-- Services Management -->
-		<section v-if="activeSection === 'services'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.services.title') || 'Services Management'"
-				icon="🛎️"
-			>
-				<template #actions>
-					<KButton variant="primary" icon="➕">
-						{{ $t('mansion.services.add') || 'Add Service' }}
-					</KButton>
-				</template>
-			</SectionHeader>
+				<!-- Services Management -->
+				<section v-if="activeSection === 'services'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.services.title') || 'Services Management'"
+						icon="🛎️"
+					>
+						<template #actions>
+							<KButton variant="primary" icon="➕">
+								{{ $t('mansion.services.add') || 'Add Service' }}
+							</KButton>
+						</template>
+					</SectionHeader>
 			
-			<div class="services-grid">
-				<KCard
-					icon="🧹"
-					:title="$t('dashboard.services.cleaning') || 'Cleaning Service'"
-					:badge="{ text: 'ACTIVE', variant: 'success' }"
-					outlined
-				>
-					<div class="service-details">
-						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥3,000/hour</p>
-						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Mon-Sat, 9AM-6PM</p>
-						<p><strong>Provider:</strong> CleanPro Services Inc.</p>
-						<p><strong>Bookings this month:</strong> 42</p>
-					</div>
-					<template #footer>
-						<div class="service-actions">
-							<KButton size="sm" variant="secondary" icon="✏️">
-								{{ $t('common.edit') || 'Edit' }}
-							</KButton>
-							<KButton size="sm" variant="ghost">
-								{{ $t('mansion.services.viewBookings') || 'View Bookings' }}
-							</KButton>
-						</div>
-					</template>
-				</KCard>
+					<div class="services-grid">
+						<KCard
+							icon="🧹"
+							:title="$t('dashboard.services.cleaning') || 'Cleaning Service'"
+							:badge="{ text: 'ACTIVE', variant: 'success' }"
+							outlined
+						>
+							<div class="service-details">
+								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥3,000/hour</p>
+								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Mon-Sat, 9AM-6PM</p>
+								<p><strong>Provider:</strong> CleanPro Services Inc.</p>
+								<p><strong>Bookings this month:</strong> 42</p>
+							</div>
+							<template #footer>
+								<div class="service-actions">
+									<KButton size="sm" variant="secondary" icon="✏️">
+										{{ $t('common.edit') || 'Edit' }}
+									</KButton>
+									<KButton size="sm" variant="ghost">
+										{{ $t('mansion.services.viewBookings') || 'View Bookings' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
 				
-				<KCard
-					icon="🚲"
-					:title="$t('dashboard.services.bikeRental') || 'Bike Rental'"
-					:badge="{ text: 'ACTIVE', variant: 'success' }"
-					outlined
-				>
-					<div class="service-details">
-						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥500/day</p>
-						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> 24/7</p>
-						<p><strong>Available bikes:</strong> 15/20</p>
-						<p><strong>Monthly rentals:</strong> 28</p>
-					</div>
-					<template #footer>
-						<div class="service-actions">
-							<KButton size="sm" variant="secondary" icon="✏️">
-								{{ $t('common.edit') || 'Edit' }}
-							</KButton>
-							<KButton size="sm" variant="ghost">
-								{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
-							</KButton>
-						</div>
-					</template>
-				</KCard>
+						<KCard
+							icon="🚲"
+							:title="$t('dashboard.services.bikeRental') || 'Bike Rental'"
+							:badge="{ text: 'ACTIVE', variant: 'success' }"
+							outlined
+						>
+							<div class="service-details">
+								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥500/day</p>
+								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> 24/7</p>
+								<p><strong>Available bikes:</strong> 15/20</p>
+								<p><strong>Monthly rentals:</strong> 28</p>
+							</div>
+							<template #footer>
+								<div class="service-actions">
+									<KButton size="sm" variant="secondary" icon="✏️">
+										{{ $t('common.edit') || 'Edit' }}
+									</KButton>
+									<KButton size="sm" variant="ghost">
+										{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
 				
-				<KCard
-					icon="🛏️"
-					:title="$t('dashboard.services.futonRental') || 'Futon Rental'"
-					:badge="{ text: 'ACTIVE', variant: 'success' }"
-					outlined
-				>
-					<div class="service-details">
-						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥1,000/week</p>
-						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> On request</p>
-						<p><strong>Available sets:</strong> 8/10</p>
-						<p><strong>Current rentals:</strong> 2</p>
-					</div>
-					<template #footer>
-						<div class="service-actions">
-							<KButton size="sm" variant="secondary" icon="✏️">
-								{{ $t('common.edit') || 'Edit' }}
-							</KButton>
-							<KButton size="sm" variant="ghost">
-								{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
-							</KButton>
-						</div>
-					</template>
-				</KCard>
+						<KCard
+							icon="🛏️"
+							:title="$t('dashboard.services.futonRental') || 'Futon Rental'"
+							:badge="{ text: 'ACTIVE', variant: 'success' }"
+							outlined
+						>
+							<div class="service-details">
+								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥1,000/week</p>
+								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> On request</p>
+								<p><strong>Available sets:</strong> 8/10</p>
+								<p><strong>Current rentals:</strong> 2</p>
+							</div>
+							<template #footer>
+								<div class="service-actions">
+									<KButton size="sm" variant="secondary" icon="✏️">
+										{{ $t('common.edit') || 'Edit' }}
+									</KButton>
+									<KButton size="sm" variant="ghost">
+										{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
 				
-				<KCard
-					icon="💐"
-					:title="$t('dashboard.services.flowerDelivery') || 'Flower Delivery'"
-					:badge="{ text: 'ACTIVE', variant: 'success' }"
-					outlined
-				>
-					<div class="service-details">
-						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> From ¥2,000</p>
-						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Daily orders</p>
-						<p><strong>Partner:</strong> Sakura Flowers</p>
-						<p><strong>Orders this month:</strong> 15</p>
+						<KCard
+							icon="💐"
+							:title="$t('dashboard.services.flowerDelivery') || 'Flower Delivery'"
+							:badge="{ text: 'ACTIVE', variant: 'success' }"
+							outlined
+						>
+							<div class="service-details">
+								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> From ¥2,000</p>
+								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Daily orders</p>
+								<p><strong>Partner:</strong> Sakura Flowers</p>
+								<p><strong>Orders this month:</strong> 15</p>
+							</div>
+							<template #footer>
+								<div class="service-actions">
+									<KButton size="sm" variant="secondary" icon="✏️">
+										{{ $t('common.edit') || 'Edit' }}
+									</KButton>
+									<KButton size="sm" variant="ghost">
+										{{ $t('mansion.services.viewOrders') || 'View Orders' }}
+									</KButton>
+								</div>
+							</template>
+						</KCard>
 					</div>
-					<template #footer>
-						<div class="service-actions">
-							<KButton size="sm" variant="secondary" icon="✏️">
-								{{ $t('common.edit') || 'Edit' }}
-							</KButton>
-							<KButton size="sm" variant="ghost">
-								{{ $t('mansion.services.viewOrders') || 'View Orders' }}
-							</KButton>
-						</div>
-					</template>
-				</KCard>
-			</div>
-		</section>
+				</section>
 
-		<!-- Settings -->
-		<section v-if="activeSection === 'settings'" class="section">
-			<SectionHeader 
-				:title="$t('mansion.settings.title') || 'Building Settings'"
-				icon="⚙️"
-			/>
+				<!-- Settings -->
+				<section v-if="activeSection === 'settings'" class="section">
+					<SectionHeader 
+						:title="$t('mansion.settings.title') || 'Building Settings'"
+						icon="⚙️"
+					/>
 			
-			<div class="settings-grid">
-				<KCard 
-					:title="$t('mansion.settings.building') || 'Building Information'"
-					icon="🏢"
-					outlined
-				>
-					<div class="setting-item">
-						<label>{{ $t('mansion.settings.name') || 'Building Name' }}</label>
-						<input v-model="buildingSettings.name" type="text" class="setting-input">
-					</div>
-					<div class="setting-item">
-						<label>{{ $t('mansion.settings.address') || 'Address' }}</label>
-						<input v-model="buildingSettings.address" type="text" class="setting-input">
-					</div>
-					<div class="setting-item">
-						<label>{{ $t('mansion.settings.units') || 'Total Units' }}</label>
-						<input v-model="buildingSettings.totalUnits" type="number" class="setting-input">
-					</div>
-					<template #footer>
-						<KButton variant="primary" block>
-							{{ $t('common.save') || 'Save Changes' }}
-						</KButton>
-					</template>
-				</KCard>
+					<div class="settings-grid">
+						<KCard 
+							:title="$t('mansion.settings.building') || 'Building Information'"
+							icon="🏢"
+							outlined
+						>
+							<div class="setting-item">
+								<label>{{ $t('mansion.settings.name') || 'Building Name' }}</label>
+								<input v-model="buildingSettings.name" type="text" class="setting-input">
+							</div>
+							<div class="setting-item">
+								<label>{{ $t('mansion.settings.address') || 'Address' }}</label>
+								<input v-model="buildingSettings.address" type="text" class="setting-input">
+							</div>
+							<div class="setting-item">
+								<label>{{ $t('mansion.settings.units') || 'Total Units' }}</label>
+								<input v-model="buildingSettings.totalUnits" type="number" class="setting-input">
+							</div>
+							<template #footer>
+								<KButton variant="primary" block>
+									{{ $t('common.save') || 'Save Changes' }}
+								</KButton>
+							</template>
+						</KCard>
 
-				<KCard 
-					:title="$t('mansion.settings.facilities') || 'Facilities Management'"
-					icon="🏊"
-					outlined
-				>
-					<div class="facilities-list">
-						<div v-for="facility in buildingSettings.facilities" :key="facility.id" class="facility-item">
-							<label>
-								<input v-model="facility.enabled" type="checkbox">
-								{{ facility.name }}
-							</label>
-							<span class="facility-hours">{{ facility.hours }}</span>
-						</div>
-					</div>
-					<template #footer>
-						<KButton variant="primary" block>
-							{{ $t('mansion.settings.updateFacilities') || 'Update Facilities' }}
-						</KButton>
-					</template>
-				</KCard>
+						<KCard 
+							:title="$t('mansion.settings.facilities') || 'Facilities Management'"
+							icon="🏊"
+							outlined
+						>
+							<div class="facilities-list">
+								<div v-for="facility in buildingSettings.facilities" :key="facility.id" class="facility-item">
+									<label>
+										<input v-model="facility.enabled" type="checkbox">
+										{{ facility.name }}
+									</label>
+									<span class="facility-hours">{{ facility.hours }}</span>
+								</div>
+							</div>
+							<template #footer>
+								<KButton variant="primary" block>
+									{{ $t('mansion.settings.updateFacilities') || 'Update Facilities' }}
+								</KButton>
+							</template>
+						</KCard>
 
-				<KCard 
-					:title="$t('mansion.settings.notifications') || 'Notification Settings'"
-					icon="🔔"
-					outlined
-				>
-					<div class="setting-item">
-						<label>
-							<input v-model="notificationSettings.emailAlerts" type="checkbox">
-							{{ $t('mansion.settings.emailAlerts') || 'Email alerts for urgent maintenance' }}
-						</label>
+						<KCard 
+							:title="$t('mansion.settings.notifications') || 'Notification Settings'"
+							icon="🔔"
+							outlined
+						>
+							<div class="setting-item">
+								<label>
+									<input v-model="notificationSettings.emailAlerts" type="checkbox">
+									{{ $t('mansion.settings.emailAlerts') || 'Email alerts for urgent maintenance' }}
+								</label>
+							</div>
+							<div class="setting-item">
+								<label>
+									<input v-model="notificationSettings.dailyDigest" type="checkbox">
+									{{ $t('mansion.settings.dailyDigest') || 'Daily activity digest' }}
+								</label>
+							</div>
+							<div class="setting-item">
+								<label>
+									<input v-model="notificationSettings.paymentReminders" type="checkbox">
+									{{ $t('mansion.settings.paymentReminders') || 'Payment reminder notifications' }}
+								</label>
+							</div>
+						</KCard>
 					</div>
-					<div class="setting-item">
-						<label>
-							<input v-model="notificationSettings.dailyDigest" type="checkbox">
-							{{ $t('mansion.settings.dailyDigest') || 'Daily activity digest' }}
-						</label>
-					</div>
-					<div class="setting-item">
-						<label>
-							<input v-model="notificationSettings.paymentReminders" type="checkbox">
-							{{ $t('mansion.settings.paymentReminders') || 'Payment reminder notifications' }}
-						</label>
-					</div>
-				</KCard>
-			</div>
-		</section>
+				</section>
 
-		<!-- Edit Resident Modal -->
-		<transition name="modal">
-			<div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3>{{ $t('mansion.residents.edit') || 'Edit Resident Information' }}</h3>
-						<button class="modal-close" @click="showEditModal = false">✕</button>
+				<!-- Edit Resident Modal -->
+				<transition name="modal">
+					<div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h3>{{ $t('mansion.residents.edit') || 'Edit Resident Information' }}</h3>
+								<button class="modal-close" @click="showEditModal = false">✕</button>
+							</div>
+							<form class="modal-body" @submit.prevent="saveResident">
+								<div class="form-group">
+									<label>{{ $t('mansion.residents.name') || 'Name' }}</label>
+									<input v-model="editingResident.name" type="text" required>
+								</div>
+								<div class="form-group">
+									<label>{{ $t('mansion.residents.unit') || 'Unit' }}</label>
+									<input v-model="editingResident.unit" type="text" required>
+								</div>
+								<div class="form-group">
+									<label>{{ $t('mansion.residents.email') || 'Email' }}</label>
+									<input v-model="editingResident.email" type="email" required>
+								</div>
+								<div class="form-group">
+									<label>{{ $t('mansion.residents.phone') || 'Phone' }}</label>
+									<input v-model="editingResident.phone" type="tel" required>
+								</div>
+								<div class="modal-actions">
+									<KButton type="button" variant="secondary" @click="showEditModal = false">
+										{{ $t('common.cancel') || 'Cancel' }}
+									</KButton>
+									<KButton type="submit" variant="primary">
+										{{ $t('common.save') || 'Save Changes' }}
+									</KButton>
+								</div>
+							</form>
+						</div>
 					</div>
-					<form class="modal-body" @submit.prevent="saveResident">
-						<div class="form-group">
-							<label>{{ $t('mansion.residents.name') || 'Name' }}</label>
-							<input v-model="editingResident.name" type="text" required>
-						</div>
-						<div class="form-group">
-							<label>{{ $t('mansion.residents.unit') || 'Unit' }}</label>
-							<input v-model="editingResident.unit" type="text" required>
-						</div>
-						<div class="form-group">
-							<label>{{ $t('mansion.residents.email') || 'Email' }}</label>
-							<input v-model="editingResident.email" type="email" required>
-						</div>
-						<div class="form-group">
-							<label>{{ $t('mansion.residents.phone') || 'Phone' }}</label>
-							<input v-model="editingResident.phone" type="tel" required>
-						</div>
-						<div class="modal-actions">
-							<KButton type="button" variant="secondary" @click="showEditModal = false">
-								{{ $t('common.cancel') || 'Cancel' }}
-							</KButton>
-							<KButton type="submit" variant="primary">
-								{{ $t('common.save') || 'Save Changes' }}
-							</KButton>
-						</div>
-					</form>
-				</div>
-			</div>
-		</transition>
+				</transition>
 
-		<!-- New Announcement Modal -->
-		<transition name="modal">
-			<div v-if="showAnnouncementModal" class="modal-overlay" @click.self="showAnnouncementModal = false">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h3>{{ $t('mansion.announcements.new') || 'Create New Announcement' }}</h3>
-						<button class="modal-close" @click="showAnnouncementModal = false">✕</button>
+				<!-- New Announcement Modal -->
+				<transition name="modal">
+					<div v-if="showAnnouncementModal" class="modal-overlay" @click.self="showAnnouncementModal = false">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h3>{{ $t('mansion.announcements.new') || 'Create New Announcement' }}</h3>
+								<button class="modal-close" @click="showAnnouncementModal = false">✕</button>
+							</div>
+							<form class="modal-body" @submit.prevent="createAnnouncement">
+								<div class="form-group">
+									<label>{{ $t('mansion.announcements.title') || 'Title' }}</label>
+									<input v-model="newAnnouncement.title" type="text" required>
+								</div>
+								<div class="form-group">
+									<label>{{ $t('mansion.announcements.category') || 'Category' }}</label>
+									<select v-model="newAnnouncement.category" required>
+										<option value="general">{{ $t('mansion.announcements.general') || 'General' }}</option>
+										<option value="maintenance">{{ $t('mansion.announcements.maintenance') || 'Maintenance' }}</option>
+										<option value="event">{{ $t('mansion.announcements.event') || 'Event' }}</option>
+										<option value="urgent">{{ $t('mansion.announcements.urgent') || 'Urgent' }}</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label>{{ $t('mansion.announcements.content') || 'Content' }}</label>
+									<textarea v-model="newAnnouncement.content" rows="5" required />
+								</div>
+								<div class="modal-actions">
+									<KButton type="button" variant="secondary" @click="showAnnouncementModal = false">
+										{{ $t('common.cancel') || 'Cancel' }}
+									</KButton>
+									<KButton type="submit" variant="primary">
+										{{ $t('mansion.announcements.post') || 'Post Announcement' }}
+									</KButton>
+								</div>
+							</form>
+						</div>
 					</div>
-					<form class="modal-body" @submit.prevent="createAnnouncement">
-						<div class="form-group">
-							<label>{{ $t('mansion.announcements.title') || 'Title' }}</label>
-							<input v-model="newAnnouncement.title" type="text" required>
-						</div>
-						<div class="form-group">
-							<label>{{ $t('mansion.announcements.category') || 'Category' }}</label>
-							<select v-model="newAnnouncement.category" required>
-								<option value="general">{{ $t('mansion.announcements.general') || 'General' }}</option>
-								<option value="maintenance">{{ $t('mansion.announcements.maintenance') || 'Maintenance' }}</option>
-								<option value="event">{{ $t('mansion.announcements.event') || 'Event' }}</option>
-								<option value="urgent">{{ $t('mansion.announcements.urgent') || 'Urgent' }}</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label>{{ $t('mansion.announcements.content') || 'Content' }}</label>
-							<textarea v-model="newAnnouncement.content" rows="5" required />
-						</div>
-						<div class="modal-actions">
-							<KButton type="button" variant="secondary" @click="showAnnouncementModal = false">
-								{{ $t('common.cancel') || 'Cancel' }}
-							</KButton>
-							<KButton type="submit" variant="primary">
-								{{ $t('mansion.announcements.post') || 'Post Announcement' }}
-							</KButton>
-						</div>
-					</form>
-				</div>
-			</div>
-		</transition>
+				</transition>
 			</main>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 
-import KagiLogo from '../components/KagiLogo.vue'
 import KButton from '../components/core/KButton.vue'
 import KCard from '../components/core/KCard.vue'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import SectionHeader from '../components/dashboard/SectionHeader.vue'
 import StatCard from '../components/dashboard/StatCard.vue'
+import KagiLogo from '../components/KagiLogo.vue'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 // Stores
-import { useAuthStore } from '../stores/auth'
+import * as store from '../store'
 
-const authStore = useAuthStore()
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
+
+// Computed properties for store
+const user = computed( () => store.user.value )
 
 // Building Information
 const buildingName = ref( 'Sakura Tower' )
@@ -812,7 +814,7 @@ const navigateToSection = ( section ) => {
 }
 
 const handleLogout = async () => {
-	await authStore.logout()
+	await store.logout()
 	router.push( '/login' )
 }
 

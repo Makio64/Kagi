@@ -1,6 +1,6 @@
 <!-- Simple BurgerButton by @makio64 || David Ronai -->
 <template>
-	<div class="BurgerButton" :class="{ cross: authStore.isMenuOpen }" @click="toggle">
+	<div class="BurgerButton" :class="{ cross: isMenuOpen }" @click="toggle">
 		<span />
 		<span />
 		<span />
@@ -8,18 +8,20 @@
 </template>
 
 <script>
-import { useAuthStore } from '../../stores/auth'
+import { computed } from 'vue'
+
+import { isMenuOpen as storeIsMenuOpen } from '../../store'
 
 export default {
 	name: 'BurgerButton',
 	setup() {
-		const authStore = useAuthStore()
-		return { authStore }
-	},
-	methods: {
-		toggle() {
-			this.authStore.isMenuOpen = !this.authStore.isMenuOpen
-		},
+		const isMenuOpen = computed( () => storeIsMenuOpen.value )
+
+		const toggle = () => {
+			storeIsMenuOpen.value = !storeIsMenuOpen.value
+		}
+
+		return { isMenuOpen, toggle }
 	},
 }
 </script>

@@ -10,7 +10,7 @@ import { TinyRouter } from 'vue-tiny-router'
 import { loadTranslations } from 'vue-tiny-translation'
 
 import { detectLang } from '@/makio/utils/detect'
-import { contentLoaded } from '@/store'
+import { contentLoaded, initAuth } from '@/store'
 
 // Configure engine with default settings
 engine.timeUnit = 's'
@@ -96,6 +96,9 @@ export default {
 		}
 	},
 	async mounted() {
+		// Initialize auth from localStorage first
+		initAuth()
+		
 		// Detect language: saved preference > browser detection > default
 		const savedLang = localStorage.getItem( 'kagi_language' )
 		const detectedLang = detectLang( ['en', 'fr', 'ja'] )

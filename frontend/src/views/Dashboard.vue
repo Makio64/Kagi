@@ -8,7 +8,7 @@
 				</div>
 				<div class="header-right">
 					<button class="user-menu-btn desktop-only" @click="showMobileMenu = !showMobileMenu">
-						<span class="user-email">{{ authStore.user?.email }}</span>
+						<span class="user-email">{{ user?.email }}</span>
 						<span class="menu-arrow">▼</span>
 					</button>
 					<BurgerButton class="mobile-burger" />
@@ -18,16 +18,16 @@
 
 		<!-- Mobile Side Menu -->
 		<transition name="slide-left">
-			<div v-if="authStore.isMenuOpen" class="mobile-side-menu-overlay" @click="authStore.isMenuOpen = false">
+			<div v-if="isMenuOpen" class="mobile-side-menu-overlay" @click="isMenuOpen = false">
 				<div class="mobile-side-menu" @click.stop>
 					<div class="side-menu-header">
 						<div class="user-profile-section">
 							<div class="user-avatar">
-								<span>{{ authStore.user?.email?.charAt(0)?.toUpperCase() || 'U' }}</span>
+								<span>{{ user?.email?.charAt(0)?.toUpperCase() || 'U' }}</span>
 							</div>
 							<div class="user-info">
-								<div class="user-name">{{ authStore.user?.profile?.name || authStore.user?.email?.split('@')[0] }}</div>
-								<div class="user-email">{{ authStore.user?.email }}</div>
+								<div class="user-name">{{ user?.profile?.name || user?.email?.split('@')[0] }}</div>
+								<div class="user-email">{{ user?.email }}</div>
 							</div>
 						</div>
 					</div>
@@ -41,7 +41,7 @@
 							v-for="item in menuItems"
 							:key="item.id"
 							:class="['side-menu-item', { active: activeSection === item.id }]"
-							@click="navigateToSection(item.id); authStore.isMenuOpen = false"
+							@click="navigateToSection(item.id); isMenuOpen = false"
 						>
 							<span class="menu-icon">{{ item.icon }}</span>
 							<span class="menu-label">{{ item.label }}</span>
@@ -49,7 +49,7 @@
 					</nav>
 					
 					<div class="side-menu-actions">
-						<button class="side-menu-item" @click="navigateToSection('profile'); authStore.isMenuOpen = false">
+						<button class="side-menu-item" @click="navigateToSection('profile'); isMenuOpen = false">
 							<span class="menu-icon">👤</span>
 							<span class="menu-label">{{ $t('dashboard.profile.myProfile') || 'My Profile' }}</span>
 						</button>
@@ -71,8 +71,8 @@
 				</div>
 				<div class="mobile-menu-content">
 					<div class="mobile-user-info">
-						<div class="user-email">{{ authStore.user?.email }}</div>
-						<div class="user-role">{{ authStore.user?.role }}</div>
+						<div class="user-email">{{ user?.email }}</div>
+						<div class="user-role">{{ user?.role }}</div>
 					</div>
 					<button class="profile-btn" @click="navigateToSection('profile'); showMobileMenu = false">
 						{{ $t('dashboard.profile.title') || 'Profile' }}
@@ -190,7 +190,7 @@
 						:content="getCurrentDocumentContent()"
 						:last-updated="getCurrentDocumentDate()"
 						:document-id="props.routeParams?.documentId"
-						:is-admin="authStore.user?.role === 'admin'"
+						:is-admin="user?.role === 'admin'"
 						@close="router.push('/dashboard/documents')"
 						@save="saveDocument"
 					/>
@@ -493,7 +493,7 @@
 									{{ $t('dashboard.profile.smsNotifications') || 'SMS Notifications' }}
 								</label>
 							</div>
-							<button @click="savePreferences" class="save-btn">
+							<button class="save-btn" @click="savePreferences">
 								{{ $t('common.save') || 'Save Preferences' }}
 							</button>
 						</div>
@@ -527,7 +527,6 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 
 import BillDetails from '../components/BillDetails.vue'
-import BurgerButton from '../components/ui/BurgerButton.vue'
 import ContactManager from '../components/ContactManager.vue'
 import DashboardCard from '../components/DashboardCard.vue'
 import DocumentViewer from '../components/DocumentViewer.vue'
@@ -536,7 +535,8 @@ import EventDetails from '../components/EventDetails.vue'
 import FacilityBooking from '../components/FacilityBooking.vue'
 import KagiLogo from '../components/KagiLogo.vue'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
-import { useAuthStore } from '../stores/auth'
+import BurgerButton from '../components/ui/BurgerButton.vue'
+import * as store from '../store'
 
 // Accept route-params as prop (passed by TinyRouter)
 const props = defineProps( {
@@ -546,9 +546,16 @@ const props = defineProps( {
 	}
 } )
 
-const authStore = useAuthStore()
 const instance = getCurrentInstance()
 const router = instance.proxy.$router
+
+// Computed properties for store values
+const user = computed( () => store.user.value )
+const isAuthenticated = computed( () => store.isAuthenticated.value )
+const isMenuOpen = computed( {
+	get: () => store.isMenuOpen.value,
+	set: ( val ) => { store.isMenuOpen.value = val }
+} )
 
 // Use computed to make activeSection reactive to route params
 const activeSection = computed( () => {
@@ -560,10 +567,10 @@ const showMobileMenu = ref( false )
 
 // Profile form data
 const profileForm = reactive( {
-	name: authStore.user?.profile?.name || '',
-	email: authStore.user?.email || '',
-	phone: authStore.user?.profile?.phone || '',
-	unit: authStore.user?.profile?.unit || ''
+	name: user.value?.profile?.name || '',
+	email: user.value?.email || '',
+	phone: user.value?.profile?.phone || '',
+	unit: user.value?.profile?.unit || ''
 } )
 
 const emergencyForm = reactive( {
@@ -605,7 +612,7 @@ const selectedEvent = ref( null )
 const selectedFacility = ref( null )
 
 const logout = async () => {
-	await authStore.logout()
+	await store.logout()
 	router.push( '/' )
 }
 
@@ -1403,7 +1410,7 @@ const getShortMonth = ( monthNumber ) => {
 
 // Check authentication on mount
 onMounted( () => {
-	if ( !authStore.isAuthenticated ) {
+	if ( !isAuthenticated.value ) {
 		router.push( '/login' )
 	}
 } )

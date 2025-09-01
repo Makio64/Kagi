@@ -33,7 +33,7 @@ export default {
 }
 
 // Template function for all stories
-const Template = (args) => ({
+const Template = ( args ) => ( {
 	components: { DashboardHeader },
 	setup() {
 		return { args }
@@ -51,17 +51,17 @@ const Template = (args) => ({
 	`,
 	methods: {
 		onLogout() {
-			console.log('Logout clicked')
-			alert('Logout clicked')
+			console.log( 'Logout clicked' )
+			alert( 'Logout clicked' )
 		},
 		onLogoClick() {
-			console.log('Logo clicked')
+			console.log( 'Logo clicked' )
 		}
 	}
-})
+} )
 
 // Default story - Resident Dashboard
-export const Resident = Template.bind({})
+export const Resident = Template.bind( {} )
 Resident.args = {
 	title: 'Dresser Tower',
 	userEmail: 'resident@example.com',
@@ -71,7 +71,7 @@ Resident.args = {
 Resident.storyName = 'Resident Dashboard'
 
 // Mansion Admin story
-export const MansionAdmin = Template.bind({})
+export const MansionAdmin = Template.bind( {} )
 MansionAdmin.args = {
 	title: 'Sakura Tower',
 	userBadge: 'Mansion Admin',
@@ -82,7 +82,7 @@ MansionAdmin.args = {
 MansionAdmin.storyName = 'Mansion Admin Dashboard'
 
 // System Admin story
-export const SystemAdmin = Template.bind({})
+export const SystemAdmin = Template.bind( {} )
 SystemAdmin.args = {
 	title: 'Admin Console',
 	userBadge: 'System Admin',
@@ -93,7 +93,7 @@ SystemAdmin.args = {
 SystemAdmin.storyName = 'System Admin Dashboard'
 
 // Long email story
-export const LongEmail = Template.bind({})
+export const LongEmail = Template.bind( {} )
 LongEmail.args = {
 	title: 'Test Building',
 	userBadge: 'Test User',
@@ -104,7 +104,7 @@ LongEmail.args = {
 LongEmail.storyName = 'With Long Email'
 
 // Mobile view story
-export const Mobile = Template.bind({})
+export const Mobile = Template.bind( {} )
 Mobile.args = {
 	title: 'Mobile View',
 	userBadge: 'Admin',
@@ -120,14 +120,14 @@ Mobile.parameters = {
 Mobile.storyName = 'Mobile View'
 
 // With click handler
-export const WithClickHandler = Template.bind({})
+export const WithClickHandler = Template.bind( {} )
 WithClickHandler.args = {
 	title: 'Clickable Logo',
 	userEmail: 'user@example.com',
 	userRole: 'User',
 	showLanguageSwitcher: false,
 	onLogoClick: () => {
-		alert('Logo clicked! This could navigate to home page.')
+		alert( 'Logo clicked! This could navigate to home page.' )
 	}
 }
 WithClickHandler.storyName = 'With Logo Click Handler'

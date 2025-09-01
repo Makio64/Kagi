@@ -4,10 +4,10 @@
 		<DashboardHeader
 			:title="$t('admin.title') || 'Admin Console'"
 			user-badge="System Admin"
-			:user-email="authStore.user?.email || 'Admin'"
+			:user-email="user?.email || 'Admin'"
 			user-role="System Administrator"
 			:show-language-switcher="true"
-			@logout="authStore.logout()"
+			@logout="store.logout()"
 		/>
 
 		<!-- Main Content -->
@@ -182,12 +182,12 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr v-for="user in users" :key="user.id">
-										<td>{{ user.name }}</td>
-										<td>{{ user.email }}</td>
-										<td><span class="role-badge" :class="user.role">{{ user.role }}</span></td>
-										<td>{{ user.building }}</td>
-										<td><span class="status-badge" :class="user.status">{{ user.status }}</span></td>
+									<tr v-for="u in users" :key="u.id">
+										<td>{{ u.name }}</td>
+										<td>{{ u.email }}</td>
+										<td><span class="role-badge" :class="u.role">{{ u.role }}</span></td>
+										<td>{{ u.building }}</td>
+										<td><span class="status-badge" :class="u.status">{{ u.status }}</span></td>
 										<td>
 											<KButton size="xs" icon="✏️" variant="ghost" />
 											<KButton size="xs" icon="🗑️" variant="ghost" />
@@ -489,7 +489,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 
 import KButton from '../components/core/KButton.vue'
@@ -498,11 +498,14 @@ import SectionHeader from '../components/dashboard/SectionHeader.vue'
 import StatCard from '../components/dashboard/StatCard.vue'
 import DashboardHeader from '../components/layout/DashboardHeader.vue'
 // Stores
-import { useAuthStore } from '../stores/auth'
+import * as store from '../store'
 
-const authStore = useAuthStore()
 const instance = getCurrentInstance()
-const router = instance.proxy.$router
+const _router = instance.proxy.$router
+
+// Computed properties for store
+const user = computed( () => store.user.value )
+const token = computed( () => store.token.value )
 
 // Navigation
 const activeSection = ref( 'overview' )
@@ -592,7 +595,7 @@ const addBuilding = async () => {
 		}
 
 		// Check if we're in test mode or real mode
-		if ( authStore.TEST_MODE ) {
+		if ( store.USE_MOCK_BACKEND ) {
 			// In test mode, just add to local array
 			const newId = Math.max( ...buildings.value.map( b => b.id ) ) + 1
 			buildings.value.push( {
@@ -612,7 +615,7 @@ const addBuilding = async () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${authStore.token}`
+					'Authorization': `Bearer ${token.value}`
 				},
 				credentials: 'include',
 				body: JSON.stringify( buildingData )
