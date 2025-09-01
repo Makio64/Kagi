@@ -31,11 +31,11 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div class="language-selector">
 						<LanguageSwitcher />
 					</div>
-					
+
 					<nav class="side-menu-nav">
 						<button
 							v-for="item in menuItems"
@@ -47,7 +47,7 @@
 							<span class="menu-label">{{ item.label }}</span>
 						</button>
 					</nav>
-					
+
 					<div class="side-menu-actions">
 						<button class="side-menu-item" @click="navigateToSection('profile'); isMenuOpen = false">
 							<span class="menu-icon">👤</span>
@@ -61,7 +61,7 @@
 				</div>
 			</div>
 		</transition>
-		
+
 		<!-- Desktop Settings Menu -->
 		<transition name="slide">
 			<div v-if="showMobileMenu" class="mobile-settings-menu">
@@ -457,7 +457,7 @@
 								</button>
 							</form>
 						</div>
-						
+
 						<div class="profile-card">
 							<h3>{{ $t('dashboard.profile.emergencyContact') || 'Emergency Contact' }}</h3>
 							<form @submit.prevent="saveEmergencyContact">
@@ -478,7 +478,7 @@
 								</button>
 							</form>
 						</div>
-						
+
 						<div class="profile-card">
 							<h3>{{ $t('dashboard.profile.preferences') || 'Preferences' }}</h3>
 							<div class="preference-item">
@@ -824,7 +824,7 @@ const getDocumentContent = ( type ) => {
 
 Welcome to our community! These management rules help ensure a comfortable and harmonious living environment for all residents. We appreciate your cooperation in maintaining our wonderful building.
 
-![Building Exterior](/images/docs/placeholder.svg)
+![Building Exterior](/img/docs/placeholder.svg)
 
 ## Article 1: General Provisions
 
@@ -959,7 +959,7 @@ Let's create a comfortable environment for everyone:
 
 ### Making Your Celebration Special
 
-Our party room is perfect for birthdays, anniversaries, and gatherings! 
+Our party room is perfect for birthdays, anniversaries, and gatherings!
 
 #### Booking Information
 - **Capacity**: Up to 20 guests comfortably
@@ -1520,7 +1520,7 @@ watch( showMobileMenu, ( newVal ) => {
 	z-index 1000
 	display flex
 	flex-direction column
-	
+
 	.profile-btn
 		width 100%
 		padding 0.75rem
@@ -1532,7 +1532,7 @@ watch( showMobileMenu, ( newVal ) => {
 		cursor pointer
 		margin 1rem 0
 		transition all 0.3s ease
-		
+
 		&:hover
 			background #FFB300
 			transform translateY(-2px)
@@ -1665,7 +1665,7 @@ watch( showMobileMenu, ( newVal ) => {
 	position sticky
 	top 100px
 	border 1px solid rgba(255, 193, 7, 0.15)
-	
+
 	@media (max-width: 768px)
 		display none
 
@@ -1681,16 +1681,16 @@ watch( showMobileMenu, ( newVal ) => {
 // Mobile burger button styling
 .mobile-burger
 	display none !important
-	
+
 	@media (max-width: 768px)
 		display block !important
 		position relative !important
 		top auto !important
 		right auto !important
-		
+
 	:deep(span)
 		background-color #333 !important
-		
+
 	&:hover :deep(span)
 		background-color #FFC107 !important
 
@@ -1714,17 +1714,17 @@ watch( showMobileMenu, ( newVal ) => {
 	display flex
 	flex-direction column
 	overflow-y auto
-	
+
 	.side-menu-header
 		padding 1.5rem
 		background white
 		border-bottom 1px solid #e0e0e0
-		
+
 		.user-profile-section
 			display flex
 			gap 1rem
 			align-items center
-			
+
 			.user-avatar
 				width 50px
 				height 50px
@@ -1736,26 +1736,26 @@ watch( showMobileMenu, ( newVal ) => {
 				font-size 1.5rem
 				font-weight bold
 				color white
-				
+
 			.user-info
 				.user-name
 					font-weight 600
 					color #333
 					margin-bottom 0.25rem
-					
+
 				.user-email
 					font-size 0.85rem
 					color #666
-	
+
 	.language-selector
 		padding 0.75rem 1.5rem
 		background rgba(255, 193, 7, 0.05)
 		border-bottom 1px solid rgba(255, 193, 7, 0.1)
-			
+
 	.side-menu-nav
 		padding 1rem
 		flex 1
-		
+
 	.side-menu-item
 		display flex
 		align-items center
@@ -1770,38 +1770,38 @@ watch( showMobileMenu, ( newVal ) => {
 		cursor pointer
 		transition all 0.2s ease
 		color #333
-		
+
 		&:hover
 			background rgba(255, 193, 7, 0.1)
-			
+
 		&.active
 			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 			color white
 			font-weight 600
 			box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
-			
+
 			.menu-icon
 				color white
-			
+
 		.menu-icon
 			width 28px
 			font-size 1.3rem
 			text-align center
-			
+
 		.menu-label
 			flex 1
 			font-size 0.95rem
-			
+
 	.side-menu-actions
 		padding 1rem 0
 		border-top 1px solid #e0e0e0
-		
+
 		.logout-item
 			color #d32f2f
-			
+
 			&:hover
 				background rgba(211, 47, 47, 0.1)
-				
+
 			.menu-icon
 				color #d32f2f
 
@@ -1937,17 +1937,17 @@ watch( showMobileMenu, ( newVal ) => {
 	padding 2rem
 	// box-shadow 0 8px 25px rgba(255, 193, 7, 0.08)
 	// border 1px solid rgba(255, 193, 7, 0.1)
-	
+
 	// Special case for document viewer - remove padding
 	.document-viewer-section
 		margin -2rem
-		
+
 		@media (max-width: 768px)
 			margin -1rem
-			
+
 		@media (max-width: 550px)
 			margin -0.75rem
-		
+
 		.document-viewer
 			border-radius 20px
 
@@ -1984,8 +1984,12 @@ watch( showMobileMenu, ( newVal ) => {
 		justify-content center
 		// box-shadow 0 2px 8px rgba(0, 0, 0, 0.1)
 
+	@media (max-width: 768px)
+		margin-bottom 0 !important
+
 	@media (max-width: 550px)
 		font-size 1.5rem
+		margin-bottom 0 !important
 		.section-icon
 			width 40px
 			height 40px
@@ -2000,20 +2004,20 @@ watch( showMobileMenu, ( newVal ) => {
 		color #333
 		margin-bottom 0.5rem
 		font-weight 600
-		
+
 		@media (max-width: 768px)
 			font-size 1.5rem
-			
+
 		@media (max-width: 550px)
 			font-size 1.25rem
 
 	.welcome-subtitle
 		color #666
 		font-size 1.1rem
-		
+
 		@media (max-width: 768px)
 			font-size 0.95rem
-			
+
 		@media (max-width: 550px)
 			font-size 0.85rem
 
@@ -2026,7 +2030,7 @@ watch( showMobileMenu, ( newVal ) => {
 	@media (max-width: 768px)
 		grid-template-columns repeat(auto-fill, minmax(150px, 1fr))
 		gap 1rem
-		
+
 	@media (max-width: 550px)
 		grid-template-columns repeat(auto-fill, minmax(140px, 1fr))
 		gap 0.75rem
@@ -2040,10 +2044,10 @@ watch( showMobileMenu, ( newVal ) => {
 	cursor pointer
 	transition all 0.3s ease
 	box-shadow 0 4px 12px rgba(255, 193, 7, 0.08)
-	
+
 	@media (max-width: 768px)
 		padding 1.5rem 1rem
-		
+
 	@media (max-width: 550px)
 		padding 1.25rem 0.75rem
 
@@ -2060,11 +2064,11 @@ watch( showMobileMenu, ( newVal ) => {
 		-webkit-background-clip text
 		-webkit-text-fill-color transparent
 		background-clip text
-		
+
 		@media (max-width: 768px)
 			font-size 2.5rem
 			margin-bottom 0.75rem
-			
+
 		@media (max-width: 550px)
 			font-size 2rem
 			margin-bottom 0.5rem
@@ -2074,11 +2078,11 @@ watch( showMobileMenu, ( newVal ) => {
 		color #333
 		margin-bottom 0.5rem
 		font-weight 600
-		
+
 		@media (max-width: 768px)
 			font-size 1.1rem
 			margin-bottom 0
-			
+
 		@media (max-width: 550px)
 			font-size 1rem
 
@@ -2086,7 +2090,7 @@ watch( showMobileMenu, ( newVal ) => {
 		font-size 0.85rem
 		color #666
 		line-height 1.4
-		
+
 		@media (max-width: 768px)
 			display none
 
@@ -2377,26 +2381,26 @@ watch( showMobileMenu, ( newVal ) => {
 	transition all 0.3s ease
 	border 1px solid rgba(255, 193, 7, 0.1)
 	position relative
-	
+
 	@media (max-width: 768px)
 		gap 1.25rem
 		padding 1.25rem
 		padding-right 3rem // Space for arrow
-		
+
 	@media (max-width: 550px)
 		gap 1rem
 		padding 1rem
 		padding-right 2.5rem // Space for arrow
-	
+
 	&.clickable
 		cursor pointer
-		
+
 		&:hover
 			transform translateY(-2px)
 			box-shadow 0 8px 20px rgba(255, 193, 7, 0.15)
 			border-color #FFC107
 			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-	
+
 	.event-arrow
 		position absolute
 		right 1.5rem
@@ -2405,11 +2409,11 @@ watch( showMobileMenu, ( newVal ) => {
 		color #FFC107
 		font-size 1.5rem
 		font-weight bold
-		
+
 		@media (max-width: 768px)
 			right 1rem
 			font-size 1.25rem
-			
+
 		@media (max-width: 550px)
 			right 0.75rem
 			font-size 1.1rem
@@ -2427,11 +2431,11 @@ watch( showMobileMenu, ( newVal ) => {
 		min-width 80px
 		box-shadow 0 4px 12px rgba(255, 193, 7, 0.2)
 		flex-shrink 0
-		
+
 		@media (max-width: 768px)
 			padding 0.85rem
 			min-width 70px
-			
+
 		@media (max-width: 550px)
 			padding 0.75rem 0.65rem
 			min-width 60px
@@ -2441,10 +2445,10 @@ watch( showMobileMenu, ( newVal ) => {
 			font-size 0.9rem
 			color #333
 			font-weight 600
-			
+
 			@media (max-width: 768px)
 				font-size 0.8rem
-				
+
 			@media (max-width: 550px)
 				font-size 0.7rem
 
@@ -2452,10 +2456,10 @@ watch( showMobileMenu, ( newVal ) => {
 			font-size 2rem
 			font-weight bold
 			color #333
-			
+
 			@media (max-width: 768px)
 				font-size 1.75rem
-				
+
 			@media (max-width: 550px)
 				font-size 1.5rem
 
@@ -2469,10 +2473,10 @@ watch( showMobileMenu, ( newVal ) => {
 			margin-bottom 0.5rem
 			overflow hidden
 			text-overflow ellipsis
-			
+
 			@media (max-width: 768px)
 				font-size 1.05rem
-				
+
 			@media (max-width: 550px)
 				font-size 0.95rem
 
@@ -2481,11 +2485,11 @@ watch( showMobileMenu, ( newVal ) => {
 			line-height 1.6
 			overflow hidden
 			text-overflow ellipsis
-			
+
 			@media (max-width: 768px)
 				font-size 0.9rem
 				line-height 1.5
-				
+
 			@media (max-width: 550px)
 				font-size 0.85rem
 				line-height 1.4
@@ -2501,31 +2505,31 @@ watch( showMobileMenu, ( newVal ) => {
 	display grid
 	grid-template-columns repeat(auto-fit, minmax(350px, 1fr))
 	gap 1.5rem
-	
+
 	@media (max-width: 768px)
 		grid-template-columns 1fr
-		
+
 .profile-card
 	background white
 	padding 1.5rem
 	border-radius 15px
 	border 2px solid rgba(255, 193, 7, 0.15)
-	
+
 	h3
 		color #333
 		margin-bottom 1.5rem
 		font-size 1.2rem
-		
+
 	.form-group
 		margin-bottom 1.25rem
-		
+
 		label
 			display block
 			color #666
 			font-size 0.9rem
 			margin-bottom 0.5rem
 			font-weight 500
-			
+
 		input[type="text"],
 		input[type="email"],
 		input[type="tel"]
@@ -2535,16 +2539,16 @@ watch( showMobileMenu, ( newVal ) => {
 			border-radius 8px
 			font-size 1rem
 			transition all 0.3s ease
-			
+
 			&:focus
 				outline none
 				border-color #FFC107
 				box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
-				
+
 			&:disabled
 				background #f5f5f5
 				cursor not-allowed
-				
+
 	.save-btn
 		width 100%
 		padding 0.75rem
@@ -2556,20 +2560,20 @@ watch( showMobileMenu, ( newVal ) => {
 		font-weight 600
 		cursor pointer
 		transition all 0.3s ease
-		
+
 		&:hover
 			background #FFB300
 			transform translateY(-2px)
 			box-shadow 0 5px 15px rgba(255, 193, 7, 0.3)
-			
+
 	.preference-item
 		margin-bottom 1rem
-		
+
 		label
 			display flex
 			align-items center
 			cursor pointer
-			
+
 			input[type="checkbox"]
 				margin-right 0.75rem
 				width 20px
@@ -2628,7 +2632,7 @@ watch( showMobileMenu, ( newVal ) => {
 	font-weight 500
 	transition all 0.3s ease
 	box-shadow 0 2px 8px rgba(0, 0, 0, 0.05)
-	
+
 	&.full-width
 		width 100%
 		margin-top 1rem

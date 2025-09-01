@@ -38,9 +38,9 @@ async function calculateTotalSize( files ) {
 async function main() {
 	let imgFiles = await glob( '**/*.{jpg,jpeg,png,avif}', { cwd: IMG_FOLDER, absolute: true } )
 
-	// await Promise.all(imgFiles.map(file => convertImage(file, 'webp'))) // images to webp
-	await Promise.all( imgFiles.map( file => convertImage( file, 'png' ) ) ) // images to png
-	// await Promise.all(imgFiles.map(file => convertImage(file, 'avif'))) // images to avif
+	await Promise.all( imgFiles.map( file => convertImage( file, 'webp' ) ) ) // images to webp
+	// await Promise.all( imgFiles.map( file => convertImage( file, 'png' ) ) ) // images to png
+	await Promise.all( imgFiles.map( file => convertImage( file, 'avif' ) ) ) // images to avif
 
 	const webpFiles = await glob( '**/*.webp', { cwd: IMG_FOLDER, absolute: true } )
 	const png = await glob( '**/*.png', { cwd: IMG_FOLDER, absolute: true } )
