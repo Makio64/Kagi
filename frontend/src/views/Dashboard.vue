@@ -7,15 +7,62 @@
 					<h1>Dresser Tower</h1>
 				</div>
 				<div class="header-right">
-					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
+					<button class="user-menu-btn desktop-only" @click="showMobileMenu = !showMobileMenu">
 						<span class="user-email">{{ authStore.user?.email }}</span>
 						<span class="menu-arrow">▼</span>
 					</button>
+					<BurgerButton class="mobile-burger" />
 				</div>
 			</div>
 		</header>
 
-		<!-- Mobile Settings Menu -->
+		<!-- Mobile Side Menu -->
+		<transition name="slide-left">
+			<div v-if="authStore.isMenuOpen" class="mobile-side-menu-overlay" @click="authStore.isMenuOpen = false">
+				<div class="mobile-side-menu" @click.stop>
+					<div class="side-menu-header">
+						<div class="user-profile-section">
+							<div class="user-avatar">
+								<span>{{ authStore.user?.email?.charAt(0)?.toUpperCase() || 'U' }}</span>
+							</div>
+							<div class="user-info">
+								<div class="user-name">{{ authStore.user?.profile?.name || authStore.user?.email?.split('@')[0] }}</div>
+								<div class="user-email">{{ authStore.user?.email }}</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="language-selector">
+						<LanguageSwitcher />
+					</div>
+					
+					<nav class="side-menu-nav">
+						<button
+							v-for="item in menuItems"
+							:key="item.id"
+							:class="['side-menu-item', { active: activeSection === item.id }]"
+							@click="navigateToSection(item.id); authStore.isMenuOpen = false"
+						>
+							<span class="menu-icon">{{ item.icon }}</span>
+							<span class="menu-label">{{ item.label }}</span>
+						</button>
+					</nav>
+					
+					<div class="side-menu-actions">
+						<button class="side-menu-item" @click="navigateToSection('profile'); authStore.isMenuOpen = false">
+							<span class="menu-icon">👤</span>
+							<span class="menu-label">{{ $t('dashboard.profile.myProfile') || 'My Profile' }}</span>
+						</button>
+						<button class="side-menu-item logout-item" @click="logout">
+							<span class="menu-icon">🚪</span>
+							<span class="menu-label">{{ $t('nav.logout') }}</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</transition>
+		
+		<!-- Desktop Settings Menu -->
 		<transition name="slide">
 			<div v-if="showMobileMenu" class="mobile-settings-menu">
 				<div class="mobile-menu-header">
@@ -27,6 +74,9 @@
 						<div class="user-email">{{ authStore.user?.email }}</div>
 						<div class="user-role">{{ authStore.user?.role }}</div>
 					</div>
+					<button class="profile-btn" @click="navigateToSection('profile'); showMobileMenu = false">
+						{{ $t('dashboard.profile.title') || 'Profile' }}
+					</button>
 					<div class="mobile-lang-section">
 						<LanguageSwitcher />
 					</div>
@@ -51,20 +101,6 @@
 					</button>
 				</nav>
 
-				<!-- Mobile menu with circular icons -->
-				<nav class="nav-menu-mobile">
-					<button
-						v-for="item in menuItems"
-						:key="item.id"
-						:class="['nav-item-mobile', { active: activeSection === item.id }]"
-						@click="navigateToSection(item.id)"
-					>
-						<div class="nav-icon-circle">
-							<span class="nav-icon">{{ item.icon }}</span>
-						</div>
-						<span class="nav-label-mobile">{{ item.label }}</span>
-					</button>
-				</nav>
 			</aside>
 
 			<main class="main-content">
@@ -277,7 +313,7 @@
 					<div class="events-list">
 						<div class="event-card clickable" @click="viewEventDetails('christmas')">
 							<div class="event-date">
-								<div class="date-month">12</div>
+								<div class="date-month">{{ getShortMonth(12) }}</div>
 								<div class="date-day">25</div>
 							</div>
 							<div class="event-content">
@@ -288,7 +324,7 @@
 						</div>
 						<div class="event-card clickable" @click="viewEventDetails('drill')">
 							<div class="event-date">
-								<div class="date-month">01</div>
+								<div class="date-month">{{ getShortMonth(1) }}</div>
 								<div class="date-day">10</div>
 							</div>
 							<div class="event-content">
@@ -345,6 +381,124 @@
 						@payment="handlePayment"
 					/>
 				</section>
+
+				<!-- Services Section -->
+				<section v-if="activeSection === 'services'" class="section">
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">🛎️</span> {{ $t('dashboard.services.title') }}</h2>
+					</div>
+					<div class="cards-grid">
+						<DashboardCard
+							icon="🧹"
+							:title="$t('dashboard.services.cleaning')"
+							:description="$t('dashboard.services.cleaning.description')"
+							:info="$t('dashboard.services.price') + ': ¥3,000/hour'"
+							clickable
+							:actions="[{ text: $t('dashboard.services.book'), class: 'booking', handler: () => bookService('cleaning') }]"
+							@click="bookService('cleaning')"
+						/>
+						<DashboardCard
+							icon="🚲"
+							:title="$t('dashboard.services.bikeRental')"
+							:description="$t('dashboard.services.bikeRental.description')"
+							:info="$t('dashboard.services.price') + ': ¥500/day'"
+							clickable
+							:actions="[{ text: $t('dashboard.services.howTo'), class: 'booking', handler: () => viewServiceDetails('bike') }]"
+							@click="viewServiceDetails('bike')"
+						/>
+						<DashboardCard
+							icon="🛏️"
+							:title="$t('dashboard.services.futonRental')"
+							:description="$t('dashboard.services.futonRental.description')"
+							:info="$t('dashboard.services.price') + ': ¥1,000/week'"
+							clickable
+							:actions="[{ text: $t('dashboard.services.howTo'), class: 'booking', handler: () => viewServiceDetails('futon') }]"
+							@click="viewServiceDetails('futon')"
+						/>
+						<DashboardCard
+							icon="💐"
+							:title="$t('dashboard.services.flowerDelivery')"
+							:description="$t('dashboard.services.flowerDelivery.description')"
+							:info="$t('dashboard.services.price') + ': From ¥2,000'"
+							clickable
+							:actions="[{ text: $t('dashboard.services.book'), class: 'booking', handler: () => bookService('flowers') }]"
+							@click="bookService('flowers')"
+						/>
+					</div>
+				</section>
+
+				<!-- Profile Section -->
+				<section v-if="activeSection === 'profile'" class="section">
+					<div class="section-header">
+						<h2 class="section-title"><span class="section-icon">👤</span> {{ $t('dashboard.profile.myProfile') || 'My Profile' }}</h2>
+					</div>
+					<div class="profile-container">
+						<div class="profile-card">
+							<h3>{{ $t('dashboard.profile.personalInfo') || 'Personal Information' }}</h3>
+							<form @submit.prevent="saveProfile">
+								<div class="form-group">
+									<label>{{ $t('dashboard.profile.name') || 'Full Name' }}</label>
+									<input v-model="profileForm.name" type="text" required>
+								</div>
+								<div class="form-group">
+									<label>{{ $t('dashboard.profile.email') || 'Email' }}</label>
+									<input v-model="profileForm.email" type="email" disabled>
+								</div>
+								<div class="form-group">
+									<label>{{ $t('dashboard.profile.phone') || 'Phone Number' }}</label>
+									<input v-model="profileForm.phone" type="tel">
+								</div>
+								<div class="form-group">
+									<label>{{ $t('dashboard.profile.unit') || 'Unit Number' }}</label>
+									<input v-model="profileForm.unit" type="text" disabled>
+								</div>
+								<button type="submit" class="save-btn">
+									{{ $t('common.save') || 'Save Changes' }}
+								</button>
+							</form>
+						</div>
+						
+						<div class="profile-card">
+							<h3>{{ $t('dashboard.profile.emergencyContact') || 'Emergency Contact' }}</h3>
+							<form @submit.prevent="saveEmergencyContact">
+								<div class="form-group">
+									<label>{{ $t('dashboard.profile.emergencyName') || 'Contact Name' }}</label>
+									<input v-model="emergencyForm.name" type="text">
+								</div>
+								<div class="form-group">
+									<label>{{ $t('dashboard.profile.emergencyPhone') || 'Contact Phone' }}</label>
+									<input v-model="emergencyForm.phone" type="tel">
+								</div>
+								<div class="form-group">
+									<label>{{ $t('dashboard.profile.relationship') || 'Relationship' }}</label>
+									<input v-model="emergencyForm.relationship" type="text">
+								</div>
+								<button type="submit" class="save-btn">
+									{{ $t('common.save') || 'Save Changes' }}
+								</button>
+							</form>
+						</div>
+						
+						<div class="profile-card">
+							<h3>{{ $t('dashboard.profile.preferences') || 'Preferences' }}</h3>
+							<div class="preference-item">
+								<label>
+									<input v-model="preferences.emailNotifications" type="checkbox">
+									{{ $t('dashboard.profile.emailNotifications') || 'Email Notifications' }}
+								</label>
+							</div>
+							<div class="preference-item">
+								<label>
+									<input v-model="preferences.smsNotifications" type="checkbox">
+									{{ $t('dashboard.profile.smsNotifications') || 'SMS Notifications' }}
+								</label>
+							</div>
+							<button @click="savePreferences" class="save-btn">
+								{{ $t('common.save') || 'Save Preferences' }}
+							</button>
+						</div>
+					</div>
+				</section>
 			</main>
 		</div>
 
@@ -373,6 +527,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 
 import BillDetails from '../components/BillDetails.vue'
+import BurgerButton from '../components/ui/BurgerButton.vue'
 import ContactManager from '../components/ContactManager.vue'
 import DashboardCard from '../components/DashboardCard.vue'
 import DocumentViewer from '../components/DocumentViewer.vue'
@@ -403,6 +558,25 @@ const activeSection = computed( () => {
 // Mobile menu state
 const showMobileMenu = ref( false )
 
+// Profile form data
+const profileForm = reactive( {
+	name: authStore.user?.profile?.name || '',
+	email: authStore.user?.email || '',
+	phone: authStore.user?.profile?.phone || '',
+	unit: authStore.user?.profile?.unit || ''
+} )
+
+const emergencyForm = reactive( {
+	name: '',
+	phone: '',
+	relationship: ''
+} )
+
+const preferences = reactive( {
+	emailNotifications: true,
+	smsNotifications: false
+} )
+
 const menuItems = computed( () => [
 	// { id: 'home', icon: '🏠', label: instance.proxy.$t( 'nav.home' ) },
 	{ id: 'contact', icon: '📱', label: instance.proxy.$t( 'dashboard.menu.contact' ) },
@@ -410,7 +584,8 @@ const menuItems = computed( () => [
 	{ id: 'booking', icon: '📅', label: instance.proxy.$t( 'dashboard.menu.booking' ) },
 	{ id: 'maintenance', icon: '🔧', label: instance.proxy.$t( 'dashboard.menu.maintenance' ) },
 	{ id: 'events', icon: '📢', label: instance.proxy.$t( 'dashboard.menu.events' ) },
-	{ id: 'bills', icon: '💳', label: instance.proxy.$t( 'dashboard.menu.bills' ) }
+	{ id: 'bills', icon: '💳', label: instance.proxy.$t( 'dashboard.menu.bills' ) },
+	{ id: 'services', icon: '🛎️', label: instance.proxy.$t( 'dashboard.services.title' ) }
 ] )
 
 const maintenanceForm = reactive( {
@@ -432,6 +607,24 @@ const selectedFacility = ref( null )
 const logout = async () => {
 	await authStore.logout()
 	router.push( '/' )
+}
+
+const saveProfile = () => {
+	// Save profile data
+	console.log( 'Saving profile:', profileForm )
+	alert( instance.proxy.$t( 'dashboard.profile.saved' ) || 'Profile saved successfully!' )
+}
+
+const saveEmergencyContact = () => {
+	// Save emergency contact
+	console.log( 'Saving emergency contact:', emergencyForm )
+	alert( instance.proxy.$t( 'dashboard.profile.emergencySaved' ) || 'Emergency contact saved successfully!' )
+}
+
+const savePreferences = () => {
+	// Save preferences
+	console.log( 'Saving preferences:', preferences )
+	alert( instance.proxy.$t( 'dashboard.profile.preferencesSaved' ) || 'Preferences saved successfully!' )
 }
 
 const submitMaintenance = () => {
@@ -496,6 +689,24 @@ const handlePayment = ( paymentData ) => {
 	selectedBill.value = null
 	// Show success message
 	alert( instance.proxy.$t( 'bills.paymentSuccess' ) || 'Payment successful!' )
+}
+
+const bookService = ( serviceType ) => {
+	// Handle service booking
+	console.log( 'Booking service:', serviceType )
+	// In a real app, this would open a booking form or redirect to booking page
+	alert( `${instance.proxy.$t( 'dashboard.services.book' )}: ${serviceType}` )
+}
+
+const viewServiceDetails = ( serviceType ) => {
+	// Show service details and how-to information
+	console.log( 'Viewing service details:', serviceType )
+	// In a real app, this would open a modal or navigate to a details page
+	const howToMessages = {
+		bike: 'To rent a bike:\n1. Go to the management office\n2. Show your resident ID\n3. Fill out the rental form\n4. Pay the rental fee\n5. Receive bike key and lock',
+		futon: 'To rent a futon:\n1. Call the management office 2 days in advance\n2. Specify the rental period\n3. Futon will be delivered to your door\n4. Payment upon delivery'
+	}
+	alert( howToMessages[serviceType] || 'Contact management office for details' )
 }
 
 const viewEventDetails = ( eventType ) => {
@@ -1174,9 +1385,20 @@ const getServiceDescription = ( serviceId ) => {
 		booking: instance.proxy.$t( 'home.features.booking.description' ),
 		maintenance: instance.proxy.$t( 'home.features.maintenance.description' ),
 		events: instance.proxy.$t( 'home.features.events.description' ),
-		bills: instance.proxy.$t( 'home.features.bills.description' )
+		bills: instance.proxy.$t( 'home.features.bills.description' ),
+		services: 'Cleaning, bike rental, futon rental, and more convenient services'
 	}
 	return descriptions[serviceId] || ''
+}
+
+const getShortMonth = ( monthNumber ) => {
+	const months = {
+		en: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+		fr: ['JAN', 'FÉV', 'MAR', 'AVR', 'MAI', 'JUN', 'JUL', 'AOÛ', 'SEP', 'OCT', 'NOV', 'DÉC'],
+		ja: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+	}
+	const lang = localStorage.getItem( 'kagi_language' ) || 'en'
+	return months[lang][monthNumber - 1] || months.en[monthNumber - 1]
 }
 
 // Check authentication on mount
@@ -1291,6 +1513,22 @@ watch( showMobileMenu, ( newVal ) => {
 	z-index 1000
 	display flex
 	flex-direction column
+	
+	.profile-btn
+		width 100%
+		padding 0.75rem
+		background #FFC107
+		color #333
+		border none
+		border-radius 10px
+		font-weight 600
+		cursor pointer
+		margin 1rem 0
+		transition all 0.3s ease
+		
+		&:hover
+			background #FFB300
+			transform translateY(-2px)
 
 .mobile-menu-header
 	display flex
@@ -1369,12 +1607,29 @@ watch( showMobileMenu, ( newVal ) => {
 		border-color #999
 		color #333
 
-// Slide animation for mobile menu
+// Slide animation for mobile menu (from right)
 .slide-enter-active, .slide-leave-active
 	transition transform 0.3s ease
 
 .slide-enter-from, .slide-leave-to
 	transform translateX(100%)
+
+// Slide from left animation for side menu
+.slide-left-enter-active .mobile-side-menu,
+.slide-left-leave-active .mobile-side-menu
+	transition transform 0.3s ease
+
+.slide-left-enter-from .mobile-side-menu,
+.slide-left-leave-to .mobile-side-menu
+	transform translateX(-100%)
+
+.slide-left-enter-active,
+.slide-left-leave-active
+	transition opacity 0.3s ease
+
+.slide-left-enter-from,
+.slide-left-leave-to
+	opacity 0
 
 .dashboard-content
 	display flex
@@ -1403,15 +1658,9 @@ watch( showMobileMenu, ( newVal ) => {
 	position sticky
 	top 100px
 	border 1px solid rgba(255, 193, 7, 0.15)
-
+	
 	@media (max-width: 768px)
-		width 100%
-		padding 0.75rem 0
-		border-radius 0
-		box-shadow none
-		background #f9f9f9
-		position static
-		border-bottom 2px solid #e0e0e0
+		display none
 
 .nav-menu
 	display flex
@@ -1422,17 +1671,136 @@ watch( showMobileMenu, ( newVal ) => {
 		display none
 
 // Mobile menu - hidden on desktop
-.nav-menu-mobile
-	display none
-
+// Mobile burger button styling
+.mobile-burger
+	display none !important
+	
 	@media (max-width: 768px)
+		display block !important
+		position relative !important
+		top auto !important
+		right auto !important
+		
+	:deep(span)
+		background-color #333 !important
+		
+	&:hover :deep(span)
+		background-color #FFC107 !important
+
+// Mobile side menu
+.mobile-side-menu-overlay
+	position fixed
+	top 0
+	left 0
+	right 0
+	bottom 0
+	background rgba(0, 0, 0, 0.5)
+	z-index 999
+	display flex
+
+.mobile-side-menu
+	position relative
+	width 280px
+	height 100vh
+	background white
+	box-shadow 2px 0 10px rgba(0, 0, 0, 0.15)
+	display flex
+	flex-direction column
+	overflow-y auto
+	
+	.side-menu-header
+		padding 1.5rem
+		background white
+		border-bottom 1px solid #e0e0e0
+		
+		.user-profile-section
+			display flex
+			gap 1rem
+			align-items center
+			
+			.user-avatar
+				width 50px
+				height 50px
+				background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+				border-radius 50%
+				display flex
+				align-items center
+				justify-content center
+				font-size 1.5rem
+				font-weight bold
+				color white
+				
+			.user-info
+				.user-name
+					font-weight 600
+					color #333
+					margin-bottom 0.25rem
+					
+				.user-email
+					font-size 0.85rem
+					color #666
+	
+	.language-selector
+		padding 0.75rem 1.5rem
+		background rgba(255, 193, 7, 0.05)
+		border-bottom 1px solid rgba(255, 193, 7, 0.1)
+			
+	.side-menu-nav
+		padding 1rem
+		flex 1
+		
+	.side-menu-item
 		display flex
-		flex-direction row
+		align-items center
 		gap 0.75rem
-		padding-bottom 0.5rem
-		overflow-x auto
-		overflow-y hidden
-		-webkit-overflow-scrolling touch
+		padding 0.85rem 1rem
+		margin 0.25rem 0.5rem
+		background none
+		border none
+		border-radius 12px
+		width calc(100% - 1rem)
+		text-align left
+		cursor pointer
+		transition all 0.2s ease
+		color #333
+		
+		&:hover
+			background rgba(255, 193, 7, 0.1)
+			
+		&.active
+			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+			color white
+			font-weight 600
+			box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
+			
+			.menu-icon
+				color white
+			
+		.menu-icon
+			width 28px
+			font-size 1.3rem
+			text-align center
+			
+		.menu-label
+			flex 1
+			font-size 0.95rem
+			
+	.side-menu-actions
+		padding 1rem 0
+		border-top 1px solid #e0e0e0
+		
+		.logout-item
+			color #d32f2f
+			
+			&:hover
+				background rgba(211, 47, 47, 0.1)
+				
+			.menu-icon
+				color #d32f2f
+
+.desktop-only
+	@media (max-width: 768px)
+		display none
 		scrollbar-width thin
 
 		&::-webkit-scrollbar
@@ -1625,10 +1993,22 @@ watch( showMobileMenu, ( newVal ) => {
 		color #333
 		margin-bottom 0.5rem
 		font-weight 600
+		
+		@media (max-width: 768px)
+			font-size 1.5rem
+			
+		@media (max-width: 550px)
+			font-size 1.25rem
 
 	.welcome-subtitle
 		color #666
 		font-size 1.1rem
+		
+		@media (max-width: 768px)
+			font-size 0.95rem
+			
+		@media (max-width: 550px)
+			font-size 0.85rem
 
 .services-grid
 	display grid
@@ -1639,6 +2019,10 @@ watch( showMobileMenu, ( newVal ) => {
 	@media (max-width: 768px)
 		grid-template-columns repeat(auto-fill, minmax(150px, 1fr))
 		gap 1rem
+		
+	@media (max-width: 550px)
+		grid-template-columns repeat(auto-fill, minmax(140px, 1fr))
+		gap 0.75rem
 
 .service-card
 	background white
@@ -1649,6 +2033,12 @@ watch( showMobileMenu, ( newVal ) => {
 	cursor pointer
 	transition all 0.3s ease
 	box-shadow 0 4px 12px rgba(255, 193, 7, 0.08)
+	
+	@media (max-width: 768px)
+		padding 1.5rem 1rem
+		
+	@media (max-width: 550px)
+		padding 1.25rem 0.75rem
 
 	&:hover
 		transform translateY(-5px)
@@ -1663,17 +2053,35 @@ watch( showMobileMenu, ( newVal ) => {
 		-webkit-background-clip text
 		-webkit-text-fill-color transparent
 		background-clip text
+		
+		@media (max-width: 768px)
+			font-size 2.5rem
+			margin-bottom 0.75rem
+			
+		@media (max-width: 550px)
+			font-size 2rem
+			margin-bottom 0.5rem
 
 	.service-name
 		font-size 1.2rem
 		color #333
 		margin-bottom 0.5rem
 		font-weight 600
+		
+		@media (max-width: 768px)
+			font-size 1.1rem
+			margin-bottom 0
+			
+		@media (max-width: 550px)
+			font-size 1rem
 
 	.service-description
 		font-size 0.85rem
 		color #666
 		line-height 1.4
+		
+		@media (max-width: 768px)
+			display none
 
 // Generic card grid
 .cards-grid
@@ -1963,6 +2371,16 @@ watch( showMobileMenu, ( newVal ) => {
 	border 1px solid rgba(255, 193, 7, 0.1)
 	position relative
 	
+	@media (max-width: 768px)
+		gap 1.25rem
+		padding 1.25rem
+		padding-right 3rem // Space for arrow
+		
+	@media (max-width: 550px)
+		gap 1rem
+		padding 1rem
+		padding-right 2.5rem // Space for arrow
+	
 	&.clickable
 		cursor pointer
 		
@@ -1980,6 +2398,14 @@ watch( showMobileMenu, ( newVal ) => {
 		color #FFC107
 		font-size 1.5rem
 		font-weight bold
+		
+		@media (max-width: 768px)
+			right 1rem
+			font-size 1.25rem
+			
+		@media (max-width: 550px)
+			right 0.75rem
+			font-size 1.1rem
 
 	&:hover
 		box-shadow 0 8px 20px rgba(255, 193, 7, 0.15)
@@ -1993,32 +2419,155 @@ watch( showMobileMenu, ( newVal ) => {
 		padding 1rem
 		min-width 80px
 		box-shadow 0 4px 12px rgba(255, 193, 7, 0.2)
+		flex-shrink 0
+		
+		@media (max-width: 768px)
+			padding 0.85rem
+			min-width 70px
+			
+		@media (max-width: 550px)
+			padding 0.75rem 0.65rem
+			min-width 60px
+			border-radius 12px
 
 		.date-month
 			font-size 0.9rem
 			color #333
+			font-weight 600
+			
+			@media (max-width: 768px)
+				font-size 0.8rem
+				
+			@media (max-width: 550px)
+				font-size 0.7rem
 
 		.date-day
 			font-size 2rem
 			font-weight bold
 			color #333
+			
+			@media (max-width: 768px)
+				font-size 1.75rem
+				
+			@media (max-width: 550px)
+				font-size 1.5rem
 
 	.event-content
 		flex 1
+		min-width 0 // Prevent text overflow
+		padding-right 1rem // Space from arrow
 
 		h3
 			color #333
 			margin-bottom 0.5rem
+			overflow hidden
+			text-overflow ellipsis
+			
+			@media (max-width: 768px)
+				font-size 1.05rem
+				
+			@media (max-width: 550px)
+				font-size 0.95rem
 
 		p
 			color #666
 			line-height 1.6
+			overflow hidden
+			text-overflow ellipsis
+			
+			@media (max-width: 768px)
+				font-size 0.9rem
+				line-height 1.5
+				
+			@media (max-width: 550px)
+				font-size 0.85rem
+				line-height 1.4
 
 // Bills Section
 .bills-list
 	display flex
 	flex-direction column
 	gap 1.5rem
+
+// Profile Section
+.profile-container
+	display grid
+	grid-template-columns repeat(auto-fit, minmax(350px, 1fr))
+	gap 1.5rem
+	
+	@media (max-width: 768px)
+		grid-template-columns 1fr
+		
+.profile-card
+	background white
+	padding 1.5rem
+	border-radius 15px
+	border 2px solid rgba(255, 193, 7, 0.15)
+	
+	h3
+		color #333
+		margin-bottom 1.5rem
+		font-size 1.2rem
+		
+	.form-group
+		margin-bottom 1.25rem
+		
+		label
+			display block
+			color #666
+			font-size 0.9rem
+			margin-bottom 0.5rem
+			font-weight 500
+			
+		input[type="text"],
+		input[type="email"],
+		input[type="tel"]
+			width 100%
+			padding 0.75rem
+			border 2px solid #e0e0e0
+			border-radius 8px
+			font-size 1rem
+			transition all 0.3s ease
+			
+			&:focus
+				outline none
+				border-color #FFC107
+				box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
+				
+			&:disabled
+				background #f5f5f5
+				cursor not-allowed
+				
+	.save-btn
+		width 100%
+		padding 0.75rem
+		background #FFC107
+		color #333
+		border none
+		border-radius 10px
+		font-size 1rem
+		font-weight 600
+		cursor pointer
+		transition all 0.3s ease
+		
+		&:hover
+			background #FFB300
+			transform translateY(-2px)
+			box-shadow 0 5px 15px rgba(255, 193, 7, 0.3)
+			
+	.preference-item
+		margin-bottom 1rem
+		
+		label
+			display flex
+			align-items center
+			cursor pointer
+			
+			input[type="checkbox"]
+				margin-right 0.75rem
+				width 20px
+				height 20px
+				cursor pointer
 
 .bill-card
 	padding 1.5rem

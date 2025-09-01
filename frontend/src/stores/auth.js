@@ -9,7 +9,8 @@ export const useAuthStore = defineStore( 'auth', {
 		user: null,
 		token: null,
 		isAuthenticated: false,
-		loading: false
+		loading: false,
+		isMenuOpen: false
 	} ),
 
 	getters: {

@@ -1,6 +1,6 @@
 <!-- Simple BurgerButton by @makio64 || David Ronai -->
 <template>
-	<div class="BurgerButton" :class="{ cross: isOpen }" @click="toggle">
+	<div class="BurgerButton" :class="{ cross: authStore.isMenuOpen }" @click="toggle">
 		<span />
 		<span />
 		<span />
@@ -8,28 +8,17 @@
 </template>
 
 <script>
+import { useAuthStore } from '../../stores/auth'
+
 export default {
 	name: 'BurgerButton',
-	emits: ['change'],
-	data() {
-		return {
-			isOpen: false,
-		}
+	setup() {
+		const authStore = useAuthStore()
+		return { authStore }
 	},
 	methods: {
 		toggle() {
-			if ( this.isOpen ) {
-				this.close()
-			} else {
-				this.open()
-			}
-			this.$emit( 'change', this.isOpen )
-		},
-		open() {
-			this.isOpen = true
-		},
-		close() {
-			this.isOpen = false
+			this.authStore.isMenuOpen = !this.authStore.isMenuOpen
 		},
 	},
 }

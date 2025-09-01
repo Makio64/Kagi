@@ -496,6 +496,118 @@
 			</div>
 		</section>
 
+		<!-- Services Management -->
+		<section v-if="activeSection === 'services'" class="section">
+			<SectionHeader 
+				:title="$t('mansion.services.title') || 'Services Management'"
+				icon="🛎️"
+			>
+				<template #actions>
+					<KButton variant="primary" icon="➕">
+						{{ $t('mansion.services.add') || 'Add Service' }}
+					</KButton>
+				</template>
+			</SectionHeader>
+			
+			<div class="services-grid">
+				<KCard
+					icon="🧹"
+					:title="$t('dashboard.services.cleaning') || 'Cleaning Service'"
+					:badge="{ text: 'ACTIVE', variant: 'success' }"
+					outlined
+				>
+					<div class="service-details">
+						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥3,000/hour</p>
+						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Mon-Sat, 9AM-6PM</p>
+						<p><strong>Provider:</strong> CleanPro Services Inc.</p>
+						<p><strong>Bookings this month:</strong> 42</p>
+					</div>
+					<template #footer>
+						<div class="service-actions">
+							<KButton size="sm" variant="secondary" icon="✏️">
+								{{ $t('common.edit') || 'Edit' }}
+							</KButton>
+							<KButton size="sm" variant="ghost">
+								{{ $t('mansion.services.viewBookings') || 'View Bookings' }}
+							</KButton>
+						</div>
+					</template>
+				</KCard>
+				
+				<KCard
+					icon="🚲"
+					:title="$t('dashboard.services.bikeRental') || 'Bike Rental'"
+					:badge="{ text: 'ACTIVE', variant: 'success' }"
+					outlined
+				>
+					<div class="service-details">
+						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥500/day</p>
+						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> 24/7</p>
+						<p><strong>Available bikes:</strong> 15/20</p>
+						<p><strong>Monthly rentals:</strong> 28</p>
+					</div>
+					<template #footer>
+						<div class="service-actions">
+							<KButton size="sm" variant="secondary" icon="✏️">
+								{{ $t('common.edit') || 'Edit' }}
+							</KButton>
+							<KButton size="sm" variant="ghost">
+								{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
+							</KButton>
+						</div>
+					</template>
+				</KCard>
+				
+				<KCard
+					icon="🛏️"
+					:title="$t('dashboard.services.futonRental') || 'Futon Rental'"
+					:badge="{ text: 'ACTIVE', variant: 'success' }"
+					outlined
+				>
+					<div class="service-details">
+						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥1,000/week</p>
+						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> On request</p>
+						<p><strong>Available sets:</strong> 8/10</p>
+						<p><strong>Current rentals:</strong> 2</p>
+					</div>
+					<template #footer>
+						<div class="service-actions">
+							<KButton size="sm" variant="secondary" icon="✏️">
+								{{ $t('common.edit') || 'Edit' }}
+							</KButton>
+							<KButton size="sm" variant="ghost">
+								{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
+							</KButton>
+						</div>
+					</template>
+				</KCard>
+				
+				<KCard
+					icon="💐"
+					:title="$t('dashboard.services.flowerDelivery') || 'Flower Delivery'"
+					:badge="{ text: 'ACTIVE', variant: 'success' }"
+					outlined
+				>
+					<div class="service-details">
+						<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> From ¥2,000</p>
+						<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Daily orders</p>
+						<p><strong>Partner:</strong> Sakura Flowers</p>
+						<p><strong>Orders this month:</strong> 15</p>
+					</div>
+					<template #footer>
+						<div class="service-actions">
+							<KButton size="sm" variant="secondary" icon="✏️">
+								{{ $t('common.edit') || 'Edit' }}
+							</KButton>
+							<KButton size="sm" variant="ghost">
+								{{ $t('mansion.services.viewOrders') || 'View Orders' }}
+							</KButton>
+						</div>
+					</template>
+				</KCard>
+			</div>
+		</section>
+
 		<!-- Settings -->
 		<section v-if="activeSection === 'settings'" class="section">
 			<SectionHeader 
@@ -689,6 +801,7 @@ const menuItems = ref( [
 	{ id: 'bookings', icon: '📅', label: 'Bookings' },
 	{ id: 'announcements', icon: '📢', label: 'Announcements' },
 	{ id: 'documents', icon: '📄', label: 'Documents' },
+	{ id: 'services', icon: '🛎️', label: 'Services' },
 	{ id: 'financial', icon: '💳', label: 'Financial' },
 	{ id: 'reports', icon: '📊', label: 'Reports' },
 	{ id: 'settings', icon: '⚙️', label: 'Settings' }
@@ -1248,12 +1361,12 @@ const nextWeek = () => {
 				color #333
 
 // Residents grid
-.residents-grid
+.residents-grid, .services-grid
 	display grid
 	grid-template-columns repeat(auto-fill, minmax(350px, 1fr))
 	gap 1.5rem
 	
-	// Style KCard components in residents grid
+	// Style KCard components in residents/services grid
 	:deep(.k-card)
 		background white
 		border 2px solid rgba(255, 193, 7, 0.15)
@@ -1282,13 +1395,13 @@ const nextWeek = () => {
 			margin-top 1rem
 			border-top 1px solid #f0f0f0
 
-.resident-details
+.resident-details, .service-details
 	p
 		margin 0.5rem 0
 		color #666
 		font-size 0.95rem
 
-.resident-actions
+.resident-actions, .service-actions
 	display flex
 	gap 0.5rem
 	width 100%
