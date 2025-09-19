@@ -26,9 +26,15 @@
 		</div>
 
 		<!-- Card Body -->
-		<div class="k-card-body">
-			<p v-if="description" class="k-card-description">{{ description }}</p>
-			<slot />
+		<div class="k-card-body" :aria-busy="loading">
+			<div v-if="loading" class="k-card-loading">
+				<div class="k-card-loading-spinner" aria-hidden="true"></div>
+				<span class="k-card-loading-text">{{ loadingText }}</span>
+			</div>
+			<template v-else>
+				<p v-if="description" class="k-card-description">{{ description }}</p>
+				<slot />
+			</template>
 		</div>
 
 		<!-- Card Footer -->
@@ -55,53 +61,63 @@
 	</div>
 </template>
 
-<script setup>
-import { computed, getCurrentInstance } from 'vue'
+<script>
+export default {
+	name: 'KCard',
+	props: {
+		// Content
+		title: String,
+		description: String,
+		icon: String,
 
-import KButton from './KButton.vue'
+		// Loading state
+		loading: Boolean,
+		loadingText: {
+			type: String,
+			default: 'Loading...'
+		},
 
-const props = defineProps( {
-	// Content
-	title: String,
-	description: String,
-	icon: String,
-	
-	// Appearance
-	variant: {
-		type: String,
-		default: 'default',
-		validator: value => ['default', 'primary', 'success', 'warning', 'danger', 'info'].includes( value )
+		// Appearance
+		variant: {
+			type: String,
+			default: 'default',
+			validator: value => ['default', 'primary', 'success', 'warning', 'danger', 'info'].includes( value )
+		},
+		size: {
+			type: String,
+			default: 'md',
+			validator: value => ['sm', 'md', 'lg'].includes( value )
+		},
+		outlined: Boolean,
+		elevated: Boolean,
+		noPadding: Boolean,
+
+		// Behavior
+		to: String,
+		clickable: Boolean,
+		active: Boolean,
+
+		// Additional features
+		actions: Array,
+		badge: Object
 	},
-	size: {
-		type: String,
-		default: 'md',
-		validator: value => ['sm', 'md', 'lg'].includes( value )
+	emits: ['click'],
+	computed: {
+		variantClass() {
+			return `k-card--${this.variant}`
+		},
+		sizeClass() {
+			return `k-card--${this.size}`
+		}
 	},
-	outlined: Boolean,
-	elevated: Boolean,
-	noPadding: Boolean,
-	
-	// Behavior
-	to: String,
-	clickable: Boolean,
-	active: Boolean,
-	
-	// Additional features
-	actions: Array,
-	badge: Object
-} )
-
-const emit = defineEmits( ['click'] )
-const instance = getCurrentInstance()
-
-const variantClass = computed( () => `k-card--${props.variant}` )
-const sizeClass = computed( () => `k-card--${props.size}` )
-
-const handleClick = () => {
-	if ( props.to ) {
-		instance?.proxy.$router.push( props.to )
-	} else if ( props.clickable ) {
-		emit( 'click' )
+	methods: {
+		handleClick() {
+			if ( this.to && this.$router ) {
+				this.$router.push( this.to )
+			} else if ( this.clickable ) {
+				this.$emit( 'click' )
+			}
+		}
 	}
 }
 </script>
@@ -272,4 +288,46 @@ const handleClick = () => {
 	&.badge-info
 		background var(--color-info)
 		color white
+
+// Loading state
+.k-card-loading
+	display flex
+	flex-direction column
+	align-items center
+	justify-content center
+	padding var(--spacing-xl) var(--spacing-md)
+	gap var(--spacing-md)
+	min-height 120px
+
+.k-card-loading-spinner
+	width 32px
+	height 32px
+	border 3px solid var(--color-border-light)
+	border-top-color var(--color-primary)
+	border-radius 50%
+	animation card-spin 0.8s linear infinite
+
+@keyframes card-spin
+	from
+		transform rotate(0deg)
+	to
+		transform rotate(360deg)
+
+.k-card-loading-text
+	color var(--color-text-secondary)
+	font-size var(--font-sm)
+
+.k-card-body[aria-busy="true"]
+	position relative
+
+	&::after
+		content ''
+		position absolute
+		top 0
+		left 0
+		right 0
+		bottom 0
+		background white
+		opacity 0.7
+		pointer-events none
 </style>

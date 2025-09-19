@@ -42,57 +42,53 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-
-import KagiLogo from '../KagiLogo.vue'
-import LanguageSwitcher from '../LanguageSwitcher.vue'
-
-// Props
-const props = defineProps( {
-	title: {
-		type: String,
-		required: true
+<script>
+export default {
+	name: 'DashboardHeader',
+	props: {
+		title: {
+			type: String,
+			required: true
+		},
+		userBadge: {
+			type: String,
+			default: null
+		},
+		userEmail: {
+			type: String,
+			required: true
+		},
+		userRole: {
+			type: String,
+			required: true
+		},
+		showLanguageSwitcher: {
+			type: Boolean,
+			default: false
+		},
+		onLogoClick: {
+			type: Function,
+			default: null
+		}
 	},
-	userBadge: {
-		type: String,
-		default: null
+	emits: ['logout', 'logo-click'],
+	data() {
+		return {
+			showMobileMenu: false
+		}
 	},
-	userEmail: {
-		type: String,
-		required: true
-	},
-	userRole: {
-		type: String,
-		required: true
-	},
-	showLanguageSwitcher: {
-		type: Boolean,
-		default: false
-	},
-	onLogoClick: {
-		type: Function,
-		default: null
+	methods: {
+		handleLogout() {
+			this.showMobileMenu = false
+			this.$emit( 'logout' )
+		},
+		handleLogoClick() {
+			if ( this.onLogoClick ) {
+				this.onLogoClick()
+			}
+			this.$emit( 'logo-click' )
+		}
 	}
-} )
-
-// Emits
-const emit = defineEmits( ['logout', 'logo-click'] )
-
-// State
-const showMobileMenu = ref( false )
-
-// Methods
-const handleLogout = () => {
-	showMobileMenu.value = false
-	emit( 'logout' )
-}
-
-const handleLogoClick = () => {
-	if ( props.onLogoClick ) {
-		props.onLogoClick()
-	}
-	emit( 'logo-click' )
 }
 </script>
 

@@ -2,6 +2,10 @@
 	<button
 		:type="type"
 		:disabled="disabled || loading"
+		:aria-label="ariaLabel || (!$slots.default && icon ? iconAriaLabel : undefined)"
+		:aria-busy="loading"
+		:aria-disabled="disabled || loading"
+		:aria-pressed="isToggle ? pressed : undefined"
 		:class="[
 			'k-button',
 			`k-button--${variant}`,
@@ -11,71 +15,104 @@
 				'k-button--rounded': rounded,
 				'k-button--outlined': outlined,
 				'k-button--loading': loading,
-				'k-button--icon-only': !$slots.default && icon
+				'k-button--icon-only': !$slots.default && icon,
+				'k-button--pressed': pressed
 			}
 		]"
 		@click="handleClick"
+		@keydown.enter.space.prevent="handleKeyPress"
 	>
-		<span v-if="loading" class="k-button__spinner">
+		<span v-if="loading" class="k-button__spinner" aria-hidden="true">
 			<Spinner :size="spinnerSize" />
+			<span class="sr-only">{{ loadingText || 'Loading...' }}</span>
 		</span>
-		<span v-if="icon && !loading" class="k-button__icon">{{ icon }}</span>
+		<span v-if="icon && !loading" class="k-button__icon" aria-hidden="true">{{ icon }}</span>
 		<span v-if="$slots.default" class="k-button__content">
 			<slot />
 		</span>
 	</button>
 </template>
 
-<script setup>
-import { computed } from 'vue'
+<script>
+export default {
+	name: 'KButton',
+	props: {
+		// Button type
+		type: {
+			type: String,
+			default: 'button',
+			validator: value => ['button', 'submit', 'reset'].includes( value )
+		},
 
-import Spinner from '../ui/Spinner.vue'
+		// Appearance
+		variant: {
+			type: String,
+			default: 'primary',
+			validator: value => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'ghost'].includes( value )
+		},
+		size: {
+			type: String,
+			default: 'md',
+			validator: value => ['xs', 'sm', 'md', 'lg', 'xl'].includes( value )
+		},
 
-const props = defineProps( {
-	// Button type
-	type: {
-		type: String,
-		default: 'button',
-		validator: value => ['button', 'submit', 'reset'].includes( value )
+		// Options
+		block: Boolean,
+		rounded: Boolean,
+		outlined: Boolean,
+		disabled: Boolean,
+		loading: Boolean,
+		icon: String,
+
+		// Accessibility
+		ariaLabel: String,
+		loadingText: String,
+		isToggle: Boolean,
+		pressed: Boolean
 	},
-	
-	// Appearance
-	variant: {
-		type: String,
-		default: 'primary',
-		validator: value => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'ghost'].includes( value )
+	emits: ['click', 'update:pressed'],
+	computed: {
+		spinnerSize() {
+			const sizes = {
+				xs: 12,
+				sm: 14,
+				md: 16,
+				lg: 20,
+				xl: 24
+			}
+			return sizes[this.size] || 16
+		},
+		iconAriaLabel() {
+			// Default labels for common icons
+			const iconLabels = {
+				'✕': 'Close',
+				'✓': 'Confirm',
+				'➕': 'Add',
+				'✏️': 'Edit',
+				'🗑️': 'Delete',
+				'⚙️': 'Settings',
+				'📥': 'Download',
+				'📤': 'Upload',
+				'🔍': 'Search',
+				'↻': 'Refresh'
+			}
+			return iconLabels[this.icon] || 'Button'
+		}
 	},
-	size: {
-		type: String,
-		default: 'md',
-		validator: value => ['xs', 'sm', 'md', 'lg', 'xl'].includes( value )
-	},
-	
-	// Options
-	block: Boolean,
-	rounded: Boolean,
-	outlined: Boolean,
-	disabled: Boolean,
-	loading: Boolean,
-	icon: String
-} )
-
-const emit = defineEmits( ['click'] )
-
-const spinnerSize = computed( () => {
-	const sizes = {
-		xs: 12,
-		sm: 14,
-		md: 16,
-		lg: 20,
-		xl: 24
-	}
-	return sizes[props.size] || 16
-} )
-
-const handleClick = ( event ) => {
-	if ( !props.disabled && !props.loading ) {
-		emit( 'click', event )
+	methods: {
+		handleClick( event ) {
+			if ( !this.disabled && !this.loading ) {
+				if ( this.isToggle ) {
+					this.$emit( 'update:pressed', !this.pressed )
+				}
+				this.$emit( 'click', event )
+			}
+		},
+		handleKeyPress( event ) {
+			if ( event.key === ' ' || event.key === 'Enter' ) {
+				this.handleClick( event )
+			}
+		}
 	}
 }
 </script>
@@ -287,4 +324,21 @@ const handleClick = ( event ) => {
 	display flex
 	align-items center
 	gap $spacing-xs
+
+// Screen reader only text
+.sr-only
+	position absolute
+	width 1px
+	height 1px
+	padding 0
+	margin -1px
+	overflow hidden
+	clip rect(0,0,0,0)
+	white-space nowrap
+	border 0
+
+// Pressed state
+.k-button--pressed
+	box-shadow inset 0 2px 4px rgba(0, 0, 0, 0.1)
+	transform translateY(1px)
 </style>
