@@ -490,18 +490,10 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { getCurrentInstance } from 'vue'
 
-import KButton from '../components/core/KButton.vue'
-import KCard from '../components/core/KCard.vue'
-import SectionHeader from '../components/dashboard/SectionHeader.vue'
-import StatCard from '../components/dashboard/StatCard.vue'
-import DashboardHeader from '../components/layout/DashboardHeader.vue'
 // Stores
 import * as store from '../store'
 
-const instance = getCurrentInstance()
-const _router = instance.proxy.$router
 
 // Computed properties for store
 const user = computed( () => store.user.value )

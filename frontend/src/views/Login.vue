@@ -158,7 +158,7 @@ export default {
 				await store.verifyMagicLink( token )
 				// Magic link is only used for residents, always redirect to /dashboard
 				this.$router.push( '/dashboard' )
-			} catch ( _err ) {
+			} catch {
 				this.error = this.$t( 'login.errors.invalidLink' )
 			} finally {
 				this.loading = false
@@ -188,7 +188,7 @@ export default {
 				setTimeout( () => {
 					this.magicLinkSent = false
 				}, 10000 )
-			} catch ( _err ) {
+			} catch {
 				this.error = this.$t( 'login.errors.sendFailed' )
 			} finally {
 				this.loading = false
@@ -206,7 +206,7 @@ export default {
 				} else {
 					this.$router.push( '/mansion-dashboard' )  // All other admin logins go to mansion dashboard
 				}
-			} catch ( _err ) {
+			} catch {
 				this.error = this.$t( 'login.errors.invalidCredentials' )
 			} finally {
 				this.loading = false

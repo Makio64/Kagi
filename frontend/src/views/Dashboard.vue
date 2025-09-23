@@ -656,16 +656,6 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { getCurrentInstance } from 'vue'
 
-import BillDetails from '../components/BillDetails.vue'
-import ContactManager from '../components/ContactManager.vue'
-import DashboardCard from '../components/DashboardCard.vue'
-import DocumentViewer from '../components/DocumentViewer.vue'
-import EmergencyContacts from '../components/EmergencyContacts.vue'
-import EventDetails from '../components/EventDetails.vue'
-import FacilityBooking from '../components/FacilityBooking.vue'
-import KagiLogo from '../components/KagiLogo.vue'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
-import BurgerButton from '../components/ui/BurgerButton.vue'
 import * as store from '../store'
 
 // Accept route-params as prop (passed by TinyRouter)

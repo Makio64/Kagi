@@ -773,12 +773,6 @@
 import { computed, ref } from 'vue'
 import { getCurrentInstance } from 'vue'
 
-import KButton from '../components/core/KButton.vue'
-import KCard from '../components/core/KCard.vue'
-import SectionHeader from '../components/dashboard/SectionHeader.vue'
-import StatCard from '../components/dashboard/StatCard.vue'
-import KagiLogo from '../components/KagiLogo.vue'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 // Stores
 import * as store from '../store'
 
