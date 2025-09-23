@@ -197,87 +197,153 @@
 				</section>
 
 				<!-- Booking Section -->
-				<section v-if="activeSection === 'booking' && !selectedFacility" class="section">
-					<div class="section-header">
-						<h2 class="section-title"><span class="section-icon">📅</span> {{ $t('dashboard.booking.title') }}</h2>
-					</div>
-
-					<!-- Your Current Bookings -->
-					<div v-if="userBookings && userBookings.length > 0" class="current-bookings-section">
-						<h3 class="subsection-title">{{ $t('booking.yourBookings') || 'Your Current Bookings' }}</h3>
-						<div class="bookings-grid">
-							<div v-for="booking in userBookings" :key="booking.id" class="booking-card-compact">
-								<div class="card-header">
-									<div class="booking-icon-small">{{ booking.icon }}</div>
-									<span :class="['booking-badge', getBookingCountdown(booking.date).class]">
-										{{ getBookingCountdown(booking.date).text }}
-									</span>
-								</div>
-								<div class="card-body">
-									<h4>{{ booking.facility }}</h4>
-									<div class="booking-info">
-										<div class="info-row">
-											<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-												<rect x="2" y="3" width="8" height="8" rx="1" stroke="currentColor" />
-												<path d="M3 1V3M9 1V3M2 5H10" stroke="currentColor" stroke-linecap="round" />
-											</svg>
-											<span>{{ booking.month }} {{ booking.day }}</span>
-										</div>
-										<div class="info-row">
-											<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-												<circle cx="6" cy="6" r="4" stroke="currentColor" />
-												<path d="M6 3V6L8 8" stroke="currentColor" stroke-linecap="round" />
-											</svg>
-											<span>{{ booking.time }}</span>
-										</div>
-									</div>
-									<div class="booking-ref-small">{{ booking.reference }}</div>
-								</div>
-								<div class="card-footer">
-									<button class="compact-action" title="View Details" @click="viewBookingDetails(booking.id)">
-										<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-											<path d="M8 7V11M8 5V5.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-										</svg>
-										Details
-									</button>
-									<button v-if="getBookingCountdown(booking.date).class !== 'past'" class="compact-action cancel" title="Cancel" @click="cancelBooking(booking.id)">
-										<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-											<path d="M5 5L11 11M11 5L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-										</svg>
-									</button>
-								</div>
-							</div>
+				<section v-if="activeSection === 'booking' && !selectedFacility" class="section booking-section-modern">
+					<div class="section-header-modern">
+						<div class="header-content">
+							<h2 class="section-title-modern">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="section-icon-svg">
+									<rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
+									<path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+									<rect x="8" y="14" width="2" height="2" fill="currentColor" />
+									<rect x="12" y="14" width="2" height="2" fill="currentColor" />
+								</svg>
+								{{ $t('dashboard.booking.title') || 'Facility Booking' }}
+							</h2>
 						</div>
 					</div>
 
-					<!-- Available Facilities -->
-					<h3 class="subsection-title">{{ $t('booking.availableFacilities') || 'Available Facilities' }}</h3>
-					<div class="cards-grid">
-						<DashboardCard
-							image="🎉"
-							:title="$t('dashboard.booking.partyRoom')"
-							:info="`${$t('dashboard.booking.capacity')}: 20 ${$t('dashboard.booking.people')} | ${$t('dashboard.booking.price')}: ¥2,000${$t('dashboard.booking.perHour')}`"
-							clickable
-							:actions="[{ text: $t('dashboard.booking.book'), class: 'booking', handler: () => bookFacility('party') }]"
-							@click="bookFacility('party')"
-						/>
-						<DashboardCard
-							image="🛏️"
-							:title="$t('dashboard.booking.guestRoom')"
-							:info="`${$t('dashboard.booking.capacity')}: 2 ${$t('dashboard.booking.people')} | ${$t('dashboard.booking.price')}: ¥5,000${$t('dashboard.booking.perNight')}`"
-							clickable
-							:actions="[{ text: $t('dashboard.booking.book'), class: 'booking', handler: () => bookFacility('guest') }]"
-							@click="bookFacility('guest')"
-						/>
-						<DashboardCard
-							image="💪"
-							:title="$t('dashboard.booking.gym')"
-							:info="`${$t('dashboard.booking.capacity')}: 10 ${$t('dashboard.booking.people')} | ${$t('dashboard.booking.price')}: ${$t('dashboard.booking.free')}`"
-							clickable
-							:actions="[{ text: $t('dashboard.booking.book'), class: 'booking', handler: () => bookFacility('gym') }]"
-							@click="bookFacility('gym')"
-						/>
-					</div>
+					<div class="booking-two-column-layout">
+						<!-- Left Column: Available Facilities -->
+						<div class="facilities-column">
+							<h3 class="column-title">{{ $t('booking.availableFacilities') || 'Available Facilities' }}</h3>
+							<div class="facilities-list">
+								<!-- Party Room -->
+								<div class="facility-card-with-image" @click="bookFacility('party')">
+									<div class="facility-image party">
+										<span class="facility-badge">🎉</span>
+									</div>
+									<div class="facility-content">
+										<h4>{{ $t('dashboard.booking.partyRoom') || 'Party Room' }}</h4>
+										<p class="facility-desc">Perfect for celebrations and gatherings</p>
+										<div class="facility-meta">
+											<span>👥 Up to 20 people</span>
+											<span>💴 ¥10,000/half-day</span>
+										</div>
+										<button class="book-btn-primary">Book Now →</button>
+									</div>
+								</div>
+
+								<!-- Guest Room -->
+								<div class="facility-card-with-image" @click="bookFacility('guest')">
+									<div class="facility-image guest">
+										<span class="facility-badge">🛏️</span>
+									</div>
+									<div class="facility-content">
+										<h4>{{ $t('dashboard.booking.guestRoom') || 'Guest Room' }}</h4>
+										<p class="facility-desc">Comfortable accommodation for your visitors</p>
+										<div class="facility-meta">
+											<span>👥 Up to 2 guests</span>
+											<span>💴 ¥5,000/night</span>
+										</div>
+										<button class="book-btn-primary">Book Now →</button>
+									</div>
+								</div>
+
+								<!-- Fitness Gym -->
+								<div class="facility-card-with-image" @click="bookFacility('gym')">
+									<div class="facility-image gym">
+										<span class="facility-badge">💪</span>
+									</div>
+									<div class="facility-content">
+										<h4>{{ $t('dashboard.booking.gym') || 'Fitness Gym' }}</h4>
+										<p class="facility-desc">Stay fit with modern equipment and amenities</p>
+										<div class="facility-meta">
+											<span>👥 10 people max</span>
+											<span>✨ Free for residents</span>
+										</div>
+										<button class="book-btn-primary">Book Now →</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Right Column: Current Bookings -->
+						<div class="bookings-column">
+							<div class="bookings-header">
+								<h3 class="column-title">
+									{{ $t('booking.yourBookings') || 'Your Current Bookings' }}
+									<span v-if="userBookings && userBookings.length > 0" class="booking-count">({{ userBookings.length }})</span>
+								</h3>
+								<div v-if="userBookings && userBookings.length > 0" class="booking-filters">
+									<button
+										v-for="filter in ['all', 'upcoming', 'past']"
+										:key="filter"
+										:class="['filter-btn-modern', { active: activeFilter === filter }]"
+										@click="activeFilter = filter"
+									>
+										{{ $t(`booking.filter.${filter}`) || filter.charAt(0).toUpperCase() + filter.slice(1) }}
+									</button>
+								</div>
+							</div>
+
+							<!-- Empty State -->
+							<div v-if="!userBookings || userBookings.length === 0" class="empty-state-modern">
+								<div class="empty-illustration">
+									<svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+										<circle cx="60" cy="60" r="50" fill="#F3F4F6" />
+										<rect x="40" y="40" width="40" height="40" rx="4" fill="white" stroke="#E5E7EB" stroke-width="2" />
+										<path d="M50 35V45M70 35V45M40 55H80" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" />
+										<circle cx="55" cy="65" r="2" fill="#9CA3AF" />
+										<circle cx="65" cy="65" r="2" fill="#9CA3AF" />
+									</svg>
+								</div>
+								<h3>{{ $t('booking.noBookings') || 'No bookings yet' }}</h3>
+								<p>{{ $t('booking.noBookingsDesc') || 'Start by booking one of our available facilities below' }}</p>
+							</div>
+
+							<!-- Bookings Grid -->
+							<div v-else class="bookings-grid-modern">
+								<div v-for="booking in filteredBookings" :key="booking.id" class="booking-card-modern-v2">
+									<div class="card-status-bar" :class="getBookingCountdown(booking.date).class" />
+									<div class="card-content">
+										<div class="card-header-v2">
+											<div class="facility-info-v2">
+												<span class="facility-icon-v2">{{ booking.icon }}</span>
+												<span class="facility-name-v2">{{ booking.facility }}</span>
+											</div>
+											<span :class="['countdown-badge', getBookingCountdown(booking.date).class]">
+												{{ getBookingCountdown(booking.date).text }}
+											</span>
+										</div>
+
+										<div class="booking-details-v2">
+											<div class="detail-row-v2">
+												<svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="detail-icon">
+													<rect x="2" y="3" width="12" height="10" rx="2" stroke="#6B7280" stroke-width="1.5" />
+													<path d="M5 1V4M11 1V4M2 6H14" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" />
+												</svg>
+												<span>{{ booking.month }} {{ booking.day }}, 2024</span>
+											</div>
+											<div class="detail-row-v2">
+												<svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="detail-icon">
+													<circle cx="8" cy="8" r="6" stroke="#6B7280" stroke-width="1.5" />
+													<path d="M8 5V8L10 10" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" />
+												</svg>
+												<span>{{ booking.time }}</span>
+											</div>
+											<div class="detail-row-v2">
+												<svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="detail-icon">
+													<path d="M8 2L2 7V14H6V10H10V14H14V7L8 2Z" stroke="#6B7280" stroke-width="1.5" stroke-linejoin="round" />
+												</svg>
+												<span>{{ booking.purpose || 'Personal use' }}</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div> <!-- End bookings column -->
+					</div> <!-- End two-column layout -->
 				</section>
 
 				<!-- Facility Booking -->
@@ -661,6 +727,7 @@ const showContactManager = ref( false )
 const selectedBill = ref( null )
 const selectedEvent = ref( null )
 const selectedFacility = ref( null )
+const activeFilter = ref( 'all' )
 
 // Sample user bookings data
 const userBookings = ref( [
@@ -705,6 +772,28 @@ const userBookings = ref( [
 		reference: 'BK20241224'
 	}
 ] )
+
+// Filtered bookings based on active filter
+const filteredBookings = computed( () => {
+	const filter = activeFilter.value
+	if ( filter === 'all' ) return userBookings.value
+
+	const now = new Date()
+	now.setHours( 0, 0, 0, 0 )
+
+	return userBookings.value.filter( booking => {
+		const bookingDate = new Date( booking.date )
+		bookingDate.setHours( 0, 0, 0, 0 )
+		const diffTime = bookingDate - now
+
+		if ( filter === 'upcoming' ) {
+			return diffTime >= 0
+		} else if ( filter === 'past' ) {
+			return diffTime < 0
+		}
+		return true
+	} )
+} )
 
 // Calculate countdown for bookings
 const getBookingCountdown = ( bookingDate ) => {
@@ -826,6 +915,12 @@ const viewBookingDetails = ( bookingId ) => {
 	if ( booking ) {
 		alert( `Booking Details:\nFacility: ${booking.facility}\nDate: ${booking.month} ${booking.day}\nTime: ${booking.time}\nPurpose: ${booking.purpose}` )
 	}
+}
+
+const rebookFacility = ( booking ) => {
+	// Navigate to booking section with the same facility
+	const facilityId = booking.facilityId
+	bookFacility( facilityId )
 }
 
 const bookService = ( serviceType ) => {
@@ -3258,4 +3353,518 @@ watch( showMobileMenu, ( newVal ) => {
 	to
 		opacity 1
 		transform translateY(0)
+
+// Modern Booking Styles
+.booking-section-modern
+	padding 0
+
+.section-header-modern
+	margin-bottom 1.5rem
+	padding 0 1.5rem
+
+	.header-content
+		border-bottom 1px solid #f0f0f0
+		padding-bottom 1rem
+
+	.section-title-modern
+		font-size 1.5rem
+		font-weight 600
+		color #1a1a1a
+		display flex
+		align-items center
+		gap 0.5rem
+		margin 0
+
+		.section-icon-svg
+			width 24px
+			height 24px
+			color #6b46c1
+
+// Two-column layout
+.booking-two-column-layout
+	display grid
+	grid-template-columns 3fr 2fr
+	gap 2rem
+	padding 0 1.5rem
+
+	@media (max-width: 968px)
+		grid-template-columns 1fr
+		gap 2rem
+
+.facilities-column, .bookings-column
+	min-height 400px
+
+	.column-title
+		font-size 1.1rem
+		font-weight 600
+		color #1a1a1a
+		margin-bottom 1rem
+		padding-bottom 0.75rem
+		border-bottom 2px solid #f0f0f0
+
+		.booking-count
+			color #6b7280
+			font-weight 400
+			margin-left 0.25rem
+			font-size 0.9rem
+
+// Facility cards with images
+.facilities-list
+	display flex
+	flex-direction column
+	gap 1rem
+
+.facility-card-with-image
+	display flex
+	gap 1.25rem
+	padding 1.25rem
+	background white
+	border 1px solid #e5e7eb
+	border-radius 16px
+	cursor pointer
+	transition all 0.3s ease
+	overflow hidden
+
+	&:hover
+		background #fafafa
+		border-color #d1d5db
+		transform translateY(-2px)
+		box-shadow 0 4px 12px rgba(0, 0, 0, 0.08)
+
+	.facility-image
+		width 120px
+		height 120px
+		flex-shrink 0
+		border-radius 12px
+		display flex
+		align-items center
+		justify-content center
+		position relative
+		overflow hidden
+
+		&.party
+			background linear-gradient(135deg, #ec4899 0%, #f472b6 100%)
+
+		&.guest
+			background linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)
+
+		&.gym
+			background linear-gradient(135deg, #10b981 0%, #34d399 100%)
+
+		.facility-badge
+			font-size 3rem
+			filter drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))
+
+	.facility-content
+		flex 1
+		display flex
+		flex-direction column
+		justify-content center
+
+		h4
+			font-size 1.25rem
+			font-weight 700
+			color #1a1a1a
+			margin 0 0 0.5rem 0
+
+		.facility-desc
+			font-size 0.95rem
+			color #6b7280
+			margin 0 0 0.75rem 0
+			line-height 1.4
+
+		.facility-meta
+			display flex
+			gap 1rem
+			margin-bottom 1rem
+
+			span
+				font-size 0.85rem
+				color #4b5563
+
+		.book-btn-primary
+			padding 0.6rem 1.5rem
+			background linear-gradient(135deg, #1a1a1a 0%, #333 100%)
+			color white
+			border none
+			border-radius 10px
+			font-size 0.9rem
+			font-weight 600
+			cursor pointer
+			transition all 0.2s ease
+			width fit-content
+
+			&:hover
+				background linear-gradient(135deg, #333 0%, #555 100%)
+				transform translateX(2px)
+
+.bookings-header
+	display flex
+	justify-content space-between
+	align-items center
+	margin-bottom 1rem
+	flex-wrap wrap
+	gap 0.5rem
+
+.booking-filters
+	display flex
+	gap 0.5rem
+	padding 0.25rem
+	background #f8f9fa
+	border-radius 12px
+	width fit-content
+
+.filter-btn-modern
+	padding 0.5rem 1.25rem
+	background transparent
+	border none
+	border-radius 8px
+	font-size 0.9rem
+	font-weight 500
+	color #666
+	cursor pointer
+	transition all 0.2s ease
+
+	&:hover
+		background white
+		color #333
+		box-shadow 0 1px 3px rgba(0, 0, 0, 0.1)
+
+	&.active
+		background white
+		color #1a1a1a
+		box-shadow 0 1px 3px rgba(0, 0, 0, 0.1)
+
+.empty-state-modern
+	text-align center
+	padding 3rem 2rem
+	background #fafafa
+	border-radius 12px
+	margin-bottom 2rem
+
+	.empty-illustration
+		margin-bottom 1.5rem
+
+		svg
+			width 120px
+			height 120px
+			opacity 0.8
+
+	h3
+		font-size 1.25rem
+		font-weight 600
+		color #333
+		margin-bottom 0.75rem
+
+	p
+		color #666
+		font-size 0.95rem
+		margin-bottom 0
+
+.bookings-grid-modern
+	display flex
+	flex-direction column
+	gap 1rem
+
+.booking-card-modern-v2
+	background white
+	border-radius 10px
+	overflow hidden
+	border 1px solid #e5e7eb
+	transition all 0.2s ease
+
+	&:hover
+		border-color #d1d5db
+		box-shadow 0 2px 8px rgba(0, 0, 0, 0.06)
+
+.card-status-bar
+	height 3px
+	background #e5e7eb
+
+	&.today
+		background #10b981
+
+	&.tomorrow
+		background #3b82f6
+
+	&.upcoming
+		background #6b46c1
+
+	&.past
+		background #9ca3af
+
+.card-content
+	padding 0.75rem 1rem
+
+.card-header-v2
+	display flex
+	justify-content space-between
+	align-items center
+	margin-bottom 0.5rem
+
+	.facility-info-v2
+		display flex
+		align-items center
+		gap 0.5rem
+
+		.facility-icon-v2
+			font-size 1.25rem
+
+		.facility-name-v2
+			font-size 0.95rem
+			font-weight 600
+			color #1a1a1a
+
+	.countdown-badge
+		padding 0.15rem 0.5rem
+		background #f3f4f6
+		border-radius 12px
+		font-size 0.75rem
+		font-weight 500
+
+		&.today
+			background #d1fae5
+			color #065f46
+
+		&.tomorrow
+			background #dbeafe
+			color #1e40af
+
+		&.upcoming
+			background #e9d5ff
+			color #581c87
+
+		&.past
+			background #f3f4f6
+			color #6b7280
+
+.booking-details-v2
+	display flex
+	flex-direction column
+	gap 0.35rem
+
+	.detail-row-v2
+		display flex
+		align-items center
+		gap 0.35rem
+		font-size 0.8rem
+		color #6b7280
+
+		svg
+			display none
+
+.card-footer-v2
+	display flex
+	justify-content space-between
+	align-items center
+	padding-top 1rem
+	border-top 1px solid #f3f4f6
+
+	.reference-code
+		font-size 0.85rem
+		color #9ca3af
+		font-family monospace
+
+	.action-buttons
+		display flex
+		gap 0.5rem
+
+.action-btn-v2
+	padding 0.5rem 0.75rem
+	background white
+	border 1px solid #e5e7eb
+	border-radius 8px
+	font-size 0.85rem
+	font-weight 500
+	color #4b5563
+	cursor pointer
+	transition all 0.2s ease
+	display flex
+	align-items center
+	gap 0.4rem
+
+	svg
+		width 14px
+		height 14px
+
+	&:hover
+		background #f9fafb
+		border-color #d1d5db
+		color #1f2937
+
+	&.rebook
+		&:hover
+			background #f3f4f6
+			color #6b46c1
+			border-color #6b46c1
+
+	&.cancel
+		&:hover
+			background #fee2e2
+			color #dc2626
+			border-color #dc2626
+
+.available-facilities-modern
+	padding 0 1.5rem
+	margin-top 2rem
+
+	.section-subtitle-modern
+		font-size 1.25rem
+		font-weight 600
+		color #1a1a1a
+		margin-bottom 1.5rem
+
+	.facilities-grid-modern
+		display grid
+		grid-template-columns repeat(auto-fill, minmax(300px, 1fr))
+		gap 1.5rem
+
+.facility-card-modern
+	position relative
+	background white
+	border-radius 16px
+	overflow hidden
+	cursor pointer
+	transition all 0.3s ease
+	box-shadow 0 2px 12px rgba(0, 0, 0, 0.06)
+
+	&:hover
+		transform translateY(-4px)
+		box-shadow 0 8px 24px rgba(0, 0, 0, 0.12)
+
+		.facility-gradient
+			opacity 0.9
+
+.facility-gradient
+	position absolute
+	top 0
+	left 0
+	right 0
+	height 120px
+	opacity 0.8
+	transition opacity 0.3s ease
+
+	&.party
+		background linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%)
+
+	&.guest
+		background linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)
+
+	&.gym
+		background linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%)
+
+.facility-content
+	position relative
+	padding 1.5rem
+
+.facility-header
+	display flex
+	justify-content space-between
+	align-items flex-start
+	margin-bottom 4rem
+
+	.facility-icon-large
+		font-size 2.5rem
+		filter drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))
+
+	.availability-badge
+		padding 0.35rem 0.75rem
+		background white
+		border-radius 20px
+		font-size 0.75rem
+		font-weight 500
+		display flex
+		align-items center
+		gap 0.35rem
+
+		svg
+			width 10px
+			height 10px
+
+		&.success
+			color #059669
+
+		&.limited
+			color #d97706
+
+.facility-title
+	font-size 1.25rem
+	font-weight 600
+	color #1a1a1a
+	margin-bottom 0.5rem
+
+.facility-description
+	color #6b7280
+	font-size 0.9rem
+	margin-bottom 1rem
+
+.facility-features
+	display flex
+	gap 1rem
+	margin-bottom 1.25rem
+
+	.feature
+		display flex
+		align-items center
+		gap 0.35rem
+		font-size 0.85rem
+		color #4b5563
+
+		svg
+			width 14px
+			height 14px
+			opacity 0.6
+
+.facility-footer
+	display flex
+	justify-content space-between
+	align-items center
+
+	.price
+		font-size 0.9rem
+		font-weight 600
+		color #1a1a1a
+
+		&.free
+			color #10b981
+
+	.book-btn-modern
+		padding 0.5rem 1rem
+		background #1a1a1a
+		color white
+		border none
+		border-radius 8px
+		font-size 0.85rem
+		font-weight 500
+		cursor pointer
+		transition all 0.2s ease
+		display flex
+		align-items center
+		gap 0.5rem
+
+		svg
+			width 14px
+			height 14px
+			transition transform 0.2s ease
+
+		&:hover
+			background #333
+			transform translateY(-1px)
+
+			svg
+				transform translateX(2px)
+
+@media (max-width: 768px)
+	.bookings-grid-modern
+		grid-template-columns 1fr
+
+	.facilities-grid-modern
+		grid-template-columns 1fr
+
+	.booking-filters
+		width 100%
+		overflow-x auto
+
+		&::-webkit-scrollbar
+			display none
 </style>

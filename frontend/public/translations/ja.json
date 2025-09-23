@@ -385,5 +385,10 @@
 	"booking.bookGym": "ジムを予約",
 	"booking.bookingParty": "パーティールーム予約",
 	"booking.bookingGuest": "ゲストルーム予約",
-	"booking.bookingGym": "ジム予約"
+	"booking.bookingGym": "ジム予約",
+	"booking.yourBookings": "現在の予約",
+	"booking.noBookings": "この施設の予約はありません。",
+	"booking.filter.all": "すべて",
+	"booking.filter.upcoming": "今後の予約",
+	"booking.filter.past": "過去の予約"
 }
