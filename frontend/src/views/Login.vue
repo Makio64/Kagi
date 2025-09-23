@@ -131,18 +131,10 @@
 </template>
 
 <script>
-import EmailPopup from '../components/EmailPopup.vue'
-import KagiLogo from '../components/KagiLogo.vue'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import * as store from '../store'
 
 export default {
 	name: 'Login',
-	components: {
-		EmailPopup,
-		KagiLogo,
-		LanguageSwitcher
-	},
 	data() {
 		return {
 			activeTab: 'resident',

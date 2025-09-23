@@ -35,13 +35,8 @@
 </template>
 
 <script>
-import KButton from '../core/KButton.vue'
-
 export default {
 	name: 'SectionHeader',
-	components: {
-		KButton
-	},
 	emits: ['search'],
 	props: {
 		// Content

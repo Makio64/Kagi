@@ -232,6 +232,12 @@ All Vue components MUST use the Options API pattern. Do NOT use:
 - Composition API with `setup()` function
 - Composables
 
+### Auto-Import Feature
+The project uses `unplugin-auto-import/vite` and `unplugin-vue-components/vite` which automatically imports:
+- Vue components from `/src/components/` directory
+- No need to manually import or declare components in the `components` option
+- Only import non-component JavaScript modules (utilities, stores, etc.)
+
 ### Correct Vue Component Structure
 
 ```vue
@@ -240,11 +246,13 @@ All Vue components MUST use the Options API pattern. Do NOT use:
 </template>
 
 <script>
+// Only import non-component modules
+import * as store from '../store'
+import { someUtility } from '../utils/helpers'
+
 export default {
   name: 'ComponentName',
-  components: {
-    // Component imports
-  },
+  // NO components: {} needed for local components!
   props: {
     // Component props
   },

@@ -80,15 +80,8 @@
 </template>
 
 <script>
-import KagiLogo from '../KagiLogo.vue'
-import LanguageSwitcher from '../LanguageSwitcher.vue'
-
 export default {
 	name: 'DashboardLayout',
-	components: {
-		KagiLogo,
-		LanguageSwitcher
-	},
 	emits: ['navigate', 'logout', 'logo-click'],
 	props: {
 		// Layout config

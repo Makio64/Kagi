@@ -124,15 +124,8 @@
 </template>
 
 <script>
-import KagiLogo from '../components/KagiLogo.vue'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
-
 export default {
 	name: 'Home',
-	components: {
-		KagiLogo,
-		LanguageSwitcher
-	},
 	methods: {
 		scrollToFeatures() {
 			this.$refs.featuresSection?.scrollIntoView( { behavior: 'smooth' } )
