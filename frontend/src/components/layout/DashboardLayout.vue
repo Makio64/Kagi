@@ -79,48 +79,54 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-
+<script>
 import KagiLogo from '../KagiLogo.vue'
 import LanguageSwitcher from '../LanguageSwitcher.vue'
 
-const props = defineProps( {
-	// Layout config
-	title: {
-		type: String,
-		default: 'Kagi'
+export default {
+	name: 'DashboardLayout',
+	components: {
+		KagiLogo,
+		LanguageSwitcher
 	},
-	userEmail: String,
-	userRole: String,
-	
-	// Navigation
-	menuItems: {
-		type: Array,
-		required: true
-		// Expected format: [{ id: string, icon: string, label: string }]
+	emits: ['navigate', 'logout', 'logo-click'],
+	props: {
+		// Layout config
+		title: {
+			type: String,
+			default: 'Kagi'
+		},
+		userEmail: String,
+		userRole: String,
+
+		// Navigation
+		menuItems: {
+			type: Array,
+			required: true
+			// Expected format: [{ id: string, icon: string, label: string }]
+		},
+		activeSection: {
+			type: String,
+			required: true
+		}
 	},
-	activeSection: {
-		type: String,
-		required: true
+	data() {
+		return {
+			showMobileMenu: false
+		}
+	},
+	methods: {
+		handleNavigation( sectionId ) {
+			this.$emit( 'navigate', sectionId )
+			this.showMobileMenu = false
+		},
+		handleLogout() {
+			this.$emit( 'logout' )
+		},
+		handleLogoClick() {
+			this.$emit( 'logo-click' )
+		}
 	}
-} )
-
-const emit = defineEmits( ['navigate', 'logout', 'logo-click'] )
-
-const showMobileMenu = ref( false )
-
-const handleNavigation = ( sectionId ) => {
-	emit( 'navigate', sectionId )
-	showMobileMenu.value = false
-}
-
-const handleLogout = () => {
-	emit( 'logout' )
-}
-
-const handleLogoClick = () => {
-	emit( 'logo-click' )
 }
 </script>
 

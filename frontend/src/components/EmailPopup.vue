@@ -32,37 +32,42 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-
-const props = defineProps( {
-	show: Boolean,
-	email: String,
-	token: String
-} )
-
-const emit = defineEmits( ['close'] )
-const copied = ref( false )
-
-const loginLink = computed( () => {
-	if ( !props.token ) return ''
-	const baseUrl = window.location.origin
-	return `${baseUrl}/login?token=${props.token}`
-} )
-
-const close = () => {
-	emit( 'close' )
-}
-
-const copyLink = async () => {
-	try {
-		await navigator.clipboard.writeText( loginLink.value )
-		copied.value = true
-		setTimeout( () => {
-			copied.value = false
-		}, 2000 )
-	} catch ( err ) {
-		console.error( 'Failed to copy:', err )
+<script>
+export default {
+	name: 'EmailPopup',
+	emits: ['close'],
+	props: {
+		show: Boolean,
+		email: String,
+		token: String
+	},
+	data() {
+		return {
+			copied: false
+		}
+	},
+	computed: {
+		loginLink() {
+			if ( !this.token ) return ''
+			const baseUrl = window.location.origin
+			return `${baseUrl}/login?token=${this.token}`
+		}
+	},
+	methods: {
+		close() {
+			this.$emit( 'close' )
+		},
+		async copyLink() {
+			try {
+				await navigator.clipboard.writeText( this.loginLink )
+				this.copied = true
+				setTimeout( () => {
+					this.copied = false
+				}, 2000 )
+			} catch ( err ) {
+				console.error( 'Failed to copy:', err )
+			}
+		}
 	}
 }
 </script>

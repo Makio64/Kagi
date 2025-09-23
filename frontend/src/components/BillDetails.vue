@@ -131,52 +131,58 @@
 	</div>
 </template>
 
-<script setup>
-import { computed, ref } from 'vue'
-
-const props = defineProps( {
-	bill: {
-		type: Object,
-		default: () => ( {
-			id: 1,
-			icon: '🏢',
-			title: 'Management Fee',
-			amount: '¥25,000',
-			billNumber: '#2024-12-001',
-			issueDate: '2024/12/01',
-			dueDate: '2024/12/31',
-			period: 'December 2024',
-			status: 'unpaid',
-			paid: false
-		} )
+<script>
+export default {
+	name: 'BillDetails',
+	emits: ['close', 'payment'],
+	props: {
+		bill: {
+			type: Object,
+			default: () => ( {
+				id: 1,
+				icon: '🏢',
+				title: 'Management Fee',
+				amount: '¥25,000',
+				billNumber: '#2024-12-001',
+				issueDate: '2024/12/01',
+				dueDate: '2024/12/31',
+				period: 'December 2024',
+				status: 'unpaid',
+				paid: false
+			} )
+		}
+	},
+	data() {
+		return {
+			selectedMethod: 'credit',
+			processingPayment: false,
+			paymentMethods: [
+				{ id: 'credit', icon: '💳', name: 'Credit Card' },
+				{ id: 'bank', icon: '🏦', name: 'Bank Transfer' },
+				{ id: 'konbini', icon: '🏪', name: 'Convenience Store' },
+				{ id: 'auto', icon: '🔄', name: 'Auto-pay Setup' }
+			]
+		}
+	},
+	computed: {
+		breakdown() {
+			return [
+				{ name: 'Basic Management Fee', amount: '¥15,000' },
+				{ name: 'Common Area Maintenance', amount: '¥5,000' },
+				{ name: 'Security Services', amount: '¥3,000' },
+				{ name: 'Utilities (Common Areas)', amount: '¥2,000' }
+			]
+		}
+	},
+	methods: {
+		async processPayment() {
+			this.processingPayment = true
+			// Simulate payment processing
+			await new Promise( resolve => setTimeout( resolve, 2000 ) )
+			this.processingPayment = false
+			this.$emit( 'payment', { method: this.selectedMethod, billId: this.bill.id } )
+		}
 	}
-} )
-
-const emit = defineEmits( ['close', 'payment'] )
-
-const selectedMethod = ref( 'credit' )
-const processingPayment = ref( false )
-
-const breakdown = computed( () => [
-	{ name: 'Basic Management Fee', amount: '¥15,000' },
-	{ name: 'Common Area Maintenance', amount: '¥5,000' },
-	{ name: 'Security Services', amount: '¥3,000' },
-	{ name: 'Utilities (Common Areas)', amount: '¥2,000' }
-] )
-
-const paymentMethods = [
-	{ id: 'credit', icon: '💳', name: 'Credit Card' },
-	{ id: 'bank', icon: '🏦', name: 'Bank Transfer' },
-	{ id: 'konbini', icon: '🏪', name: 'Convenience Store' },
-	{ id: 'auto', icon: '🔄', name: 'Auto-pay Setup' }
-]
-
-const processPayment = async () => {
-	processingPayment.value = true
-	// Simulate payment processing
-	await new Promise( resolve => setTimeout( resolve, 2000 ) )
-	processingPayment.value = false
-	emit( 'payment', { method: selectedMethod.value, billId: props.bill.id } )
 }
 </script>
 

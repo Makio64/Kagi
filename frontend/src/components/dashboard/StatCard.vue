@@ -35,75 +35,77 @@
 	</div>
 </template>
 
-<script setup>
-import { computed } from 'vue'
+<script>
+export default {
+	name: 'StatCard',
+	emits: ['click'],
+	props: {
+		// Content
+		icon: String,
+		label: {
+			type: String,
+			required: true
+		},
+		value: {
+			type: [String, Number],
+			required: true
+		},
+		format: {
+			type: String,
+			default: 'number', // number, currency, percent
+			validator: value => ['number', 'currency', 'percent'].includes( value )
+		},
 
-const props = defineProps( {
-	// Content
-	icon: String,
-	label: {
-		type: String,
-		required: true
-	},
-	value: {
-		type: [String, Number],
-		required: true
-	},
-	format: {
-		type: String,
-		default: 'number', // number, currency, percent
-		validator: value => ['number', 'currency', 'percent'].includes( value )
-	},
-	
-	// Additional info
-	trend: Object, // { value/text: string, positive: boolean }
-	subtext: String,
-	badge: Object, // { text: string, variant: string }
-	
-	// Appearance
-	variant: {
-		type: String,
-		default: 'default',
-		validator: value => ['default', 'primary', 'secondary', 'success', 'warning', 'danger', 'info'].includes( value )
-	},
-	
-	// Behavior
-	clickable: Boolean
-} )
+		// Additional info
+		trend: Object, // { value/text: string, positive: boolean }
+		subtext: String,
+		badge: Object, // { text: string, variant: string }
 
-const emit = defineEmits( ['click'] )
+		// Appearance
+		variant: {
+			type: String,
+			default: 'default',
+			validator: value => ['default', 'primary', 'secondary', 'success', 'warning', 'danger', 'info'].includes( value )
+		},
 
-const formattedValue = computed( () => {
-	const val = props.value
-	
-	switch ( props.format ) {
-		case 'currency':
-			// Format as currency (assuming JPY for now)
-			if ( typeof val === 'number' ) {
-				return `¥${val.toLocaleString()}`
+		// Behavior
+		clickable: Boolean
+	},
+	computed: {
+		formattedValue() {
+			const val = this.value
+
+			switch ( this.format ) {
+				case 'currency':
+					// Format as currency (assuming JPY for now)
+					if ( typeof val === 'number' ) {
+						return `¥${val.toLocaleString()}`
+					}
+					return val
+
+				case 'percent':
+					// Format as percentage
+					if ( typeof val === 'number' ) {
+						return `${val}%`
+					}
+					return val
+
+				case 'number':
+				default:
+					// Format as number with thousand separators
+					if ( typeof val === 'number' ) {
+						return val.toLocaleString()
+					}
+					return val
 			}
-			return val
-			
-		case 'percent':
-			// Format as percentage
-			if ( typeof val === 'number' ) {
-				return `${val}%`
+		}
+	},
+	methods: {
+		handleClick() {
+			if ( this.clickable ) {
+				this.$emit( 'click' )
 			}
-			return val
-			
-		case 'number':
-		default:
-			// Format as number with thousand separators
-			if ( typeof val === 'number' ) {
-				return val.toLocaleString()
-			}
-			return val
-	}
-} )
-
-const handleClick = () => {
-	if ( props.clickable ) {
-		emit( 'click' )
+		}
 	}
 }
 </script>

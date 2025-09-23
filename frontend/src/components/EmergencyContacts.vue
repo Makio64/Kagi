@@ -83,8 +83,11 @@
 	</div>
 </template>
 
-<script setup>
-defineEmits( ['close'] )
+<script>
+export default {
+	name: 'EmergencyContacts',
+	emits: ['close']
+}
 </script>
 
 <style lang="stylus" scoped>

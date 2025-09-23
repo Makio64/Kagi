@@ -17,50 +17,54 @@
 	</div>
 </template>
 
-<script setup>
-import { computed, ref } from 'vue'
+<script>
 import { loadTranslations } from 'vue-tiny-translation'
 
-const isOpen = ref( false )
-
-const languages = [
-	{ code: 'en', label: 'English' },
-	{ code: 'fr', label: 'Français' },
-	{ code: 'ja', label: '日本語' }
-]
-
-// Get current language from localStorage or default to 'en'
-const currentLang = ref( localStorage.getItem( 'kagi_language' ) || 'en' )
-
-const currentLanguageLabel = computed( () => {
-	const lang = languages.find( l => l.code === currentLang.value )
-	return lang ? lang.label : 'English'
-} )
-
-const toggleDropdown = () => {
-	isOpen.value = !isOpen.value
-}
-
-const changeLanguage = async ( lang ) => {
-	await loadTranslations( `/translations/${lang}.json` )
-	localStorage.setItem( 'kagi_language', lang )
-	currentLang.value = lang
-	isOpen.value = false
-}
-
-// Click outside to close
-onMounted( () => {
-	const handleClickOutside = ( e ) => {
-		if ( !e.target.closest( '.language-switcher' ) ) {
-			isOpen.value = false
+export default {
+	name: 'LanguageSwitcher',
+	data() {
+		return {
+			isOpen: false,
+			languages: [
+				{ code: 'en', label: 'English' },
+				{ code: 'fr', label: 'Français' },
+				{ code: 'ja', label: '日本語' }
+			],
+			currentLang: localStorage.getItem( 'kagi_language' ) || 'en'
+		}
+	},
+	computed: {
+		currentLanguageLabel() {
+			const lang = this.languages.find( l => l.code === this.currentLang )
+			return lang ? lang.label : 'English'
+		}
+	},
+	mounted() {
+		const handleClickOutside = ( e ) => {
+			if ( !e.target.closest( '.language-switcher' ) ) {
+				this.isOpen = false
+			}
+		}
+		document.addEventListener( 'click', handleClickOutside )
+		this._handleClickOutside = handleClickOutside
+	},
+	unmounted() {
+		if ( this._handleClickOutside ) {
+			document.removeEventListener( 'click', this._handleClickOutside )
+		}
+	},
+	methods: {
+		toggleDropdown() {
+			this.isOpen = !this.isOpen
+		},
+		async changeLanguage( lang ) {
+			await loadTranslations( `/translations/${lang}.json` )
+			localStorage.setItem( 'kagi_language', lang )
+			this.currentLang = lang
+			this.isOpen = false
 		}
 	}
-	document.addEventListener( 'click', handleClickOutside )
-
-	onUnmounted( () => {
-		document.removeEventListener( 'click', handleClickOutside )
-	} )
-} )
+}
 </script>
 
 <style lang="stylus" scoped>

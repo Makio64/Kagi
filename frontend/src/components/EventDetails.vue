@@ -169,74 +169,77 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-
-const props = defineProps( {
-	event: {
-		type: Object,
-		default: () => ( {
-			id: 1,
-			title: 'Christmas Party',
-			subtitle: 'Annual building celebration',
-			month: 'DEC',
-			day: '25',
-			time: '6:00 PM - 10:00 PM',
-			location: '1st Floor Lobby',
-			attendees: '50-70 residents',
-			fee: 'Free',
-			description: 'Join us for our annual Christmas celebration! This is a wonderful opportunity to meet your neighbors and celebrate the holiday season together. We will have food, drinks, music, and fun activities for all ages.',
-			agenda: [
-				'6:00 PM - Welcome and opening remarks',
-				'6:30 PM - Dinner buffet opens',
-				'7:30 PM - Christmas carol singing',
-				'8:00 PM - Gift exchange (optional)',
-				'9:00 PM - Dancing and socializing'
-			],
-			notes: [
-				'Children are welcome and encouraged to attend',
-				'Please bring a wrapped gift (¥1000 value) if you wish to participate in the gift exchange',
-				'Vegetarian and halal options will be available',
-				'Dress code: Smart casual or festive attire'
-			],
-			organizer: 'Building Management Committee',
-			organizerRole: 'Event Coordination Team',
-			past: false
-		} )
-	}
-} )
-
-const emit = defineEmits( ['close'] )
-
-const rsvpStatus = ref( null )
-const guestCount = ref( 1 )
-const rsvpComment = ref( '' )
-const rsvpSubmitted = ref( false )
-
-const relatedEvents = ref( [
-	{
-		id: 2,
-		month: 'JAN',
-		day: '01',
-		title: 'New Year Gathering',
-		time: '11:00 AM',
-		location: 'Rooftop Garden'
+<script>
+export default {
+	name: 'EventDetails',
+	emits: ['close'],
+	props: {
+		event: {
+			type: Object,
+			default: () => ( {
+				id: 1,
+				title: 'Christmas Party',
+				subtitle: 'Annual building celebration',
+				month: 'DEC',
+				day: '25',
+				time: '6:00 PM - 10:00 PM',
+				location: '1st Floor Lobby',
+				attendees: '50-70 residents',
+				fee: 'Free',
+				description: 'Join us for our annual Christmas celebration! This is a wonderful opportunity to meet your neighbors and celebrate the holiday season together. We will have food, drinks, music, and fun activities for all ages.',
+				agenda: [
+					'6:00 PM - Welcome and opening remarks',
+					'6:30 PM - Dinner buffet opens',
+					'7:30 PM - Christmas carol singing',
+					'8:00 PM - Gift exchange (optional)',
+					'9:00 PM - Dancing and socializing'
+				],
+				notes: [
+					'Children are welcome and encouraged to attend',
+					'Please bring a wrapped gift (¥1000 value) if you wish to participate in the gift exchange',
+					'Vegetarian and halal options will be available',
+					'Dress code: Smart casual or festive attire'
+				],
+				organizer: 'Building Management Committee',
+				organizerRole: 'Event Coordination Team',
+				past: false
+			} )
+		}
 	},
-	{
-		id: 3,
-		month: 'JAN',
-		day: '10',
-		title: 'Fire Drill',
-		time: '10:00 AM',
-		location: 'All Areas'
+	data() {
+		return {
+			rsvpStatus: null,
+			guestCount: 1,
+			rsvpComment: '',
+			rsvpSubmitted: false,
+			relatedEvents: [
+				{
+					id: 2,
+					month: 'JAN',
+					day: '01',
+					title: 'New Year Gathering',
+					time: '11:00 AM',
+					location: 'Rooftop Garden'
+				},
+				{
+					id: 3,
+					month: 'JAN',
+					day: '10',
+					title: 'Fire Drill',
+					time: '10:00 AM',
+					location: 'All Areas'
+				}
+			]
+		}
+	},
+	methods: {
+		submitRSVP() {
+			// Simulate RSVP submission
+			setTimeout( () => {
+				this.rsvpSubmitted = true
+			}, 500 )
+		}
 	}
-] )
-
-const submitRSVP = () => {
-	// Simulate RSVP submission
-	setTimeout( () => {
-		rsvpSubmitted.value = true
-	}, 500 )
 }
 </script>
 

@@ -130,90 +130,96 @@
 	</div>
 </template>
 
-<script setup>
-import { getCurrentInstance } from 'vue'
-
+<script>
 import EmailPopup from '../components/EmailPopup.vue'
 import KagiLogo from '../components/KagiLogo.vue'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 import * as store from '../store'
 
-const instance = getCurrentInstance()
-const router = instance.proxy.$router
-
-const activeTab = ref( 'resident' )
-const residentEmail = ref( '' )
-const adminEmail = ref( '' )
-const adminPassword = ref( '' )
-const loading = ref( false )
-const error = ref( '' )
-const magicLinkSent = ref( false )
-const showEmailPopup = ref( false )
-const magicLinkToken = ref( '' )
-
-// Check for magic link token in URL
-onMounted( async () => {
-	const urlParams = new URLSearchParams( window.location.search )
-	const token = urlParams.get( 'token' )
-	if ( token ) {
-		loading.value = true
-		try {
-			await store.verifyMagicLink( token )
-			// Magic link is only used for residents, always redirect to /dashboard
-			router.push( '/dashboard' )
-		} catch ( _err ) {
-			error.value = instance.proxy.$t( 'login.errors.invalidLink' )
-		} finally {
-			loading.value = false
+export default {
+	name: 'Login',
+	components: {
+		EmailPopup,
+		KagiLogo,
+		LanguageSwitcher
+	},
+	data() {
+		return {
+			activeTab: 'resident',
+			residentEmail: '',
+			adminEmail: '',
+			adminPassword: '',
+			loading: false,
+			error: '',
+			magicLinkSent: false,
+			showEmailPopup: false,
+			magicLinkToken: ''
 		}
-	}
-} )
-
-const requestMagicLink = async () => {
-	loading.value = true
-	error.value = ''
-	try {
-		const result = await store.requestMagicLink( residentEmail.value )
-
-		// In mock mode, immediately redirect to appropriate dashboard
-		if ( result.mockLogin ) {
-			// Resident tab always goes to /dashboard
-			router.push( '/dashboard' )
-			return
+	},
+	async mounted() {
+		// Check for magic link token in URL
+		const urlParams = new URLSearchParams( window.location.search )
+		const token = urlParams.get( 'token' )
+		if ( token ) {
+			this.loading = true
+			try {
+				await store.verifyMagicLink( token )
+				// Magic link is only used for residents, always redirect to /dashboard
+				this.$router.push( '/dashboard' )
+			} catch ( _err ) {
+				this.error = this.$t( 'login.errors.invalidLink' )
+			} finally {
+				this.loading = false
+			}
 		}
+	},
+	methods: {
+		async requestMagicLink() {
+			this.loading = true
+			this.error = ''
+			try {
+				const result = await store.requestMagicLink( this.residentEmail )
 
-		if ( result.token ) {
-			// In test mode, show the popup with the magic link
-			magicLinkToken.value = result.token
-			showEmailPopup.value = true
+				// In mock mode, immediately redirect to appropriate dashboard
+				if ( result.mockLogin ) {
+					// Resident tab always goes to /dashboard
+					this.$router.push( '/dashboard' )
+					return
+				}
+
+				if ( result.token ) {
+					// In test mode, show the popup with the magic link
+					this.magicLinkToken = result.token
+					this.showEmailPopup = true
+				}
+				this.magicLinkSent = true
+				setTimeout( () => {
+					this.magicLinkSent = false
+				}, 10000 )
+			} catch ( _err ) {
+				this.error = this.$t( 'login.errors.sendFailed' )
+			} finally {
+				this.loading = false
+			}
+		},
+		async adminLogin() {
+			this.loading = true
+			this.error = ''
+			try {
+				await store.adminLogin( this.adminEmail, this.adminPassword )
+
+				// Admin login always goes to mansion dashboard, except for specific "admin" email
+				if ( this.adminEmail === 'admin' || this.adminEmail === 'admin@kagi.com' ) {
+					this.$router.push( '/admin-dashboard' )  // Only for exact "admin" email
+				} else {
+					this.$router.push( '/mansion-dashboard' )  // All other admin logins go to mansion dashboard
+				}
+			} catch ( _err ) {
+				this.error = this.$t( 'login.errors.invalidCredentials' )
+			} finally {
+				this.loading = false
+			}
 		}
-		magicLinkSent.value = true
-		setTimeout( () => {
-			magicLinkSent.value = false
-		}, 10000 )
-	} catch ( _err ) {
-		error.value = instance.proxy.$t( 'login.errors.sendFailed' )
-	} finally {
-		loading.value = false
-	}
-}
-
-const adminLogin = async () => {
-	loading.value = true
-	error.value = ''
-	try {
-		await store.adminLogin( adminEmail.value, adminPassword.value )
-
-		// Admin login always goes to mansion dashboard, except for specific "admin" email
-		if ( adminEmail.value === 'admin' || adminEmail.value === 'admin@kagi.com' ) {
-			router.push( '/admin-dashboard' )  // Only for exact "admin" email
-		} else {
-			router.push( '/mansion-dashboard' )  // All other admin logins go to mansion dashboard
-		}
-	} catch ( _err ) {
-		error.value = instance.proxy.$t( 'login.errors.invalidCredentials' )
-	} finally {
-		loading.value = false
 	}
 }
 </script>

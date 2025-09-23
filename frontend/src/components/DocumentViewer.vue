@@ -52,56 +52,60 @@
 	</div>
 </template>
 
-<script setup>
+<script>
 import DOMPurify from 'dompurify'
 import { marked } from 'marked'
-import { computed, ref } from 'vue'
 
-const props = defineProps( {
-	title: String,
-	content: String,
-	lastUpdated: String,
-	isAdmin: Boolean,
-	documentId: String
-} )
-
-const emit = defineEmits( ['close', 'save'] )
-
-const isEditing = ref( false )
-const editContent = ref( props.content || '' )
-
-// Configure marked for safe rendering
-marked.setOptions( {
-	breaks: true,
-	gfm: true
-} )
-
-const renderedContent = computed( () => {
-	const html = marked( props.content || '' )
-	return DOMPurify.sanitize( html )
-} )
-
-const previewContent = computed( () => {
-	const html = marked( editContent.value || '' )
-	return DOMPurify.sanitize( html )
-} )
-
-const startEditing = () => {
-	editContent.value = props.content || ''
-	isEditing.value = true
-}
-
-const cancelEditing = () => {
-	isEditing.value = false
-	editContent.value = props.content || ''
-}
-
-const saveDocument = () => {
-	emit( 'save', {
-		id: props.documentId,
-		content: editContent.value
-	} )
-	isEditing.value = false
+export default {
+	name: 'DocumentViewer',
+	emits: ['close', 'save'],
+	props: {
+		title: String,
+		content: String,
+		lastUpdated: String,
+		isAdmin: Boolean,
+		documentId: String
+	},
+	data() {
+		return {
+			isEditing: false,
+			editContent: this.content || ''
+		}
+	},
+	computed: {
+		renderedContent() {
+			const html = marked( this.content || '' )
+			return DOMPurify.sanitize( html )
+		},
+		previewContent() {
+			const html = marked( this.editContent || '' )
+			return DOMPurify.sanitize( html )
+		}
+	},
+	created() {
+		// Configure marked for safe rendering
+		marked.setOptions( {
+			breaks: true,
+			gfm: true
+		} )
+	},
+	methods: {
+		startEditing() {
+			this.editContent = this.content || ''
+			this.isEditing = true
+		},
+		cancelEditing() {
+			this.isEditing = false
+			this.editContent = this.content || ''
+		},
+		saveDocument() {
+			this.$emit( 'save', {
+				id: this.documentId,
+				content: this.editContent
+			} )
+			this.isEditing = false
+		}
+	}
 }
 </script>
 

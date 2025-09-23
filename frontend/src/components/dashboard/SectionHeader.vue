@@ -34,32 +34,39 @@
 	</div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-
+<script>
 import KButton from '../core/KButton.vue'
 
-const props = defineProps( {
-	// Content
-	title: {
-		type: String,
-		required: true
+export default {
+	name: 'SectionHeader',
+	components: {
+		KButton
 	},
-	subtitle: String,
-	icon: String,
+	emits: ['search'],
+	props: {
+		// Content
+		title: {
+			type: String,
+			required: true
+		},
+		subtitle: String,
+		icon: String,
 
-	// Actions
-	actions: Array, // Array of { text, variant, size, icon, handler }
-	searchable: Boolean,
-	searchPlaceholder: String
-} )
-
-const emit = defineEmits( ['search'] )
-
-const searchQuery = ref( '' )
-
-const handleSearch = () => {
-	emit( 'search', searchQuery.value )
+		// Actions
+		actions: Array, // Array of { text, variant, size, icon, handler }
+		searchable: Boolean,
+		searchPlaceholder: String
+	},
+	data() {
+		return {
+			searchQuery: ''
+		}
+	},
+	methods: {
+		handleSearch() {
+			this.$emit( 'search', this.searchQuery )
+		}
+	}
 }
 </script>
 

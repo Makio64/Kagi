@@ -8,21 +8,20 @@
 </template>
 
 <script>
-import { computed } from 'vue'
-
 import { isMenuOpen as storeIsMenuOpen } from '../../store'
 
 export default {
 	name: 'BurgerButton',
-	setup() {
-		const isMenuOpen = computed( () => storeIsMenuOpen.value )
-
-		const toggle = () => {
+	computed: {
+		isMenuOpen() {
+			return storeIsMenuOpen.value
+		}
+	},
+	methods: {
+		toggle() {
 			storeIsMenuOpen.value = !storeIsMenuOpen.value
 		}
-
-		return { isMenuOpen, toggle }
-	},
+	}
 }
 </script>
 

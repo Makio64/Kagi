@@ -400,355 +400,337 @@
 	</div>
 </template>
 
-<script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-
-const props = defineProps( {
-	facility: {
-		type: Object,
-		default: () => ( {
-			id: 'party',
-			name: 'Party Room',
-			icon: '🎉',
-			description: 'Perfect for celebrations and gatherings',
-			capacity: '20 people',
-			maxCapacity: 20,
-			price: '¥10,000/half-day',
-			priceValue: 10000,
-			amenities: 'Kitchen, Audio system, Projector',
-			bookingType: 'half-day' // 'hourly', 'half-day', 'full-day'
-		} )
-	}
-} )
-
-const emit = defineEmits( ['close', 'booking-confirmed'] )
-
-// Calendar state
-const currentDate = new Date()
-const selectedMonth = ref( currentDate.getMonth() )
-const selectedYear = ref( currentDate.getFullYear() )
-const startDate = ref( null )
-const endDate = ref( null )
-const selectedTime = ref( null )
-
-// Dropdown visibility
-const showDatePicker = ref( false )
-const showCheckinPicker = ref( false )
-const showCheckoutPicker = ref( false )
-const showTimePicker = ref( false )
-
-// Form state
-const specialNotes = ref( '' )
-const agreeToTerms = ref( false )
-const processingBooking = ref( false )
-const bookingSuccess = ref( false )
-const bookingReference = ref( '' )
-const confirmedBooking = ref( null )
-
-// Week days
-const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-
-// Computed
-const isCurrentMonth = computed( () => {
-	const now = new Date()
-	return selectedMonth.value === now.getMonth() && selectedYear.value === now.getFullYear()
-} )
-
-const currentMonthYear = computed( () => {
-	const months = [
-		'January',
-		'February',
-		'March',
-		'April',
-		'May',
-		'June',
-		'July',
-		'August',
-		'September',
-		'October',
-		'November',
-		'December'
-	]
-	return `${months[selectedMonth.value]} ${selectedYear.value}`
-} )
-
-const calendarDays = computed( () => {
-	const days = []
-	const firstDay = new Date( selectedYear.value, selectedMonth.value, 1 )
-	const lastDay = new Date( selectedYear.value, selectedMonth.value + 1, 0 )
-	const prevLastDay = new Date( selectedYear.value, selectedMonth.value, 0 )
-
-	const startPadding = firstDay.getDay()
-	const endPadding = 6 - lastDay.getDay()
-
-	// Previous month padding
-	for ( let i = startPadding - 1; i >= 0; i-- ) {
-		days.push( {
-			key: `prev-${i}`,
-			day: prevLastDay.getDate() - i,
-			otherMonth: true,
-			past: true
-		} )
-	}
-
-	// Current month days
-	const today = new Date()
-	today.setHours( 0, 0, 0, 0 )
-
-	for ( let day = 1; day <= lastDay.getDate(); day++ ) {
-		const date = new Date( selectedYear.value, selectedMonth.value, day )
-		const isToday = date.toDateString() === today.toDateString()
-		const isPast = date < today
-
-		days.push( {
-			key: `current-${day}`,
-			day,
-			date,
-			isToday,
-			past: isPast,
-			otherMonth: false,
-			unavailable: Math.random() > 0.85 // Random unavailable dates for demo
-		} )
-	}
-
-	// Next month padding
-	for ( let i = 1; i <= endPadding; i++ ) {
-		days.push( {
-			key: `next-${i}`,
-			day: i,
-			otherMonth: true,
-			past: false
-		} )
-	}
-
-	return days
-} )
-
-const timeSlots = computed( () => {
-	const slots = []
-	for ( let hour = 7; hour <= 21; hour++ ) {
-		slots.push( {
-			time: `${hour.toString().padStart( 2, '0' )}:00`,
-			booked: Math.random() > 0.7 // Random booking status for demo
-		} )
-	}
-	return slots
-} )
-
-const canBook = computed( () => {
-	const hasDate = props.facility.bookingType === 'full-day'
-		? startDate.value && endDate.value
-		: startDate.value
-
-	const hasTime = props.facility.bookingType === 'full-day' || selectedTime.value
-
-	return hasDate && hasTime && agreeToTerms.value && !processingBooking.value
-} )
-
-const calculateCost = computed( () => {
-	if ( !startDate.value ) return null
-
-	let cost = 0
-	if ( props.facility.bookingType === 'full-day' && endDate.value ) {
-		const days = Math.ceil( ( endDate.value - startDate.value ) / ( 1000 * 60 * 60 * 24 ) ) + 1
-		cost = props.facility.priceValue * days
-	} else if ( props.facility.bookingType === 'half-day' ) {
-		cost = props.facility.priceValue
-	} else if ( props.facility.bookingType === 'hourly' ) {
-		cost = props.facility.priceValue || 0
-	}
-
-	return cost > 0 ? `¥${cost.toLocaleString()}` : 'Free'
-} )
-
-// Methods
-const toggleDatePicker = ( type ) => {
-	if ( type === 'checkin' ) {
-		showCheckinPicker.value = !showCheckinPicker.value
-		showCheckoutPicker.value = false
-		showTimePicker.value = false
-	} else if ( type === 'checkout' ) {
-		showCheckoutPicker.value = !showCheckoutPicker.value
-		showCheckinPicker.value = false
-		showTimePicker.value = false
-	} else {
-		showDatePicker.value = !showDatePicker.value
-		showTimePicker.value = false
-	}
-}
-
-const toggleTimePicker = () => {
-	if ( !startDate.value ) return
-	showTimePicker.value = !showTimePicker.value
-	showDatePicker.value = false
-	showCheckinPicker.value = false
-	showCheckoutPicker.value = false
-}
-
-const changeMonth = ( direction ) => {
-	if ( direction === -1 ) {
-		if ( selectedMonth.value === 0 ) {
-			selectedMonth.value = 11
-			selectedYear.value--
-		} else {
-			selectedMonth.value--
+<script>
+export default {
+	name: 'FacilityBooking',
+	emits: ['close', 'booking-confirmed'],
+	props: {
+		facility: {
+			type: Object,
+			default: () => ( {
+				id: 'party',
+				name: 'Party Room',
+				icon: '🎉',
+				description: 'Perfect for celebrations and gatherings',
+				capacity: '20 people',
+				maxCapacity: 20,
+				price: '¥10,000/half-day',
+				priceValue: 10000,
+				amenities: 'Kitchen, Audio system, Projector',
+				bookingType: 'half-day' // 'hourly', 'half-day', 'full-day'
+			} )
 		}
-	} else {
-		if ( selectedMonth.value === 11 ) {
-			selectedMonth.value = 0
-			selectedYear.value++
-		} else {
-			selectedMonth.value++
+	},
+	data() {
+		const currentDate = new Date()
+		return {
+			// Calendar state
+			selectedMonth: currentDate.getMonth(),
+			selectedYear: currentDate.getFullYear(),
+			startDate: null,
+			endDate: null,
+			selectedTime: null,
+
+			// Dropdown visibility
+			showDatePicker: false,
+			showCheckinPicker: false,
+			showCheckoutPicker: false,
+			showTimePicker: false,
+
+			// Form state
+			specialNotes: '',
+			agreeToTerms: false,
+			processingBooking: false,
+			bookingSuccess: false,
+			bookingReference: '',
+			confirmedBooking: null,
+
+			// Week days
+			weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+		}
+	},
+	computed: {
+		isCurrentMonth() {
+			const now = new Date()
+			return this.selectedMonth === now.getMonth() && this.selectedYear === now.getFullYear()
+		},
+		currentMonthYear() {
+			const months = [
+				'January',
+				'February',
+				'March',
+				'April',
+				'May',
+				'June',
+				'July',
+				'August',
+				'September',
+				'October',
+				'November',
+				'December'
+			]
+			return `${months[this.selectedMonth]} ${this.selectedYear}`
+		},
+		calendarDays() {
+			const days = []
+			const firstDay = new Date( this.selectedYear, this.selectedMonth, 1 )
+			const lastDay = new Date( this.selectedYear, this.selectedMonth + 1, 0 )
+			const prevLastDay = new Date( this.selectedYear, this.selectedMonth, 0 )
+
+			const startPadding = firstDay.getDay()
+			const endPadding = 6 - lastDay.getDay()
+
+			// Previous month padding
+			for ( let i = startPadding - 1; i >= 0; i-- ) {
+				days.push( {
+					key: `prev-${i}`,
+					day: prevLastDay.getDate() - i,
+					otherMonth: true,
+					past: true
+				} )
+			}
+
+			// Current month days
+			const today = new Date()
+			today.setHours( 0, 0, 0, 0 )
+
+			for ( let day = 1; day <= lastDay.getDate(); day++ ) {
+				const date = new Date( this.selectedYear, this.selectedMonth, day )
+				const isToday = date.toDateString() === today.toDateString()
+				const isPast = date < today
+
+				days.push( {
+					key: `current-${day}`,
+					day,
+					date,
+					isToday,
+					past: isPast,
+					otherMonth: false,
+					unavailable: Math.random() > 0.85 // Random unavailable dates for demo
+				} )
+			}
+
+			// Next month padding
+			for ( let i = 1; i <= endPadding; i++ ) {
+				days.push( {
+					key: `next-${i}`,
+					day: i,
+					otherMonth: true,
+					past: false
+				} )
+			}
+
+			return days
+		},
+		timeSlots() {
+			const slots = []
+			for ( let hour = 7; hour <= 21; hour++ ) {
+				slots.push( {
+					time: `${hour.toString().padStart( 2, '0' )}:00`,
+					booked: Math.random() > 0.7 // Random booking status for demo
+				} )
+			}
+			return slots
+		},
+		canBook() {
+			const hasDate = this.facility.bookingType === 'full-day'
+				? this.startDate && this.endDate
+				: this.startDate
+
+			const hasTime = this.facility.bookingType === 'full-day' || this.selectedTime
+
+			return hasDate && hasTime && this.agreeToTerms && !this.processingBooking
+		},
+		calculateCost() {
+			if ( !this.startDate ) return null
+
+			let cost = 0
+			if ( this.facility.bookingType === 'full-day' && this.endDate ) {
+				const days = Math.ceil( ( this.endDate - this.startDate ) / ( 1000 * 60 * 60 * 24 ) ) + 1
+				cost = this.facility.priceValue * days
+			} else if ( this.facility.bookingType === 'half-day' ) {
+				cost = this.facility.priceValue
+			} else if ( this.facility.bookingType === 'hourly' ) {
+				cost = this.facility.priceValue || 0
+			}
+
+			return cost > 0 ? `¥${cost.toLocaleString()}` : 'Free'
+		}
+	},
+	mounted() {
+		this._handleClickOutside = this.handleClickOutside
+		document.addEventListener( 'click', this._handleClickOutside )
+	},
+	unmounted() {
+		if ( this._handleClickOutside ) {
+			document.removeEventListener( 'click', this._handleClickOutside )
+		}
+	},
+	methods: {
+		toggleDatePicker( type ) {
+			if ( type === 'checkin' ) {
+				this.showCheckinPicker = !this.showCheckinPicker
+				this.showCheckoutPicker = false
+				this.showTimePicker = false
+			} else if ( type === 'checkout' ) {
+				this.showCheckoutPicker = !this.showCheckoutPicker
+				this.showCheckinPicker = false
+				this.showTimePicker = false
+			} else {
+				this.showDatePicker = !this.showDatePicker
+				this.showTimePicker = false
+			}
+		},
+		toggleTimePicker() {
+			if ( !this.startDate ) return
+			this.showTimePicker = !this.showTimePicker
+			this.showDatePicker = false
+			this.showCheckinPicker = false
+			this.showCheckoutPicker = false
+		},
+		changeMonth( direction ) {
+			if ( direction === -1 ) {
+				if ( this.selectedMonth === 0 ) {
+					this.selectedMonth = 11
+					this.selectedYear--
+				} else {
+					this.selectedMonth--
+				}
+			} else {
+				if ( this.selectedMonth === 11 ) {
+					this.selectedMonth = 0
+					this.selectedYear++
+				} else {
+					this.selectedMonth++
+				}
+			}
+		},
+		isDateSelected( date, type ) {
+			if ( !date.date ) return false
+
+			if ( type === 'checkin' ) {
+				return this.startDate && date.date.toDateString() === this.startDate.toDateString()
+			} else if ( type === 'checkout' ) {
+				return this.endDate && date.date.toDateString() === this.endDate.toDateString()
+			} else {
+				return this.startDate && date.date.toDateString() === this.startDate.toDateString()
+			}
+		},
+		selectSingleDate( date ) {
+			if ( date.otherMonth || date.unavailable || date.past ) return
+			this.startDate = date.date
+			this.endDate = date.date
+			this.showDatePicker = false
+		},
+		selectCheckinDate( date ) {
+			if ( date.otherMonth || date.unavailable || date.past ) return
+			this.startDate = date.date
+			this.endDate = null
+			this.showCheckinPicker = false
+		},
+		selectCheckoutDate( date ) {
+			if ( date.otherMonth || date.unavailable || date.past ) return
+			if ( this.startDate && date.date <= this.startDate ) return
+			this.endDate = date.date
+			this.showCheckoutPicker = false
+		},
+		selectHalfDay( period ) {
+			this.selectedTime = period
+			this.showTimePicker = false
+		},
+		selectTimeSlot( slot ) {
+			if ( slot.booked ) return
+			this.selectedTime = slot.time
+			this.showTimePicker = false
+		},
+		getTimeDisplayText() {
+			if ( !this.startDate ) return 'Select date first'
+
+			if ( this.selectedTime ) {
+				if ( this.facility.bookingType === 'half-day' ) {
+					return this.selectedTime === 'morning'
+						? 'Morning (9:00 AM - 1:00 PM)'
+						: 'Afternoon (2:00 PM - 6:00 PM)'
+				}
+				return this.selectedTime
+			}
+
+			return 'Select time'
+		},
+		getBookingDateDisplay() {
+			if ( this.facility.bookingType === 'full-day' && this.startDate && this.endDate ) {
+				return `${this.formatDate( this.startDate )} - ${this.formatDate( this.endDate )}`
+			}
+			return this.startDate ? this.formatDate( this.startDate ) : ''
+		},
+		getBookingTimeDisplay() {
+			if ( this.facility.bookingType === 'half-day' ) {
+				return this.selectedTime === 'morning'
+					? 'Morning (9:00 AM - 1:00 PM)'
+					: 'Afternoon (2:00 PM - 6:00 PM)'
+			}
+			return this.selectedTime || ''
+		},
+		formatDate( date ) {
+			if ( !date ) return ''
+			return date.toLocaleDateString( 'en-US', {
+				month: 'short',
+				day: 'numeric',
+				year: 'numeric'
+			} )
+		},
+		async confirmBooking() {
+			this.processingBooking = true
+			await new Promise( resolve => setTimeout( resolve, 2000 ) )
+
+			this.confirmedBooking = {
+				facility: this.facility.name,
+				startDate: this.startDate,
+				endDate: this.endDate,
+				time: this.selectedTime
+			}
+
+			this.processingBooking = false
+			this.bookingSuccess = true
+			this.bookingReference = `BK${Date.now().toString().slice( -8 )}`
+
+			// Emit event for parent to handle
+			this.$emit( 'booking-confirmed', {
+				id: Date.now(),
+				facility: this.facility.name,
+				startDate: this.startDate,
+				endDate: this.endDate,
+				time: this.selectedTime,
+				specialNotes: this.specialNotes,
+				reference: this.bookingReference
+			} )
+		},
+		resetBooking() {
+			this.bookingSuccess = false
+			this.bookingReference = ''
+			this.startDate = null
+			this.endDate = null
+			this.selectedTime = null
+			this.specialNotes = ''
+			this.agreeToTerms = false
+			this.confirmedBooking = null
+		},
+		addToCalendar() {
+			alert( 'Calendar integration coming soon!' )
+		},
+		handleClickOutside( event ) {
+			const isDateButton = event.target.closest( '.picker-button' )
+			const isDropdown = event.target.closest( '.picker-dropdown' )
+
+			if ( !isDateButton && !isDropdown ) {
+				this.showDatePicker = false
+				this.showCheckinPicker = false
+				this.showCheckoutPicker = false
+				this.showTimePicker = false
+			}
 		}
 	}
 }
-
-const isDateSelected = ( date, type ) => {
-	if ( !date.date ) return false
-
-	if ( type === 'checkin' ) {
-		return startDate.value && date.date.toDateString() === startDate.value.toDateString()
-	} else if ( type === 'checkout' ) {
-		return endDate.value && date.date.toDateString() === endDate.value.toDateString()
-	} else {
-		return startDate.value && date.date.toDateString() === startDate.value.toDateString()
-	}
-}
-
-const selectSingleDate = ( date ) => {
-	if ( date.otherMonth || date.unavailable || date.past ) return
-	startDate.value = date.date
-	endDate.value = date.date
-	showDatePicker.value = false
-}
-
-const selectCheckinDate = ( date ) => {
-	if ( date.otherMonth || date.unavailable || date.past ) return
-	startDate.value = date.date
-	endDate.value = null
-	showCheckinPicker.value = false
-}
-
-const selectCheckoutDate = ( date ) => {
-	if ( date.otherMonth || date.unavailable || date.past ) return
-	if ( startDate.value && date.date <= startDate.value ) return
-	endDate.value = date.date
-	showCheckoutPicker.value = false
-}
-
-const selectHalfDay = ( period ) => {
-	selectedTime.value = period
-	showTimePicker.value = false
-}
-
-const selectTimeSlot = ( slot ) => {
-	if ( slot.booked ) return
-	selectedTime.value = slot.time
-	showTimePicker.value = false
-}
-
-const getTimeDisplayText = () => {
-	if ( !startDate.value ) return 'Select date first'
-
-	if ( selectedTime.value ) {
-		if ( props.facility.bookingType === 'half-day' ) {
-			return selectedTime.value === 'morning'
-				? 'Morning (9:00 AM - 1:00 PM)'
-				: 'Afternoon (2:00 PM - 6:00 PM)'
-		}
-		return selectedTime.value
-	}
-
-	return 'Select time'
-}
-
-const getBookingDateDisplay = () => {
-	if ( props.facility.bookingType === 'full-day' && startDate.value && endDate.value ) {
-		return `${formatDate( startDate.value )} - ${formatDate( endDate.value )}`
-	}
-	return startDate.value ? formatDate( startDate.value ) : ''
-}
-
-const getBookingTimeDisplay = () => {
-	if ( props.facility.bookingType === 'half-day' ) {
-		return selectedTime.value === 'morning'
-			? 'Morning (9:00 AM - 1:00 PM)'
-			: 'Afternoon (2:00 PM - 6:00 PM)'
-	}
-	return selectedTime.value || ''
-}
-
-const formatDate = ( date ) => {
-	if ( !date ) return ''
-	return date.toLocaleDateString( 'en-US', {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	} )
-}
-
-const confirmBooking = async () => {
-	processingBooking.value = true
-	await new Promise( resolve => setTimeout( resolve, 2000 ) )
-
-	confirmedBooking.value = {
-		facility: props.facility.name,
-		startDate: startDate.value,
-		endDate: endDate.value,
-		time: selectedTime.value
-	}
-
-	processingBooking.value = false
-	bookingSuccess.value = true
-	bookingReference.value = `BK${Date.now().toString().slice( -8 )}`
-
-	// Emit event for parent to handle
-	emit( 'booking-confirmed', {
-		id: Date.now(),
-		facility: props.facility.name,
-		startDate: startDate.value,
-		endDate: endDate.value,
-		time: selectedTime.value,
-		specialNotes: specialNotes.value,
-		reference: bookingReference.value
-	} )
-}
-
-const resetBooking = () => {
-	bookingSuccess.value = false
-	bookingReference.value = ''
-	startDate.value = null
-	endDate.value = null
-	selectedTime.value = null
-	specialNotes.value = ''
-	agreeToTerms.value = false
-	confirmedBooking.value = null
-}
-
-const addToCalendar = () => {
-	alert( 'Calendar integration coming soon!' )
-}
-
-// Click outside to close dropdowns
-const handleClickOutside = ( event ) => {
-	const isDateButton = event.target.closest( '.picker-button' )
-	const isDropdown = event.target.closest( '.picker-dropdown' )
-
-	if ( !isDateButton && !isDropdown ) {
-		showDatePicker.value = false
-		showCheckinPicker.value = false
-		showCheckoutPicker.value = false
-		showTimePicker.value = false
-	}
-}
-
-onMounted( () => {
-	document.addEventListener( 'click', handleClickOutside )
-} )
-
-onUnmounted( () => {
-	document.removeEventListener( 'click', handleClickOutside )
-} )
 </script>
 
 <style lang="stylus" scoped>

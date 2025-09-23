@@ -34,30 +34,30 @@
 	</div>
 </template>
 
-<script setup>
-import { getCurrentInstance } from 'vue'
-
-const props = defineProps( {
-	icon: String,
-	image: String,
-	title: String,
-	description: String,
-	info: String,
-	to: String,
-	clickable: Boolean,
-	active: Boolean,
-	actions: Array,
-	badge: Object
-} )
-
-const emit = defineEmits( ['click'] )
-const instance = getCurrentInstance()
-
-const handleClick = () => {
-	if ( props.to ) {
-		instance?.proxy.$router.push( props.to )
-	} else if ( props.clickable ) {
-		emit( 'click' )
+<script>
+export default {
+	name: 'DashboardCard',
+	emits: ['click'],
+	props: {
+		icon: String,
+		image: String,
+		title: String,
+		description: String,
+		info: String,
+		to: String,
+		clickable: Boolean,
+		active: Boolean,
+		actions: Array,
+		badge: Object
+	},
+	methods: {
+		handleClick() {
+			if ( this.to ) {
+				this.$router.push( this.to )
+			} else if ( this.clickable ) {
+				this.$emit( 'click' )
+			}
+		}
 	}
 }
 </script>

@@ -19,17 +19,20 @@
 	</svg>
 </template>
 
-<script setup>
-defineProps( {
-	size: {
-		type: [Number, String],
-		default: 80
-	},
-	color: {
-		type: String,
-		default: '#FFC107'
+<script>
+export default {
+	name: 'KagiLogo',
+	props: {
+		size: {
+			type: [Number, String],
+			default: 80
+		},
+		color: {
+			type: String,
+			default: '#FFC107'
+		}
 	}
-} )
+}
 </script>
 
 <style lang="stylus" scoped>

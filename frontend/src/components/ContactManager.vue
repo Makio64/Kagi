@@ -143,141 +143,138 @@
 	</div>
 </template>
 
-<script setup>
-import { nextTick, ref } from 'vue'
-
-defineEmits( ['close'] )
-
-const activeTab = ref( 'message' )
-const sending = ref( false )
-const messageSent = ref( false )
-const aiTyping = ref( false )
-const chatContainer = ref( null )
-
-const messageForm = ref( {
-	subject: '',
-	category: '',
-	message: ''
-} )
-
-const aiInput = ref( '' )
-const chatMessages = ref( [
-	{
-		id: 1,
-		type: 'ai',
-		text: 'Hello! I\'m your AI building assistant. I can help you with questions about building rules, facility bookings, maintenance procedures, and more. What would you like to know?',
-		timestamp: new Date()
-	}
-] )
-
-const messageHistory = ref( [
-	{
-		id: 1,
-		subject: 'Gym access hours inquiry',
-		preview: 'I wanted to know if the gym hours could be extended...',
-		date: new Date( '2024-01-15' ),
-		status: 'responded'
+<script>
+export default {
+	name: 'ContactManager',
+	emits: ['close'],
+	data() {
+		return {
+			activeTab: 'message',
+			sending: false,
+			messageSent: false,
+			aiTyping: false,
+			messageForm: {
+				subject: '',
+				category: '',
+				message: ''
+			},
+			aiInput: '',
+			chatMessages: [
+				{
+					id: 1,
+					type: 'ai',
+					text: 'Hello! I\'m your AI building assistant. I can help you with questions about building rules, facility bookings, maintenance procedures, and more. What would you like to know?',
+					timestamp: new Date()
+				}
+			],
+			messageHistory: [
+				{
+					id: 1,
+					subject: 'Gym access hours inquiry',
+					preview: 'I wanted to know if the gym hours could be extended...',
+					date: new Date( '2024-01-15' ),
+					status: 'responded'
+				},
+				{
+					id: 2,
+					subject: 'Noise complaint - Unit 405',
+					preview: 'There has been excessive noise coming from unit 405...',
+					date: new Date( '2024-01-10' ),
+					status: 'closed'
+				}
+			]
+		}
 	},
-	{
-		id: 2,
-		subject: 'Noise complaint - Unit 405',
-		preview: 'There has been excessive noise coming from unit 405...',
-		date: new Date( '2024-01-10' ),
-		status: 'closed'
-	}
-] )
+	methods: {
+		async sendMessage() {
+			this.sending = true
+			// Simulate API call
+			await new Promise( resolve => setTimeout( resolve, 1500 ) )
+			this.sending = false
+			this.messageSent = true
 
-const sendMessage = async () => {
-	sending.value = true
-	// Simulate API call
-	await new Promise( resolve => setTimeout( resolve, 1500 ) )
-	sending.value = false
-	messageSent.value = true
-	
-	// Reset form
-	messageForm.value = {
-		subject: '',
-		category: '',
-		message: ''
-	}
-	
-	// Hide success message after 5 seconds
-	setTimeout( () => {
-		messageSent.value = false
-	}, 5000 )
-}
+			// Reset form
+			this.messageForm = {
+				subject: '',
+				category: '',
+				message: ''
+			}
 
-const sendAIMessage = async () => {
-	if ( !aiInput.value.trim() || aiTyping.value ) return
-	
-	const userMessage = {
-		id: Date.now(),
-		type: 'user',
-		text: aiInput.value,
-		timestamp: new Date()
-	}
-	
-	chatMessages.value.push( userMessage )
-	const question = aiInput.value
-	aiInput.value = ''
-	aiTyping.value = true
-	
-	// Scroll to bottom
-	await nextTick()
-	if ( chatContainer.value ) {
-		chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-	}
-	
-	// Simulate AI response
-	await new Promise( resolve => setTimeout( resolve, 1500 ) )
-	
-	const aiResponse = {
-		id: Date.now() + 1,
-		type: 'ai',
-		text: getAIResponse( question ),
-		timestamp: new Date()
-	}
-	
-	chatMessages.value.push( aiResponse )
-	aiTyping.value = false
-	
-	// Scroll to bottom
-	await nextTick()
-	if ( chatContainer.value ) {
-		chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-	}
-}
+			// Hide success message after 5 seconds
+			setTimeout( () => {
+				this.messageSent = false
+			}, 5000 )
+		},
+		async sendAIMessage() {
+			if ( !this.aiInput.trim() || this.aiTyping ) return
 
-const getAIResponse = ( question ) => {
-	// Simple mock responses
-	const lowercaseQ = question.toLowerCase()
-	
-	if ( lowercaseQ.includes( 'gym' ) || lowercaseQ.includes( 'fitness' ) ) {
-		return 'The fitness gym is open daily from 6:00 AM to 10:00 PM. It\'s located on the 2nd floor. You can book time slots through the Facility Booking section in your dashboard. The gym is free to use for all residents.'
-	} else if ( lowercaseQ.includes( 'parking' ) ) {
-		return 'Parking spaces are assigned to each unit. Guest parking is available on B1 level for up to 24 hours. For long-term guest parking, please contact the building manager. Monthly parking fees are included in your management fee.'
-	} else if ( lowercaseQ.includes( 'noise' ) || lowercaseQ.includes( 'quiet' ) ) {
-		return 'Quiet hours are from 10:00 PM to 7:00 AM. During these hours, please keep noise to a minimum. If you experience noise issues, you can file a complaint through the Contact Manager or speak directly with building management.'
-	} else if ( lowercaseQ.includes( 'maintenance' ) ) {
-		return 'For maintenance requests, please use the Maintenance section in your dashboard. Emergency maintenance is available 24/7 by calling 0120-123-456. Regular maintenance requests are typically addressed within 48 hours.'
-	} else {
-		return 'I can help you with various building-related inquiries including facilities, rules, maintenance, and general information. Could you please be more specific about what you\'d like to know?'
+			const userMessage = {
+				id: Date.now(),
+				type: 'user',
+				text: this.aiInput,
+				timestamp: new Date()
+			}
+
+			this.chatMessages.push( userMessage )
+			const question = this.aiInput
+			this.aiInput = ''
+			this.aiTyping = true
+
+			// Scroll to bottom
+			await this.$nextTick()
+			if ( this.$refs.chatContainer ) {
+				this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight
+			}
+
+			// Simulate AI response
+			await new Promise( resolve => setTimeout( resolve, 1500 ) )
+
+			const aiResponse = {
+				id: Date.now() + 1,
+				type: 'ai',
+				text: this.getAIResponse( question ),
+				timestamp: new Date()
+			}
+
+			this.chatMessages.push( aiResponse )
+			this.aiTyping = false
+
+			// Scroll to bottom
+			await this.$nextTick()
+			if ( this.$refs.chatContainer ) {
+				this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight
+			}
+		},
+		getAIResponse( question ) {
+			// Simple mock responses
+			const lowercaseQ = question.toLowerCase()
+
+			if ( lowercaseQ.includes( 'gym' ) || lowercaseQ.includes( 'fitness' ) ) {
+				return 'The fitness gym is open daily from 6:00 AM to 10:00 PM. It\'s located on the 2nd floor. You can book time slots through the Facility Booking section in your dashboard. The gym is free to use for all residents.'
+			} else if ( lowercaseQ.includes( 'parking' ) ) {
+				return 'Parking spaces are assigned to each unit. Guest parking is available on B1 level for up to 24 hours. For long-term guest parking, please contact the building manager. Monthly parking fees are included in your management fee.'
+			} else if ( lowercaseQ.includes( 'noise' ) || lowercaseQ.includes( 'quiet' ) ) {
+				return 'Quiet hours are from 10:00 PM to 7:00 AM. During these hours, please keep noise to a minimum. If you experience noise issues, you can file a complaint through the Contact Manager or speak directly with building management.'
+			} else if ( lowercaseQ.includes( 'maintenance' ) ) {
+				return 'For maintenance requests, please use the Maintenance section in your dashboard. Emergency maintenance is available 24/7 by calling 0120-123-456. Regular maintenance requests are typically addressed within 48 hours.'
+			} else {
+				return 'I can help you with various building-related inquiries including facilities, rules, maintenance, and general information. Could you please be more specific about what you\'d like to know?'
+			}
+		},
+		formatTime( date ) {
+			return new Intl.DateTimeFormat( 'en-US', {
+				hour: '2-digit',
+				minute: '2-digit'
+			} ).format( date )
+		},
+		formatDate( date ) {
+			return new Intl.DateTimeFormat( 'en-US', {
+				month: 'short',
+				day: 'numeric',
+				year: 'numeric'
+			} ).format( date )
+		}
 	}
-}
-
-const formatTime = ( date ) => {
-	return new Intl.DateTimeFormat( 'en-US', {
-		hour: '2-digit',
-		minute: '2-digit'
-	} ).format( date )
-}
-
-const formatDate = ( date ) => {
-	return new Intl.DateTimeFormat( 'en-US', {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	} ).format( date )
 }
 </script>
 
