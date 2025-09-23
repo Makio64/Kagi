@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BillDetails: typeof import('./src/components/BillDetails.vue')['default']
+    BookingsSection: typeof import('./src/components/sections/BookingsSection.vue')['default']
     BurgerButton: typeof import('./src/components/ui/BurgerButton.vue')['default']
     ButtonFX: typeof import('./src/components/ui/ButtonFX.vue')['default']
     ContactManager: typeof import('./src/components/ContactManager.vue')['default']
@@ -17,6 +18,7 @@ declare module 'vue' {
     DashboardHeader: typeof import('./src/components/layout/DashboardHeader.vue')['default']
     DashboardLayout: typeof import('./src/components/layout/DashboardLayout.vue')['default']
     DashboardSidebar: typeof import('./src/components/layout/DashboardSidebar.vue')['default']
+    DesktopMenu: typeof import('./src/components/navigation/DesktopMenu.vue')['default']
     DocumentViewer: typeof import('./src/components/DocumentViewer.vue')['default']
     EmailPopup: typeof import('./src/components/EmailPopup.vue')['default']
     EmergencyContacts: typeof import('./src/components/EmergencyContacts.vue')['default']
@@ -37,6 +39,9 @@ declare module 'vue' {
     KTextarea: typeof import('./src/components/form/KTextarea.vue')['default']
     KToast: typeof import('./src/components/core/KToast.vue')['default']
     LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
+    MaintenanceSection: typeof import('./src/components/sections/MaintenanceSection.vue')['default']
+    MobileMenu: typeof import('./src/components/navigation/MobileMenu.vue')['default']
+    ProfileSection: typeof import('./src/components/sections/ProfileSection.vue')['default']
     ProgressBar: typeof import('./src/components/ui/ProgressBar.vue')['default']
     SectionHeader: typeof import('./src/components/dashboard/SectionHeader.vue')['default']
     Spinner: typeof import('./src/components/ui/Spinner.vue')['default']
