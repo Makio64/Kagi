@@ -1,12 +1,12 @@
 <template>
 	<div class="document-viewer">
-		<button class="back-btn" :title="$t('common.back') || 'Back'" @click="$emit('close')">
+		<button class="back-btn" :title="$t('common.back')" @click="$emit('close')">
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 				<path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 			</svg>
 		</button>
-		<button class="close-btn" :title="$t('common.close') || 'Close'" @click="$emit('close')">
+		<button class="close-btn" :title="$t('common.close')" @click="$emit('close')">
 			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 				<path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -15,16 +15,16 @@
 
 		<div v-if="isAdmin && !isEditing" class="admin-bar">
 			<button class="edit-btn" @click="startEditing">
-				✏️ {{ $t('common.edit') || 'Edit' }}
+				✏️ {{ $t('common.edit') }}
 			</button>
 		</div>
 
 		<div v-if="isAdmin && isEditing" class="admin-bar editing">
 			<button class="save-btn" @click="saveDocument">
-				💾 {{ $t('common.save') || 'Save' }}
+				💾 {{ $t('common.save') }}
 			</button>
 			<button class="cancel-btn" @click="cancelEditing">
-				{{ $t('common.cancel') || 'Cancel' }}
+				{{ $t('common.cancel') }}
 			</button>
 		</div>
 
@@ -37,7 +37,7 @@
 
 		<div v-else class="editor-container">
 			<div class="editor-panel">
-				<h3>{{ $t('common.editor') || 'Editor' }}</h3>
+				<h3>{{ $t('common.editor') }}</h3>
 				<textarea
 					v-model="editContent"
 					class="markdown-editor"
@@ -45,7 +45,7 @@
 				/>
 			</div>
 			<div class="preview-panel">
-				<h3>{{ $t('common.preview') || 'Preview' }}</h3>
+				<h3>{{ $t('common.preview') }}</h3>
 				<div class="markdown-body" v-html="previewContent" />
 			</div>
 		</div>

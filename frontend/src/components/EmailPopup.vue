@@ -2,7 +2,7 @@
 	<div v-if="show" class="email-popup-overlay" @click.self="close">
 		<div class="email-popup">
 			<div class="email-header">
-				<h3>📧 {{ $t('login.resident.success.title') || 'Magic Link Email' }}</h3>
+				<h3>📧 {{ $t('login.resident.success.title') }}</h3>
 				<button class="close-btn" @click="close">✕</button>
 			</div>
 			<div class="email-body">

@@ -2,7 +2,7 @@
 	<div class="contact-manager">
 		<div class="manager-header">
 			<button class="back-btn" @click="$emit('close')">
-				← {{ $t('common.back') || 'Back' }}
+				← {{ $t('common.back') }}
 			</button>
 			<h2>{{ $t('dashboard.contact.manager.title') }}</h2>
 		</div>
@@ -12,19 +12,19 @@
 				:class="['tab', { active: activeTab === 'message' }]"
 				@click="activeTab = 'message'"
 			>
-				✉️ {{ $t('contact.sendMessage') || 'Send Message' }}
+				✉️ {{ $t('contact.sendMessage') }}
 			</button>
 			<button
 				:class="['tab', { active: activeTab === 'ai' }]"
 				@click="activeTab = 'ai'"
 			>
-				🤖 {{ $t('contact.aiAssistant') || 'AI Assistant' }}
+				🤖 {{ $t('contact.aiAssistant') }}
 			</button>
 			<button
 				:class="['tab', { active: activeTab === 'history' }]"
 				@click="activeTab = 'history'"
 			>
-				📋 {{ $t('contact.history') || 'Message History' }}
+				📋 {{ $t('contact.history') }}
 			</button>
 		</div>
 
@@ -32,48 +32,48 @@
 		<div v-if="activeTab === 'message'" class="tab-content">
 			<form class="message-form" @submit.prevent="sendMessage">
 				<div class="form-group">
-					<label>{{ $t('contact.subject') || 'Subject' }}</label>
+					<label>{{ $t('contact.subject') }}</label>
 					<input
 						v-model="messageForm.subject"
 						type="text"
-						:placeholder="$t('contact.subjectPlaceholder') || 'Brief description of your inquiry'"
+						:placeholder="$t('contact.subjectPlaceholder')"
 						required
 					>
 				</div>
 
 				<div class="form-group">
-					<label>{{ $t('contact.category') || 'Category' }}</label>
+					<label>{{ $t('contact.category') }}</label>
 					<select v-model="messageForm.category" required>
-						<option value="">{{ $t('contact.selectCategory') || 'Select a category' }}</option>
-						<option value="general">{{ $t('contact.general') || 'General Inquiry' }}</option>
-						<option value="maintenance">{{ $t('contact.maintenance') || 'Maintenance' }}</option>
-						<option value="complaint">{{ $t('contact.complaint') || 'Complaint' }}</option>
-						<option value="suggestion">{{ $t('contact.suggestion') || 'Suggestion' }}</option>
+						<option value="">{{ $t('contact.selectCategory') }}</option>
+						<option value="general">{{ $t('contact.general') }}</option>
+						<option value="maintenance">{{ $t('contact.maintenance') }}</option>
+						<option value="complaint">{{ $t('contact.complaint') }}</option>
+						<option value="suggestion">{{ $t('contact.suggestion') }}</option>
 					</select>
 				</div>
 
 				<div class="form-group">
-					<label>{{ $t('contact.message') || 'Message' }}</label>
+					<label>{{ $t('contact.message') }}</label>
 					<textarea
 						v-model="messageForm.message"
 						rows="8"
-						:placeholder="$t('contact.messagePlaceholder') || 'Please describe your inquiry in detail'"
+						:placeholder="$t('contact.messagePlaceholder')"
 						required
 					/>
 				</div>
 
 				<div class="form-actions">
 					<button type="submit" class="submit-btn" :disabled="sending">
-						<span v-if="sending">{{ $t('contact.sending') || 'Sending...' }}</span>
-						<span v-else>{{ $t('contact.send') || 'Send Message' }}</span>
+						<span v-if="sending">{{ $t('contact.sending') }}</span>
+						<span v-else>{{ $t('contact.send') }}</span>
 					</button>
 				</div>
 			</form>
 
 			<div v-if="messageSent" class="success-message">
 				<div class="success-icon">✅</div>
-				<h3>{{ $t('contact.success.title') || 'Message Sent Successfully!' }}</h3>
-				<p>{{ $t('contact.success.description') || 'Thank you for contacting us. We\'ll respond to your inquiry within 24 hours.' }}</p>
+				<h3>{{ $t('contact.success.title') }}</h3>
+				<p>{{ $t('contact.success.description') }}</p>
 			</div>
 		</div>
 
@@ -82,8 +82,8 @@
 			<div class="ai-chat">
 				<div class="chat-intro">
 					<div class="ai-avatar">🤖</div>
-					<h3>{{ $t('ai.welcome') || 'AI Building Assistant' }}</h3>
-					<p>{{ $t('ai.description') || 'I can help you with building rules, facilities information, and general inquiries. How can I assist you today?' }}</p>
+					<h3>{{ $t('ai.welcome') }}</h3>
+					<p>{{ $t('ai.description') }}</p>
 				</div>
 
 				<div ref="chatContainer" class="chat-messages">
@@ -110,11 +110,11 @@
 					<input
 						v-model="aiInput"
 						type="text"
-						:placeholder="$t('ai.inputPlaceholder') || 'Type your question...'"
+						:placeholder="$t('ai.inputPlaceholder')"
 						:disabled="aiTyping"
 					>
 					<button type="submit" :disabled="!aiInput.trim() || aiTyping">
-						<span>{{ $t('ai.send') || 'Send' }}</span>
+						<span>{{ $t('ai.send') }}</span>
 					</button>
 				</form>
 			</div>
@@ -130,13 +130,13 @@
 					</div>
 					<div class="history-preview">{{ item.preview }}</div>
 					<div class="history-status" :class="item.status">
-						<span v-if="item.status === 'responded'">✓ {{ $t('contact.responded') || 'Responded' }}</span>
-						<span v-else-if="item.status === 'pending'">⏳ {{ $t('contact.pending') || 'Pending' }}</span>
-						<span v-else>📋 {{ $t('contact.closed') || 'Closed' }}</span>
+						<span v-if="item.status === 'responded'">✓ {{ $t('contact.responded') }}</span>
+						<span v-else-if="item.status === 'pending'">⏳ {{ $t('contact.pending') }}</span>
+						<span v-else>📋 {{ $t('contact.closed') }}</span>
 					</div>
 				</div>
 				<div v-if="messageHistory.length === 0" class="no-history">
-					<p>{{ $t('contact.noHistory') || 'No message history yet' }}</p>
+					<p>{{ $t('contact.noHistory') }}</p>
 				</div>
 			</div>
 		</div>

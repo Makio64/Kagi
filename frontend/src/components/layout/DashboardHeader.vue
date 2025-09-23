@@ -22,7 +22,7 @@
 		<transition name="slide">
 			<div v-if="showMobileMenu" class="mobile-settings-menu">
 				<div class="mobile-menu-header">
-					<h3>{{ $t('common.settings') || 'Settings' }}</h3>
+					<h3>{{ $t('common.settings') }}</h3>
 					<button class="close-menu-btn" @click="showMobileMenu = false">✕</button>
 				</div>
 				<div class="mobile-menu-content">
@@ -34,7 +34,7 @@
 						<LanguageSwitcher />
 					</div>
 					<button class="mobile-logout-btn" @click="handleLogout">
-						{{ $t('nav.logout') || 'Logout' }}
+						{{ $t('nav.logout') }}
 					</button>
 				</div>
 			</div>

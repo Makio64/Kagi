@@ -2,9 +2,9 @@
 	<div class="bill-details">
 		<div class="details-header">
 			<button class="back-btn" @click="$emit('close')">
-				← {{ $t('common.back') || 'Back' }}
+				← {{ $t('common.back') }}
 			</button>
-			<h2>💳 {{ $t('dashboard.bills.details') || 'Bill Details' }}</h2>
+			<h2>💳 {{ $t('dashboard.bills.details') }}</h2>
 		</div>
 
 		<div class="details-content">
@@ -14,35 +14,35 @@
 					<span class="bill-icon">{{ bill.icon }}</span>
 					<h3>{{ bill.title }}</h3>
 				</div>
-				
+
 				<div class="amount-section">
-					<div class="amount-label">{{ $t('bills.totalAmount') || 'Total Amount' }}</div>
+					<div class="amount-label">{{ $t('bills.totalAmount') }}</div>
 					<div class="amount-value">{{ bill.amount }}</div>
 				</div>
 
 				<div class="status-badge" :class="bill.status">
-					{{ bill.status === 'paid' ? ($t('dashboard.bills.paid') || '✓ Paid') : ($t('bills.unpaid') || 'Unpaid') }}
+					{{ bill.status === 'paid' ? ($t('dashboard.bills.paid')) : ($t('bills.unpaid')) }}
 				</div>
 			</div>
 
 			<!-- Billing Information -->
 			<div class="info-section">
-				<h3>📋 {{ $t('bills.billingInfo') || 'Billing Information' }}</h3>
+				<h3>📋 {{ $t('bills.billingInfo') }}</h3>
 				<div class="info-grid">
 					<div class="info-item">
-						<span class="label">{{ $t('bills.billNumber') || 'Bill Number' }}:</span>
+						<span class="label">{{ $t('bills.billNumber') }}:</span>
 						<span class="value">{{ bill.billNumber || '#2024-12-001' }}</span>
 					</div>
 					<div class="info-item">
-						<span class="label">{{ $t('bills.issueDate') || 'Issue Date' }}:</span>
+						<span class="label">{{ $t('bills.issueDate') }}:</span>
 						<span class="value">{{ bill.issueDate || '2024/12/01' }}</span>
 					</div>
 					<div class="info-item">
-						<span class="label">{{ $t('bills.dueDate') || 'Due Date' }}:</span>
+						<span class="label">{{ $t('bills.dueDate') }}:</span>
 						<span class="value" :class="{ 'text-red': !bill.paid }">{{ bill.dueDate || '2024/12/31' }}</span>
 					</div>
 					<div class="info-item">
-						<span class="label">{{ $t('bills.period') || 'Billing Period' }}:</span>
+						<span class="label">{{ $t('bills.period') }}:</span>
 						<span class="value">{{ bill.period || 'December 2024' }}</span>
 					</div>
 				</div>
@@ -50,14 +50,14 @@
 
 			<!-- Breakdown -->
 			<div class="breakdown-section">
-				<h3>💰 {{ $t('bills.breakdown') || 'Cost Breakdown' }}</h3>
+				<h3>💰 {{ $t('bills.breakdown') }}</h3>
 				<div class="breakdown-list">
 					<div v-for="item in breakdown" :key="item.name" class="breakdown-item">
 						<span class="item-name">{{ item.name }}</span>
 						<span class="item-amount">{{ item.amount }}</span>
 					</div>
 					<div class="breakdown-total">
-						<span class="total-label">{{ $t('bills.total') || 'Total' }}</span>
+						<span class="total-label">{{ $t('bills.total') }}</span>
 						<span class="total-amount">{{ bill.amount }}</span>
 					</div>
 				</div>
@@ -65,10 +65,10 @@
 
 			<!-- Payment Methods -->
 			<div v-if="!bill.paid" class="payment-section">
-				<h3>💳 {{ $t('bills.paymentMethod') || 'Payment Method' }}</h3>
+				<h3>💳 {{ $t('bills.paymentMethod') }}</h3>
 				<div class="payment-methods">
-					<button 
-						v-for="method in paymentMethods" 
+					<button
+						v-for="method in paymentMethods"
 						:key="method.id"
 						:class="['payment-method', { selected: selectedMethod === method.id }]"
 						@click="selectedMethod = method.id"
@@ -79,41 +79,41 @@
 				</div>
 
 				<div v-if="selectedMethod === 'bank'" class="bank-info">
-					<h4>{{ $t('bills.bankTransferInfo') || 'Bank Transfer Information' }}</h4>
+					<h4>{{ $t('bills.bankTransferInfo') }}</h4>
 					<div class="bank-details">
 						<div class="bank-item">
-							<span class="label">{{ $t('bills.bankName') || 'Bank' }}:</span>
+							<span class="label">{{ $t('bills.bankName') }}:</span>
 							<span class="value">Mizuho Bank</span>
 						</div>
 						<div class="bank-item">
-							<span class="label">{{ $t('bills.branchName') || 'Branch' }}:</span>
+							<span class="label">{{ $t('bills.branchName') }}:</span>
 							<span class="value">Shibuya Branch (246)</span>
 						</div>
 						<div class="bank-item">
-							<span class="label">{{ $t('bills.accountNumber') || 'Account' }}:</span>
+							<span class="label">{{ $t('bills.accountNumber') }}:</span>
 							<span class="value">1234567</span>
 						</div>
 						<div class="bank-item">
-							<span class="label">{{ $t('bills.accountName') || 'Name' }}:</span>
+							<span class="label">{{ $t('bills.accountName') }}:</span>
 							<span class="value">Building Management Co.</span>
 						</div>
 					</div>
 				</div>
 
 				<button class="pay-now-btn" @click="processPayment">
-					{{ processingPayment ? ($t('bills.processing') || 'Processing...') : ($t('dashboard.bills.payNow') || 'Pay Now') }}
+					{{ processingPayment ? ($t('bills.processing')) : ($t('dashboard.bills.payNow')) }}
 				</button>
 			</div>
 
 			<!-- Payment History -->
 			<div v-if="bill.paid" class="history-section">
-				<h3>📜 {{ $t('bills.paymentHistory') || 'Payment History' }}</h3>
+				<h3>📜 {{ $t('bills.paymentHistory') }}</h3>
 				<div class="history-item success">
 					<span class="history-icon">✅</span>
 					<div class="history-details">
 						<div class="history-date">{{ bill.paidDate || '2024/11/30' }}</div>
-						<div class="history-method">{{ $t('bills.paidVia') || 'Paid via' }} {{ bill.paymentMethod || 'Credit Card' }}</div>
-						<div class="history-reference">{{ $t('bills.reference') || 'Ref' }}: {{ bill.reference || 'TXN-2024-11-30-001' }}</div>
+						<div class="history-method">{{ $t('bills.paidVia') }} {{ bill.paymentMethod || 'Credit Card' }}</div>
+						<div class="history-reference">{{ $t('bills.reference') }}: {{ bill.reference || 'TXN-2024-11-30-001' }}</div>
 					</div>
 				</div>
 			</div>
@@ -121,10 +121,10 @@
 			<!-- Actions -->
 			<div class="actions-section">
 				<button class="download-btn">
-					📥 {{ $t('bills.downloadReceipt') || 'Download Receipt' }}
+					📥 {{ $t('bills.downloadReceipt') }}
 				</button>
 				<button v-if="!bill.paid" class="reminder-btn">
-					🔔 {{ $t('bills.setReminder') || 'Set Payment Reminder' }}
+					🔔 {{ $t('bills.setReminder') }}
 				</button>
 			</div>
 		</div>

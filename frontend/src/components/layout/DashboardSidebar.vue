@@ -49,7 +49,7 @@ export default {
 	methods: {
 		getLabel( item ) {
 			if ( item.translationKey && this.$t ) {
-				return this.$t( item.translationKey ) || item.label
+				return this.$t( item.translationKey )
 			}
 			return item.label
 		}

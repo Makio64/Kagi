@@ -1,6 +1,6 @@
 <template>
 	<DashboardContainer
-		:header-title="$t('admin.title') || 'Admin Console'"
+		:header-title="$t('admin.title')"
 		user-badge="System Admin"
 		:user-email="user?.email || 'Admin'"
 		user-role="System Administrator"
@@ -13,7 +13,7 @@
 		<!-- Overview Section -->
 		<section v-if="activeSection === 'overview'" class="section">
 			<SectionHeader
-				:title="$t('admin.overview.title') || 'Management Overview'"
+				:title="$t('admin.overview.title')"
 				icon="📊"
 			/>
 
@@ -48,12 +48,12 @@
 		<!-- Buildings Management -->
 		<section v-if="activeSection === 'buildings'" class="section">
 			<SectionHeader
-				:title="$t('admin.buildings.title') || 'Buildings Management'"
+				:title="$t('admin.buildings.title')"
 				icon="🏢"
 			>
 				<template #actions>
 					<KButton variant="primary" icon="➕" @click="showAddBuildingModal = true">
-						{{ $t('admin.buildings.add') || 'Add Building' }}
+						{{ $t('admin.buildings.add') }}
 					</KButton>
 				</template>
 			</SectionHeader>
@@ -88,7 +88,7 @@
 		<!-- Users Management -->
 		<section v-if="activeSection === 'users'" class="section">
 			<SectionHeader
-				:title="$t('admin.users.title') || 'Users Management'"
+				:title="$t('admin.users.title')"
 				icon="👥"
 			/>
 

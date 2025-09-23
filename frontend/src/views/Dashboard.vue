@@ -51,7 +51,7 @@
 					<div class="side-menu-actions">
 						<button class="side-menu-item" @click="navigateToSection('profile'); isMenuOpen = false">
 							<span class="menu-icon">👤</span>
-							<span class="menu-label">{{ $t('dashboard.profile.myProfile') || 'My Profile' }}</span>
+							<span class="menu-label">{{ $t('dashboard.profile.myProfile') }}</span>
 						</button>
 						<button class="side-menu-item logout-item" @click="logout">
 							<span class="menu-icon">🚪</span>
@@ -75,7 +75,7 @@
 						<div class="user-role">{{ user?.role }}</div>
 					</div>
 					<button class="profile-btn" @click="navigateToSection('profile'); showMobileMenu = false">
-						{{ $t('dashboard.profile.title') || 'Profile' }}
+						{{ $t('dashboard.profile.title') }}
 					</button>
 					<div class="mobile-lang-section">
 						<LanguageSwitcher />
@@ -207,7 +207,7 @@
 									<rect x="8" y="14" width="2" height="2" fill="#FFC107" />
 									<rect x="12" y="14" width="2" height="2" fill="#FFC107" />
 								</svg>
-								{{ $t('dashboard.booking.title') || 'Facility Booking' }}
+								{{ $t('dashboard.booking.title') }}
 							</h2>
 						</div>
 					</div>
@@ -222,7 +222,7 @@
 										<span class="facility-badge">🎉</span>
 									</div>
 									<div class="facility-content">
-										<h4>{{ $t('dashboard.booking.partyRoom') || 'Party Room' }}</h4>
+										<h4>{{ $t('dashboard.booking.partyRoom') }}</h4>
 										<p class="facility-desc">Perfect for celebrations and gatherings</p>
 										<div class="facility-meta">
 											<span>👥 Up to 20 people</span>
@@ -238,7 +238,7 @@
 										<span class="facility-badge">🛏️</span>
 									</div>
 									<div class="facility-content">
-										<h4>{{ $t('dashboard.booking.guestRoom') || 'Guest Room' }}</h4>
+										<h4>{{ $t('dashboard.booking.guestRoom') }}</h4>
 										<p class="facility-desc">Comfortable accommodation for your visitors</p>
 										<div class="facility-meta">
 											<span>👥 Up to 2 guests</span>
@@ -254,7 +254,7 @@
 										<span class="facility-badge">💪</span>
 									</div>
 									<div class="facility-content">
-										<h4>{{ $t('dashboard.booking.gym') || 'Fitness Gym' }}</h4>
+										<h4>{{ $t('dashboard.booking.gym') }}</h4>
 										<p class="facility-desc">Stay fit with modern equipment and amenities</p>
 										<div class="facility-meta">
 											<span>👥 10 people max</span>
@@ -270,7 +270,7 @@
 						<div class="bookings-column">
 							<div class="bookings-header">
 								<h3 class="column-title">
-									{{ $t('booking.yourBookings') || 'Your Current Bookings' }}
+									{{ $t('booking.yourBookings') }}
 									<span v-if="userBookings && userBookings.length > 0" class="booking-count">({{ userBookings.length }})</span>
 								</h3>
 								<div v-if="userBookings && userBookings.length > 0" class="booking-filters">
@@ -280,7 +280,7 @@
 										:class="['filter-btn-modern', { active: activeFilter === filter }]"
 										@click="activeFilter = filter"
 									>
-										{{ $t(`booking.filter.${filter}`) || filter.charAt(0).toUpperCase() + filter.slice(1) }}
+										{{ $t(`booking.filter.${filter}`) }}
 									</button>
 								</div>
 							</div>
@@ -296,8 +296,8 @@
 										<circle cx="65" cy="65" r="2" fill="#9CA3AF" />
 									</svg>
 								</div>
-								<h3>{{ $t('booking.noBookings') || 'No bookings yet' }}</h3>
-								<p>{{ $t('booking.noBookingsDesc') || 'Start by booking one of our available facilities below' }}</p>
+								<h3>{{ $t('booking.noBookings') }}</h3>
+								<p>{{ $t('booking.noBookingsDesc') }}</p>
 							</div>
 
 							<!-- Bookings Grid -->
@@ -352,8 +352,8 @@
 										<circle cx="65" cy="65" r="2" fill="#FFB300" />
 									</svg>
 								</div>
-								<h3>{{ activeFilter === 'upcoming' ? $t('booking.noUpcomingBookings') || 'No upcoming bookings' : activeFilter === 'past' ? $t('booking.noPastBookings') || 'No past bookings' : $t('booking.noBookings') || 'No bookings yet' }}</h3>
-								<p>{{ activeFilter === 'upcoming' ? $t('booking.noUpcomingBookingsDesc') || 'Book a facility to see it here' : activeFilter === 'past' ? $t('booking.noPastBookingsDesc') || 'Your completed bookings will appear here' : $t('booking.noBookingsDesc') || 'Start by booking one of our available facilities' }}</p>
+								<h3>{{ activeFilter === 'upcoming' ? $t('booking.noUpcomingBookings') : activeFilter === 'past' ? $t('booking.noPastBookings') : $t('booking.noBookings') }}</h3>
+								<p>{{ activeFilter === 'upcoming' ? $t('booking.noUpcomingBookingsDesc') : activeFilter === 'past' ? $t('booking.noPastBookingsDesc') : $t('booking.noBookingsDesc') }}</p>
 							</div>
 						</div> <!-- End bookings column -->
 					</div> <!-- End two-column layout -->
@@ -412,8 +412,8 @@
 						</button>
 						<div v-if="showMaintenanceSuccess" class="success-message">
 							<div class="success-icon">✅</div>
-							<h3>{{ $t('maintenance.success.title') || 'Request Submitted Successfully!' }}</h3>
-							<p>{{ $t('maintenance.success.description') || 'Thank you for your maintenance request. We\'ll get back to you as soon as possible, typically within 24-48 hours.' }}</p>
+							<h3>{{ $t('maintenance.success.title') }}</h3>
+							<p>{{ $t('maintenance.success.description') }}</p>
 						</div>
 						<div v-else class="maintenance-form">
 							<form @submit.prevent="submitMaintenance">
@@ -560,71 +560,71 @@
 				<!-- Profile Section -->
 				<section v-if="activeSection === 'profile'" class="section">
 					<div class="section-header">
-						<h2 class="section-title"><span class="section-icon">👤</span> {{ $t('dashboard.profile.myProfile') || 'My Profile' }}</h2>
+						<h2 class="section-title"><span class="section-icon">👤</span> {{ $t('dashboard.profile.myProfile') }}</h2>
 					</div>
 					<div class="profile-container">
 						<div class="profile-card">
-							<h3>{{ $t('dashboard.profile.personalInfo') || 'Personal Information' }}</h3>
+							<h3>{{ $t('dashboard.profile.personalInfo') }}</h3>
 							<form @submit.prevent="saveProfile">
 								<div class="form-group">
-									<label>{{ $t('dashboard.profile.name') || 'Full Name' }}</label>
+									<label>{{ $t('dashboard.profile.name') }}</label>
 									<input v-model="profileForm.name" type="text" required>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('dashboard.profile.email') || 'Email' }}</label>
+									<label>{{ $t('dashboard.profile.email') }}</label>
 									<input v-model="profileForm.email" type="email" disabled>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('dashboard.profile.phone') || 'Phone Number' }}</label>
+									<label>{{ $t('dashboard.profile.phone') }}</label>
 									<input v-model="profileForm.phone" type="tel">
 								</div>
 								<div class="form-group">
-									<label>{{ $t('dashboard.profile.unit') || 'Unit Number' }}</label>
+									<label>{{ $t('dashboard.profile.unit') }}</label>
 									<input v-model="profileForm.unit" type="text" disabled>
 								</div>
 								<button type="submit" class="save-btn">
-									{{ $t('common.save') || 'Save Changes' }}
+									{{ $t('common.save') }}
 								</button>
 							</form>
 						</div>
 
 						<div class="profile-card">
-							<h3>{{ $t('dashboard.profile.emergencyContact') || 'Emergency Contact' }}</h3>
+							<h3>{{ $t('dashboard.profile.emergencyContact') }}</h3>
 							<form @submit.prevent="saveEmergencyContact">
 								<div class="form-group">
-									<label>{{ $t('dashboard.profile.emergencyName') || 'Contact Name' }}</label>
+									<label>{{ $t('dashboard.profile.emergencyName') }}</label>
 									<input v-model="emergencyForm.name" type="text">
 								</div>
 								<div class="form-group">
-									<label>{{ $t('dashboard.profile.emergencyPhone') || 'Contact Phone' }}</label>
+									<label>{{ $t('dashboard.profile.emergencyPhone') }}</label>
 									<input v-model="emergencyForm.phone" type="tel">
 								</div>
 								<div class="form-group">
-									<label>{{ $t('dashboard.profile.relationship') || 'Relationship' }}</label>
+									<label>{{ $t('dashboard.profile.relationship') }}</label>
 									<input v-model="emergencyForm.relationship" type="text">
 								</div>
 								<button type="submit" class="save-btn">
-									{{ $t('common.save') || 'Save Changes' }}
+									{{ $t('common.save') }}
 								</button>
 							</form>
 						</div>
 
 						<div class="profile-card">
-							<h3>{{ $t('dashboard.profile.preferences') || 'Preferences' }}</h3>
+							<h3>{{ $t('dashboard.profile.preferences') }}</h3>
 							<div class="preference-item">
 								<label>
 									<input v-model="preferences.emailNotifications" type="checkbox">
-									{{ $t('dashboard.profile.emailNotifications') || 'Email Notifications' }}
+									{{ $t('dashboard.profile.emailNotifications') }}
 								</label>
 							</div>
 							<div class="preference-item">
 								<label>
 									<input v-model="preferences.smsNotifications" type="checkbox">
-									{{ $t('dashboard.profile.smsNotifications') || 'SMS Notifications' }}
+									{{ $t('dashboard.profile.smsNotifications') }}
 								</label>
 							</div>
 							<button class="save-btn" @click="savePreferences">
-								{{ $t('common.save') || 'Save Preferences' }}
+								{{ $t('common.save') }}
 							</button>
 						</div>
 					</div>
@@ -716,13 +716,13 @@ const preferences = reactive( {
 
 const menuItems = computed( () => [
 	// { id: 'home', icon: '🏠', label: instance.proxy.$t( 'nav.home' ) },
-	{ id: 'contact', icon: '📱', label: instance.proxy.$t( 'dashboard.menu.contact' ) },
-	{ id: 'documents', icon: '📄', label: instance.proxy.$t( 'dashboard.menu.documents' ) },
+	{ id: 'events', icon: '📢', label: instance.proxy.$t( 'dashboard.menu.events' ) },
+	{ id: 'services', icon: '🛎️', label: instance.proxy.$t( 'dashboard.services.title' ) },
 	{ id: 'booking', icon: '📅', label: instance.proxy.$t( 'dashboard.menu.booking' ) },
 	{ id: 'maintenance', icon: '🔧', label: instance.proxy.$t( 'dashboard.menu.maintenance' ) },
-	{ id: 'events', icon: '📢', label: instance.proxy.$t( 'dashboard.menu.events' ) },
 	{ id: 'bills', icon: '💳', label: instance.proxy.$t( 'dashboard.menu.bills' ) },
-	{ id: 'services', icon: '🛎️', label: instance.proxy.$t( 'dashboard.services.title' ) }
+	{ id: 'contact', icon: '📱', label: instance.proxy.$t( 'dashboard.menu.contact' ) },
+	{ id: 'documents', icon: '📄', label: instance.proxy.$t( 'dashboard.menu.documents' ) }
 ] )
 
 const maintenanceForm = reactive( {
@@ -833,19 +833,19 @@ const logout = async () => {
 const saveProfile = () => {
 	// Save profile data
 	console.log( 'Saving profile:', profileForm )
-	alert( instance.proxy.$t( 'dashboard.profile.saved' ) || 'Profile saved successfully!' )
+	alert( instance.proxy.$t( 'dashboard.profile.saved' ) )
 }
 
 const saveEmergencyContact = () => {
 	// Save emergency contact
 	console.log( 'Saving emergency contact:', emergencyForm )
-	alert( instance.proxy.$t( 'dashboard.profile.emergencySaved' ) || 'Emergency contact saved successfully!' )
+	alert( instance.proxy.$t( 'dashboard.profile.emergencySaved' ) )
 }
 
 const savePreferences = () => {
 	// Save preferences
 	console.log( 'Saving preferences:', preferences )
-	alert( instance.proxy.$t( 'dashboard.profile.preferencesSaved' ) || 'Preferences saved successfully!' )
+	alert( instance.proxy.$t( 'dashboard.profile.preferencesSaved' ) )
 }
 
 const submitMaintenance = () => {
@@ -909,14 +909,14 @@ const handlePayment = ( paymentData ) => {
 	console.log( 'Payment processed:', paymentData )
 	selectedBill.value = null
 	// Show success message
-	alert( instance.proxy.$t( 'bills.paymentSuccess' ) || 'Payment successful!' )
+	alert( instance.proxy.$t( 'bills.paymentSuccess' ) )
 }
 
 const cancelBooking = ( bookingId ) => {
-	if ( confirm( instance.proxy.$t( 'booking.confirmCancel' ) || 'Are you sure you want to cancel this booking?' ) ) {
+	if ( confirm( instance.proxy.$t( 'booking.confirmCancel' ) ) ) {
 		userBookings.value = userBookings.value.filter( b => b.id !== bookingId )
 		// Show success message
-		alert( instance.proxy.$t( 'booking.cancelSuccess' ) || 'Booking cancelled successfully!' )
+		alert( instance.proxy.$t( 'booking.cancelSuccess' ) )
 	}
 }
 
@@ -956,7 +956,7 @@ const viewEventDetails = ( eventType ) => {
 	const events = {
 		christmas: {
 			id: 1,
-			title: instance.proxy.$t( 'dashboard.events.christmasParty.title' ) || 'Christmas Party',
+			title: instance.proxy.$t( 'dashboard.events.christmasParty.title' ),
 			subtitle: 'Annual building celebration',
 			month: 'DEC',
 			day: '25',
@@ -964,7 +964,7 @@ const viewEventDetails = ( eventType ) => {
 			location: '1st Floor Lobby',
 			attendees: '50-70 residents',
 			fee: 'Free',
-			description: instance.proxy.$t( 'dashboard.events.christmasParty.description' ) || 'Join us for our annual Christmas celebration!',
+			description: instance.proxy.$t( 'dashboard.events.christmasParty.description' ),
 			agenda: [
 				'6:00 PM - Welcome and opening remarks',
 				'6:30 PM - Dinner buffet opens',
@@ -983,7 +983,7 @@ const viewEventDetails = ( eventType ) => {
 		},
 		drill: {
 			id: 2,
-			title: instance.proxy.$t( 'dashboard.events.fireDrill.title' ) || 'Fire Drill',
+			title: instance.proxy.$t( 'dashboard.events.fireDrill.title' ),
 			subtitle: 'Mandatory safety exercise',
 			month: 'JAN',
 			day: '10',
@@ -991,7 +991,7 @@ const viewEventDetails = ( eventType ) => {
 			location: 'All Areas',
 			attendees: 'All residents (mandatory)',
 			fee: 'N/A',
-			description: instance.proxy.$t( 'dashboard.events.fireDrill.description' ) || 'Annual fire drill. All residents must participate.',
+			description: instance.proxy.$t( 'dashboard.events.fireDrill.description' ),
 			agenda: [
 				'10:00 AM - Alarm will sound',
 				'10:05 AM - Evacuation begins',
@@ -1558,7 +1558,7 @@ const bookFacility = ( facilityType ) => {
 	const facilities = {
 		party: {
 			id: 'party',
-			name: instance.proxy.$t( 'dashboard.booking.partyRoom' ) || 'Party Room',
+			name: instance.proxy.$t( 'dashboard.booking.partyRoom' ),
 			icon: '🎉',
 			description: 'Perfect for celebrations and gatherings with friends and family',
 			capacity: '20 people',
@@ -1570,7 +1570,7 @@ const bookFacility = ( facilityType ) => {
 		},
 		guest: {
 			id: 'guest',
-			name: instance.proxy.$t( 'dashboard.booking.guestRoom' ) || 'Guest Room',
+			name: instance.proxy.$t( 'dashboard.booking.guestRoom' ),
 			icon: '🛏️',
 			description: 'Comfortable accommodation for your visiting guests',
 			capacity: '2 people',
@@ -1582,7 +1582,7 @@ const bookFacility = ( facilityType ) => {
 		},
 		gym: {
 			id: 'gym',
-			name: instance.proxy.$t( 'dashboard.booking.gym' ) || 'Fitness Gym',
+			name: instance.proxy.$t( 'dashboard.booking.gym' ),
 			icon: '💪',
 			description: 'Fully equipped gym for your fitness needs',
 			capacity: '10 people',

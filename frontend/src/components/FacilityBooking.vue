@@ -3,9 +3,9 @@
 		<!-- Header -->
 		<div class="booking-header">
 			<button class="back-btn" @click="$emit('close')">
-				← {{ $t('common.back') || 'Back' }}
+				← {{ $t('common.back') }}
 			</button>
-			<h2>{{ $t(`booking.booking${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) || `Booking ${facility.name}` }}</h2>
+			<h2>{{ $t(`booking.booking${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) }}</h2>
 		</div>
 
 		<!-- Success Message -->
@@ -17,23 +17,23 @@
 						<path d="M25 40L35 50L55 30" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
 					</svg>
 				</div>
-				<h3>{{ $t('booking.successTitle') || 'Booking Confirmed!' }}</h3>
-				<p>{{ $t('booking.successMessage') || 'Your facility booking has been confirmed. You will receive a confirmation email shortly.' }}</p>
+				<h3>{{ $t('booking.successTitle') }}</h3>
+				<p>{{ $t('booking.successMessage') }}</p>
 				<div class="booking-details-summary">
 					<div class="detail-item">
-						<span class="label">{{ $t('booking.reference') || 'Reference' }}:</span>
+						<span class="label">{{ $t('booking.reference') }}:</span>
 						<span class="value">{{ bookingReference }}</span>
 					</div>
 					<div class="detail-item">
-						<span class="label">{{ $t('booking.facility') || 'Facility' }}:</span>
+						<span class="label">{{ $t('booking.facility') }}:</span>
 						<span class="value">{{ facility.name }}</span>
 					</div>
 					<div class="detail-item">
-						<span class="label">{{ $t('booking.date') || 'Date' }}:</span>
+						<span class="label">{{ $t('booking.date') }}:</span>
 						<span class="value">{{ getBookingDateDisplay() }}</span>
 					</div>
 					<div v-if="selectedTime" class="detail-item">
-						<span class="label">{{ $t('booking.time') || 'Time' }}:</span>
+						<span class="label">{{ $t('booking.time') }}:</span>
 						<span class="value">{{ getBookingTimeDisplay() }}</span>
 					</div>
 				</div>
@@ -45,10 +45,10 @@
 							<path d="M7 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
 							<path d="M3 9H17" stroke="currentColor" stroke-width="2" />
 						</svg>
-						{{ $t('booking.addToCalendar') || 'Add to Calendar' }}
+						{{ $t('booking.addToCalendar') }}
 					</button>
 					<button class="new-booking-btn" @click="resetBooking">
-						{{ $t('booking.newBooking') || 'Make Another Booking' }}
+						{{ $t('booking.newBooking') }}
 					</button>
 				</div>
 			</div>
@@ -58,11 +58,11 @@
 		<div v-if="!bookingSuccess" class="booking-main">
 			<!-- Left: Booking Form -->
 			<div class="booking-form">
-				<h3>{{ $t('booking.details') || 'Booking Details' }}</h3>
+				<h3>{{ $t('booking.details') }}</h3>
 
 				<!-- Date Selection -->
 				<div v-if="facility.bookingType === 'full-day'" class="form-group">
-					<label>{{ $t('booking.checkInDate') || 'Check-in Date' }}</label>
+					<label>{{ $t('booking.checkInDate') }}</label>
 					<button
 						class="picker-button"
 						:class="{ 'has-value': startDate }"
@@ -74,7 +74,7 @@
 							<path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
 							<path d="M3 9H17" stroke="currentColor" stroke-width="1.5" />
 						</svg>
-						<span>{{ startDate ? formatDate(startDate) : $t('booking.selectCheckIn') || 'Select check-in date' }}</span>
+						<span>{{ startDate ? formatDate(startDate) : $t('booking.selectCheckIn') }}</span>
 					</button>
 
 					<!-- Check-in Date Picker Dropdown -->
@@ -120,7 +120,7 @@
 				</div>
 
 				<div v-if="facility.bookingType === 'full-day'" class="form-group">
-					<label>{{ $t('booking.checkOutDate') || 'Check-out Date' }}</label>
+					<label>{{ $t('booking.checkOutDate') }}</label>
 					<button
 						class="picker-button"
 						:class="{ 'has-value': endDate, 'disabled': !startDate }"
@@ -133,7 +133,7 @@
 							<path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
 							<path d="M3 9H17" stroke="currentColor" stroke-width="1.5" />
 						</svg>
-						<span>{{ endDate ? formatDate(endDate) : $t('booking.selectCheckOut') || 'Select check-out date' }}</span>
+						<span>{{ endDate ? formatDate(endDate) : $t('booking.selectCheckOut') }}</span>
 					</button>
 
 					<!-- Check-out Date Picker Dropdown -->
@@ -180,7 +180,7 @@
 
 				<!-- Single Date Selection for Party Room and Gym -->
 				<div v-else class="form-group">
-					<label>{{ $t('booking.date') || 'Date' }}</label>
+					<label>{{ $t('booking.date') }}</label>
 					<button
 						class="picker-button"
 						:class="{ 'has-value': startDate }"
@@ -192,7 +192,7 @@
 							<path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
 							<path d="M3 9H17" stroke="currentColor" stroke-width="1.5" />
 						</svg>
-						<span>{{ startDate ? formatDate(startDate) : $t('booking.selectDate') || 'Select date' }}</span>
+						<span>{{ startDate ? formatDate(startDate) : $t('booking.selectDate') }}</span>
 					</button>
 
 					<!-- Date Picker Dropdown -->
@@ -239,7 +239,7 @@
 
 				<!-- Time Selection for Party Room and Gym -->
 				<div v-if="facility.bookingType !== 'full-day'" class="form-group">
-					<label>{{ $t('booking.time') || 'Time' }}</label>
+					<label>{{ $t('booking.time') }}</label>
 					<button
 						class="picker-button"
 						:class="{ 'has-value': selectedTime, 'disabled': !startDate }"
@@ -267,7 +267,7 @@
 										<path d="M10 3V10L14 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 									</svg>
 									<div>
-										<strong>{{ $t('booking.morning') || 'Morning' }}</strong>
+										<strong>{{ $t('booking.morning') }}</strong>
 										<small>9:00 AM - 1:00 PM</small>
 									</div>
 								</button>
@@ -280,7 +280,7 @@
 										<path d="M10 3V10L6 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
 									</svg>
 									<div>
-										<strong>{{ $t('booking.afternoon') || 'Afternoon' }}</strong>
+										<strong>{{ $t('booking.afternoon') }}</strong>
 										<small>2:00 PM - 6:00 PM</small>
 									</div>
 								</button>
@@ -300,7 +300,7 @@
 										@click="selectTimeSlot(slot)"
 									>
 										{{ slot.time }}
-										<span v-if="slot.booked" class="booked-label">{{ $t('booking.booked') || 'Booked' }}</span>
+										<span v-if="slot.booked" class="booked-label">{{ $t('booking.booked') }}</span>
 									</button>
 								</div>
 							</div>
@@ -310,10 +310,10 @@
 
 				<!-- Special Notes -->
 				<div class="form-group">
-					<label>{{ $t('booking.specialNotes') || 'Special Notes' }} <span class="optional">({{ $t('common.optional') || 'Optional' }})</span></label>
+					<label>{{ $t('booking.specialNotes') }} <span class="optional">({{ $t('common.optional') }})</span></label>
 					<textarea
 						v-model="specialNotes"
-						:placeholder="$t('booking.notesPlaceholder') || 'Any special requirements or requests...'"
+						:placeholder="$t('booking.notesPlaceholder')"
 						rows="3"
 					/>
 				</div>
@@ -325,13 +325,13 @@
 							v-model="agreeToTerms"
 							type="checkbox"
 						>
-						<span>{{ $t('booking.agreeToTerms') || 'I agree to the facility usage terms and conditions' }}</span>
+						<span>{{ $t('booking.agreeToTerms') }}</span>
 					</label>
 				</div>
 
 				<!-- Total Cost Display -->
 				<div v-if="calculateCost" class="cost-display">
-					<span class="cost-label">{{ $t('booking.totalCost') || 'Total Cost' }}:</span>
+					<span class="cost-label">{{ $t('booking.totalCost') }}:</span>
 					<span class="cost-value">{{ calculateCost }}</span>
 				</div>
 
@@ -343,10 +343,10 @@
 				>
 					<span v-if="processingBooking" class="btn-content">
 						<div class="spinner" />
-						{{ $t('booking.processing') || 'Processing...' }}
+						{{ $t('booking.processing') }}
 					</span>
 					<span v-else class="btn-content">
-						{{ $t(`booking.book${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) || `Book ${facility.name}` }}
+						{{ $t(`booking.book${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) }}
 					</span>
 				</button>
 			</div>
@@ -379,7 +379,7 @@
 					</div>
 
 					<div v-if="facility.amenities" class="amenities">
-						<h4>{{ $t('booking.amenities') || 'Amenities' }}</h4>
+						<h4>{{ $t('booking.amenities') }}</h4>
 						<div class="amenities-list">
 							{{ facility.amenities }}
 						</div>
@@ -387,11 +387,11 @@
 
 					<!-- Booking Rules -->
 					<div class="booking-rules">
-						<h4>{{ $t('booking.rules') || 'Booking Rules' }}</h4>
+						<h4>{{ $t('booking.rules') }}</h4>
 						<ul>
-							<li>{{ $t('booking.rule1') || 'Cancellation must be made 24 hours in advance' }}</li>
-							<li>{{ $t('booking.rule2') || 'Please clean up after use' }}</li>
-							<li v-if="facility.bookingType === 'full-day'">{{ $t('booking.rule3') || 'Check-in after 3 PM, Check-out before 11 AM' }}</li>
+							<li>{{ $t('booking.rule1') }}</li>
+							<li>{{ $t('booking.rule2') }}</li>
+							<li v-if="facility.bookingType === 'full-day'">{{ $t('booking.rule3') }}</li>
 						</ul>
 					</div>
 				</div>

@@ -20,7 +20,7 @@
 		<transition name="slide">
 			<div v-if="showMobileMenu" class="mobile-settings-menu">
 				<div class="mobile-menu-header">
-					<h3>{{ $t('common.settings') || 'Settings' }}</h3>
+					<h3>{{ $t('common.settings') }}</h3>
 					<button class="close-menu-btn" @click="showMobileMenu = false">✕</button>
 				</div>
 				<div class="mobile-menu-content">
@@ -32,7 +32,7 @@
 						<LanguageSwitcher />
 					</div>
 					<button class="mobile-logout-btn" @click="handleLogout">
-						{{ $t('nav.logout') || 'Logout' }}
+						{{ $t('nav.logout') }}
 					</button>
 				</div>
 			</div>
@@ -72,7 +72,7 @@
 				<!-- Overview Section -->
 				<section v-if="activeSection === 'overview'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.overview.title') || 'Building Overview'"
+						:title="$t('mansion.overview.title')"
 						:subtitle="`Managing ${buildingName}`"
 						icon="📊"
 					/>
@@ -81,28 +81,28 @@
 					<div class="stats-grid">
 						<StatCard
 							icon="🏠"
-							:label="$t('mansion.stats.units') || 'Total Units'"
+							:label="$t('mansion.stats.units')"
 							:value="120"
 							variant="primary"
 							subtext="114 occupied, 6 available"
 						/>
 						<StatCard
 							icon="👥"
-							:label="$t('mansion.stats.residents') || 'Residents'"
+							:label="$t('mansion.stats.residents')"
 							:value="342"
 							variant="secondary"
 							:trend="{ text: '+5 this month', positive: true }"
 						/>
 						<StatCard
 							icon="🔧"
-							:label="$t('mansion.stats.requests') || 'Maintenance'"
+							:label="$t('mansion.stats.requests')"
 							:value="8"
 							variant="warning"
 							:badge="{ text: '2 URGENT', variant: 'danger' }"
 						/>
 						<StatCard
 							icon="📅"
-							:label="$t('mansion.stats.bookings') || 'Today\'s Bookings'"
+							:label="$t('mansion.stats.bookings')"
 							:value="3"
 							variant="info"
 							subtext="Party Room, Gym, Meeting"
@@ -111,14 +111,14 @@
 
 					<!-- Quick Actions -->
 					<KCard 
-						:title="$t('mansion.quickActions') || 'Quick Actions'"
+						:title="$t('mansion.quickActions')"
 						icon="⚡"
 						elevated
 					>
 						<div class="actions-grid">
 							<KCard
 								icon="📢"
-								:title="$t('mansion.actions.announcement') || 'Send Announcement'"
+								:title="$t('mansion.actions.announcement')"
 								clickable
 								variant="primary"
 								size="sm"
@@ -126,21 +126,21 @@
 							/>
 							<KCard
 								icon="📄"
-								:title="$t('mansion.actions.updateDocs') || 'Update Documents'"
+								:title="$t('mansion.actions.updateDocs')"
 								clickable
 								size="sm"
 								@click="navigateToSection('documents')"
 							/>
 							<KCard
 								icon="🔧"
-								:title="$t('mansion.actions.maintenance') || 'View Maintenance'"
+								:title="$t('mansion.actions.maintenance')"
 								clickable
 								size="sm"
 								@click="navigateToSection('maintenance')"
 							/>
 							<KCard
 								icon="📊"
-								:title="$t('mansion.actions.reports') || 'Generate Reports'"
+								:title="$t('mansion.actions.reports')"
 								clickable
 								size="sm"
 								@click="navigateToSection('reports')"
@@ -152,14 +152,14 @@
 				<!-- Residents Management -->
 				<section v-if="activeSection === 'residents'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.residents.title') || 'Resident Management'"
+						:title="$t('mansion.residents.title')"
 						icon="👥"
 						searchable
 						search-placeholder="Search residents..."
 					>
 						<template #actions>
 							<KButton variant="primary" icon="➕">
-								{{ $t('mansion.residents.add') || 'Add Resident' }}
+								{{ $t('mansion.residents.add') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -172,21 +172,21 @@
 							outlined
 						>
 							<template #badge>
-								<span class="resident-status active">{{ $t('common.active') || 'Active' }}</span>
+								<span class="resident-status active">{{ $t('common.active') }}</span>
 							</template>
 							<div class="resident-details">
-								<p><strong>{{ $t('mansion.residents.unit') || 'Unit' }}:</strong> {{ resident.unit }}</p>
-								<p><strong>{{ $t('mansion.residents.email') || 'Email' }}:</strong> {{ resident.email }}</p>
-								<p><strong>{{ $t('mansion.residents.phone') || 'Phone' }}:</strong> {{ resident.phone }}</p>
-								<p><strong>{{ $t('mansion.residents.since') || 'Since' }}:</strong> {{ resident.moveInDate }}</p>
+								<p><strong>{{ $t('mansion.residents.unit') }}:</strong> {{ resident.unit }}</p>
+								<p><strong>{{ $t('mansion.residents.email') }}:</strong> {{ resident.email }}</p>
+								<p><strong>{{ $t('mansion.residents.phone') }}:</strong> {{ resident.phone }}</p>
+								<p><strong>{{ $t('mansion.residents.since') }}:</strong> {{ resident.moveInDate }}</p>
 							</div>
 							<template #footer>
 								<div class="resident-actions">
 									<KButton size="sm" variant="secondary" icon="✏️" @click="editResident(resident)">
-										{{ $t('common.edit') || 'Edit' }}
+										{{ $t('common.edit') }}
 									</KButton>
 									<KButton size="sm" variant="ghost">
-										{{ $t('mansion.residents.message') || 'Message' }}
+										{{ $t('mansion.residents.message') }}
 									</KButton>
 								</div>
 							</template>
@@ -197,15 +197,15 @@
 				<!-- Maintenance Management -->
 				<section v-if="activeSection === 'maintenance'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.maintenance.title') || 'Maintenance Requests'"
+						:title="$t('mansion.maintenance.title')"
 						icon="🔧"
 					>
 						<template #actions>
 							<KButton variant="secondary" size="sm">
-								{{ $t('mansion.maintenance.export') || 'Export' }}
+								{{ $t('mansion.maintenance.export') }}
 							</KButton>
 							<KButton variant="primary" icon="➕" size="sm">
-								{{ $t('mansion.maintenance.create') || 'Create Request' }}
+								{{ $t('mansion.maintenance.create') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -233,13 +233,13 @@
 							<template #footer>
 								<div class="request-actions">
 									<KButton size="sm" variant="primary">
-										{{ $t('mansion.maintenance.assign') || 'Assign' }}
+										{{ $t('mansion.maintenance.assign') }}
 									</KButton>
 									<KButton size="sm" variant="secondary">
-										{{ $t('mansion.maintenance.update') || 'Update Status' }}
+										{{ $t('mansion.maintenance.update') }}
 									</KButton>
 									<KButton size="sm" variant="ghost">
-										{{ $t('mansion.maintenance.view') || 'View Details' }}
+										{{ $t('mansion.maintenance.view') }}
 									</KButton>
 								</div>
 							</template>
@@ -250,7 +250,7 @@
 				<!-- Facility Bookings -->
 				<section v-if="activeSection === 'bookings'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.bookings.title') || 'Facility Bookings'"
+						:title="$t('mansion.bookings.title')"
 						:subtitle="`Week of ${currentWeek}`"
 						icon="📅"
 					>
@@ -258,7 +258,7 @@
 							<KButton variant="ghost" icon="◀" @click="previousWeek" />
 							<KButton variant="ghost" icon="▶" @click="nextWeek" />
 							<KButton variant="primary" icon="➕">
-								{{ $t('mansion.bookings.add') || 'New Booking' }}
+								{{ $t('mansion.bookings.add') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -268,7 +268,7 @@
 							<table>
 								<thead>
 									<tr>
-										<th>{{ $t('mansion.bookings.facility') || 'Facility' }}</th>
+										<th>{{ $t('mansion.bookings.facility') }}</th>
 										<th v-for="day in weekDays" :key="day">{{ day }}</th>
 									</tr>
 								</thead>
@@ -280,7 +280,7 @@
 												<span class="booking-time">{{ getBooking(facility.id, day).time }}</span>
 												<span class="booking-user">{{ getBooking(facility.id, day).user }}</span>
 											</div>
-											<span v-else class="available">{{ $t('mansion.bookings.available') || 'Available' }}</span>
+											<span v-else class="available">{{ $t('mansion.bookings.available') }}</span>
 										</td>
 									</tr>
 								</tbody>
@@ -292,12 +292,12 @@
 				<!-- Announcements -->
 				<section v-if="activeSection === 'announcements'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.announcements.title') || 'Announcements'"
+						:title="$t('mansion.announcements.title')"
 						icon="📢"
 					>
 						<template #actions>
 							<KButton variant="primary" icon="➕" @click="showAnnouncementModal = true">
-								{{ $t('mansion.announcements.create') || 'New Announcement' }}
+								{{ $t('mansion.announcements.create') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -316,16 +316,16 @@
 							</template>
 							<p>{{ announcement.content }}</p>
 							<div class="announcement-meta">
-								<span>{{ $t('mansion.announcements.posted') || 'Posted' }}: {{ announcement.date }}</span>
-								<span>{{ $t('mansion.announcements.views') || 'Views' }}: {{ announcement.views }}</span>
+								<span>{{ $t('mansion.announcements.posted') }}: {{ announcement.date }}</span>
+								<span>{{ $t('mansion.announcements.views') }}: {{ announcement.views }}</span>
 							</div>
 							<template #footer>
 								<div class="announcement-actions">
 									<KButton size="sm" variant="secondary">
-										{{ $t('common.edit') || 'Edit' }}
+										{{ $t('common.edit') }}
 									</KButton>
 									<KButton size="sm" variant="danger">
-										{{ $t('common.delete') || 'Delete' }}
+										{{ $t('common.delete') }}
 									</KButton>
 								</div>
 							</template>
@@ -336,14 +336,14 @@
 				<!-- Documents -->
 				<section v-if="activeSection === 'documents'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.documents.title') || 'Building Documents'"
+						:title="$t('mansion.documents.title')"
 						icon="📄"
 						searchable
 						search-placeholder="Search documents..."
 					>
 						<template #actions>
 							<KButton variant="primary" icon="⬆️">
-								{{ $t('mansion.documents.upload') || 'Upload Document' }}
+								{{ $t('mansion.documents.upload') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -365,10 +365,10 @@
 							<template #footer>
 								<div class="doc-actions">
 									<KButton size="sm" variant="primary" icon="⬇️">
-										{{ $t('mansion.documents.download') || 'Download' }}
+										{{ $t('mansion.documents.download') }}
 									</KButton>
 									<KButton size="sm" variant="ghost">
-										{{ $t('common.delete') || 'Delete' }}
+										{{ $t('common.delete') }}
 									</KButton>
 								</div>
 							</template>
@@ -379,12 +379,12 @@
 				<!-- Financial -->
 				<section v-if="activeSection === 'financial'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.financial.title') || 'Financial Overview'"
+						:title="$t('mansion.financial.title')"
 						icon="💰"
 					>
 						<template #actions>
 							<KButton variant="secondary" icon="📥">
-								{{ $t('mansion.financial.export') || 'Export Report' }}
+								{{ $t('mansion.financial.export') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -392,7 +392,7 @@
 					<div class="financial-stats">
 						<StatCard
 							icon="💵"
-							:label="$t('mansion.financial.collected') || 'Collected This Month'"
+							:label="$t('mansion.financial.collected')"
 							:value="9500000"
 							format="currency"
 							variant="success"
@@ -400,7 +400,7 @@
 						/>
 						<StatCard
 							icon="💸"
-							:label="$t('mansion.financial.pending') || 'Pending Payments'"
+							:label="$t('mansion.financial.pending')"
 							:value="500000"
 							format="currency"
 							variant="warning"
@@ -408,7 +408,7 @@
 						/>
 						<StatCard
 							icon="📊"
-							:label="$t('mansion.financial.expenses') || 'Monthly Expenses'"
+							:label="$t('mansion.financial.expenses')"
 							:value="3200000"
 							format="currency"
 							variant="secondary"
@@ -416,7 +416,7 @@
 					</div>
 
 					<KCard 
-						:title="$t('mansion.financial.breakdown') || 'Payment Status by Unit'"
+						:title="$t('mansion.financial.breakdown')"
 						elevated
 					>
 						<div class="payment-list">
@@ -433,7 +433,7 @@
 				<!-- Reports -->
 				<section v-if="activeSection === 'reports'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.reports.title') || 'Reports & Analytics'"
+						:title="$t('mansion.reports.title')"
 						icon="📊"
 					/>
 			
@@ -447,7 +447,7 @@
 							<p>Monthly occupancy trends and forecasts</p>
 							<template #footer>
 								<KButton size="sm" variant="primary" block>
-									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+									{{ $t('mansion.reports.generate') }}
 								</KButton>
 							</template>
 						</KCard>
@@ -461,7 +461,7 @@
 							<p>Revenue, expenses, and collection rates</p>
 							<template #footer>
 								<KButton size="sm" variant="primary" block>
-									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+									{{ $t('mansion.reports.generate') }}
 								</KButton>
 							</template>
 						</KCard>
@@ -475,7 +475,7 @@
 							<p>Request trends and completion times</p>
 							<template #footer>
 								<KButton size="sm" variant="primary" block>
-									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+									{{ $t('mansion.reports.generate') }}
 								</KButton>
 							</template>
 						</KCard>
@@ -489,7 +489,7 @@
 							<p>Demographics and satisfaction metrics</p>
 							<template #footer>
 								<KButton size="sm" variant="primary" block>
-									{{ $t('mansion.reports.generate') || 'Generate Report' }}
+									{{ $t('mansion.reports.generate') }}
 								</KButton>
 							</template>
 						</KCard>
@@ -499,12 +499,12 @@
 				<!-- Services Management -->
 				<section v-if="activeSection === 'services'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.services.title') || 'Services Management'"
+						:title="$t('mansion.services.title')"
 						icon="🛎️"
 					>
 						<template #actions>
 							<KButton variant="primary" icon="➕">
-								{{ $t('mansion.services.add') || 'Add Service' }}
+								{{ $t('mansion.services.add') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -512,23 +512,23 @@
 					<div class="services-grid">
 						<KCard
 							icon="🧹"
-							:title="$t('dashboard.services.cleaning') || 'Cleaning Service'"
+							:title="$t('dashboard.services.cleaning')"
 							:badge="{ text: 'ACTIVE', variant: 'success' }"
 							outlined
 						>
 							<div class="service-details">
-								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥3,000/hour</p>
-								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Mon-Sat, 9AM-6PM</p>
+								<p><strong>{{ $t('dashboard.services.price') }}:</strong> ¥3,000/hour</p>
+								<p><strong>{{ $t('dashboard.services.availability') }}:</strong> Mon-Sat, 9AM-6PM</p>
 								<p><strong>Provider:</strong> CleanPro Services Inc.</p>
 								<p><strong>Bookings this month:</strong> 42</p>
 							</div>
 							<template #footer>
 								<div class="service-actions">
 									<KButton size="sm" variant="secondary" icon="✏️">
-										{{ $t('common.edit') || 'Edit' }}
+										{{ $t('common.edit') }}
 									</KButton>
 									<KButton size="sm" variant="ghost">
-										{{ $t('mansion.services.viewBookings') || 'View Bookings' }}
+										{{ $t('mansion.services.viewBookings') }}
 									</KButton>
 								</div>
 							</template>
@@ -536,23 +536,23 @@
 				
 						<KCard
 							icon="🚲"
-							:title="$t('dashboard.services.bikeRental') || 'Bike Rental'"
+							:title="$t('dashboard.services.bikeRental')"
 							:badge="{ text: 'ACTIVE', variant: 'success' }"
 							outlined
 						>
 							<div class="service-details">
-								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥500/day</p>
-								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> 24/7</p>
+								<p><strong>{{ $t('dashboard.services.price') }}:</strong> ¥500/day</p>
+								<p><strong>{{ $t('dashboard.services.availability') }}:</strong> 24/7</p>
 								<p><strong>Available bikes:</strong> 15/20</p>
 								<p><strong>Monthly rentals:</strong> 28</p>
 							</div>
 							<template #footer>
 								<div class="service-actions">
 									<KButton size="sm" variant="secondary" icon="✏️">
-										{{ $t('common.edit') || 'Edit' }}
+										{{ $t('common.edit') }}
 									</KButton>
 									<KButton size="sm" variant="ghost">
-										{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
+										{{ $t('mansion.services.manageInventory') }}
 									</KButton>
 								</div>
 							</template>
@@ -560,23 +560,23 @@
 				
 						<KCard
 							icon="🛏️"
-							:title="$t('dashboard.services.futonRental') || 'Futon Rental'"
+							:title="$t('dashboard.services.futonRental')"
 							:badge="{ text: 'ACTIVE', variant: 'success' }"
 							outlined
 						>
 							<div class="service-details">
-								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> ¥1,000/week</p>
-								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> On request</p>
+								<p><strong>{{ $t('dashboard.services.price') }}:</strong> ¥1,000/week</p>
+								<p><strong>{{ $t('dashboard.services.availability') }}:</strong> On request</p>
 								<p><strong>Available sets:</strong> 8/10</p>
 								<p><strong>Current rentals:</strong> 2</p>
 							</div>
 							<template #footer>
 								<div class="service-actions">
 									<KButton size="sm" variant="secondary" icon="✏️">
-										{{ $t('common.edit') || 'Edit' }}
+										{{ $t('common.edit') }}
 									</KButton>
 									<KButton size="sm" variant="ghost">
-										{{ $t('mansion.services.manageInventory') || 'Manage Inventory' }}
+										{{ $t('mansion.services.manageInventory') }}
 									</KButton>
 								</div>
 							</template>
@@ -584,23 +584,23 @@
 				
 						<KCard
 							icon="💐"
-							:title="$t('dashboard.services.flowerDelivery') || 'Flower Delivery'"
+							:title="$t('dashboard.services.flowerDelivery')"
 							:badge="{ text: 'ACTIVE', variant: 'success' }"
 							outlined
 						>
 							<div class="service-details">
-								<p><strong>{{ $t('dashboard.services.price') || 'Price' }}:</strong> From ¥2,000</p>
-								<p><strong>{{ $t('dashboard.services.availability') || 'Availability' }}:</strong> Daily orders</p>
+								<p><strong>{{ $t('dashboard.services.price') }}:</strong> From ¥2,000</p>
+								<p><strong>{{ $t('dashboard.services.availability') }}:</strong> Daily orders</p>
 								<p><strong>Partner:</strong> Sakura Flowers</p>
 								<p><strong>Orders this month:</strong> 15</p>
 							</div>
 							<template #footer>
 								<div class="service-actions">
 									<KButton size="sm" variant="secondary" icon="✏️">
-										{{ $t('common.edit') || 'Edit' }}
+										{{ $t('common.edit') }}
 									</KButton>
 									<KButton size="sm" variant="ghost">
-										{{ $t('mansion.services.viewOrders') || 'View Orders' }}
+										{{ $t('mansion.services.viewOrders') }}
 									</KButton>
 								</div>
 							</template>
@@ -611,37 +611,37 @@
 				<!-- Settings -->
 				<section v-if="activeSection === 'settings'" class="section">
 					<SectionHeader 
-						:title="$t('mansion.settings.title') || 'Building Settings'"
+						:title="$t('mansion.settings.title')"
 						icon="⚙️"
 					/>
 			
 					<div class="settings-grid">
 						<KCard 
-							:title="$t('mansion.settings.building') || 'Building Information'"
+							:title="$t('mansion.settings.building')"
 							icon="🏢"
 							outlined
 						>
 							<div class="setting-item">
-								<label>{{ $t('mansion.settings.name') || 'Building Name' }}</label>
+								<label>{{ $t('mansion.settings.name') }}</label>
 								<input v-model="buildingSettings.name" type="text" class="setting-input">
 							</div>
 							<div class="setting-item">
-								<label>{{ $t('mansion.settings.address') || 'Address' }}</label>
+								<label>{{ $t('mansion.settings.address') }}</label>
 								<input v-model="buildingSettings.address" type="text" class="setting-input">
 							</div>
 							<div class="setting-item">
-								<label>{{ $t('mansion.settings.units') || 'Total Units' }}</label>
+								<label>{{ $t('mansion.settings.units') }}</label>
 								<input v-model="buildingSettings.totalUnits" type="number" class="setting-input">
 							</div>
 							<template #footer>
 								<KButton variant="primary" block>
-									{{ $t('common.save') || 'Save Changes' }}
+									{{ $t('common.save') }}
 								</KButton>
 							</template>
 						</KCard>
 
 						<KCard 
-							:title="$t('mansion.settings.facilities') || 'Facilities Management'"
+							:title="$t('mansion.settings.facilities')"
 							icon="🏊"
 							outlined
 						>
@@ -656,32 +656,32 @@
 							</div>
 							<template #footer>
 								<KButton variant="primary" block>
-									{{ $t('mansion.settings.updateFacilities') || 'Update Facilities' }}
+									{{ $t('mansion.settings.updateFacilities') }}
 								</KButton>
 							</template>
 						</KCard>
 
 						<KCard 
-							:title="$t('mansion.settings.notifications') || 'Notification Settings'"
+							:title="$t('mansion.settings.notifications')"
 							icon="🔔"
 							outlined
 						>
 							<div class="setting-item">
 								<label>
 									<input v-model="notificationSettings.emailAlerts" type="checkbox">
-									{{ $t('mansion.settings.emailAlerts') || 'Email alerts for urgent maintenance' }}
+									{{ $t('mansion.settings.emailAlerts') }}
 								</label>
 							</div>
 							<div class="setting-item">
 								<label>
 									<input v-model="notificationSettings.dailyDigest" type="checkbox">
-									{{ $t('mansion.settings.dailyDigest') || 'Daily activity digest' }}
+									{{ $t('mansion.settings.dailyDigest') }}
 								</label>
 							</div>
 							<div class="setting-item">
 								<label>
 									<input v-model="notificationSettings.paymentReminders" type="checkbox">
-									{{ $t('mansion.settings.paymentReminders') || 'Payment reminder notifications' }}
+									{{ $t('mansion.settings.paymentReminders') }}
 								</label>
 							</div>
 						</KCard>
@@ -693,32 +693,32 @@
 					<div v-if="showEditModal" class="modal-overlay" @click.self="showEditModal = false">
 						<div class="modal-content">
 							<div class="modal-header">
-								<h3>{{ $t('mansion.residents.edit') || 'Edit Resident Information' }}</h3>
+								<h3>{{ $t('mansion.residents.edit') }}</h3>
 								<button class="modal-close" @click="showEditModal = false">✕</button>
 							</div>
 							<form class="modal-body" @submit.prevent="saveResident">
 								<div class="form-group">
-									<label>{{ $t('mansion.residents.name') || 'Name' }}</label>
+									<label>{{ $t('mansion.residents.name') }}</label>
 									<input v-model="editingResident.name" type="text" required>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('mansion.residents.unit') || 'Unit' }}</label>
+									<label>{{ $t('mansion.residents.unit') }}</label>
 									<input v-model="editingResident.unit" type="text" required>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('mansion.residents.email') || 'Email' }}</label>
+									<label>{{ $t('mansion.residents.email') }}</label>
 									<input v-model="editingResident.email" type="email" required>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('mansion.residents.phone') || 'Phone' }}</label>
+									<label>{{ $t('mansion.residents.phone') }}</label>
 									<input v-model="editingResident.phone" type="tel" required>
 								</div>
 								<div class="modal-actions">
 									<KButton type="button" variant="secondary" @click="showEditModal = false">
-										{{ $t('common.cancel') || 'Cancel' }}
+										{{ $t('common.cancel') }}
 									</KButton>
 									<KButton type="submit" variant="primary">
-										{{ $t('common.save') || 'Save Changes' }}
+										{{ $t('common.save') }}
 									</KButton>
 								</div>
 							</form>
@@ -731,33 +731,33 @@
 					<div v-if="showAnnouncementModal" class="modal-overlay" @click.self="showAnnouncementModal = false">
 						<div class="modal-content">
 							<div class="modal-header">
-								<h3>{{ $t('mansion.announcements.new') || 'Create New Announcement' }}</h3>
+								<h3>{{ $t('mansion.announcements.new') }}</h3>
 								<button class="modal-close" @click="showAnnouncementModal = false">✕</button>
 							</div>
 							<form class="modal-body" @submit.prevent="createAnnouncement">
 								<div class="form-group">
-									<label>{{ $t('mansion.announcements.title') || 'Title' }}</label>
+									<label>{{ $t('mansion.announcements.title') }}</label>
 									<input v-model="newAnnouncement.title" type="text" required>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('mansion.announcements.category') || 'Category' }}</label>
+									<label>{{ $t('mansion.announcements.category') }}</label>
 									<select v-model="newAnnouncement.category" required>
-										<option value="general">{{ $t('mansion.announcements.general') || 'General' }}</option>
-										<option value="maintenance">{{ $t('mansion.announcements.maintenance') || 'Maintenance' }}</option>
-										<option value="event">{{ $t('mansion.announcements.event') || 'Event' }}</option>
-										<option value="urgent">{{ $t('mansion.announcements.urgent') || 'Urgent' }}</option>
+										<option value="general">{{ $t('mansion.announcements.general') }}</option>
+										<option value="maintenance">{{ $t('mansion.announcements.maintenance') }}</option>
+										<option value="event">{{ $t('mansion.announcements.event') }}</option>
+										<option value="urgent">{{ $t('mansion.announcements.urgent') }}</option>
 									</select>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('mansion.announcements.content') || 'Content' }}</label>
+									<label>{{ $t('mansion.announcements.content') }}</label>
 									<textarea v-model="newAnnouncement.content" rows="5" required />
 								</div>
 								<div class="modal-actions">
 									<KButton type="button" variant="secondary" @click="showAnnouncementModal = false">
-										{{ $t('common.cancel') || 'Cancel' }}
+										{{ $t('common.cancel') }}
 									</KButton>
 									<KButton type="submit" variant="primary">
-										{{ $t('mansion.announcements.post') || 'Post Announcement' }}
+										{{ $t('mansion.announcements.post') }}
 									</KButton>
 								</div>
 							</form>

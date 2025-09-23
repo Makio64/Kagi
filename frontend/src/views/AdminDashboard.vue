@@ -2,7 +2,7 @@
 	<div class="dashboard">
 		<!-- Dashboard Header -->
 		<DashboardHeader
-			:title="$t('admin.title') || 'Admin Console'"
+			:title="$t('admin.title')"
 			user-badge="System Admin"
 			:user-email="user?.email || 'Admin'"
 			user-role="System Administrator"
@@ -23,7 +23,7 @@
 						@click="navigateToSection(item.id)"
 					>
 						<span class="nav-icon">{{ item.icon }}</span>
-						<span class="nav-label">{{ $t(`admin.menu.${item.id}`) || item.label }}</span>
+						<span class="nav-label">{{ $t(`admin.menu.${item.id}`) }}</span>
 					</button>
 				</nav>
 
@@ -39,7 +39,7 @@
 						<div class="nav-icon-circle">
 							<span class="nav-icon">{{ item.icon }}</span>
 						</div>
-						<span class="nav-label-mobile">{{ $t(`admin.menu.${item.id}`) || item.label }}</span>
+						<span class="nav-label-mobile">{{ $t(`admin.menu.${item.id}`) }}</span>
 					</button>
 				</nav>
 			</aside>
@@ -48,7 +48,7 @@
 				<!-- Overview Section -->
 				<section v-if="activeSection === 'overview'" class="section">
 					<SectionHeader
-						:title="$t('admin.overview.title') || 'Management Overview'"
+						:title="$t('admin.overview.title')"
 						icon="📊"
 					/>
 
@@ -56,28 +56,28 @@
 					<div class="stats-grid">
 						<StatCard
 							icon="🏢"
-							:label="$t('admin.stats.buildings') || 'Buildings'"
+							:label="$t('admin.stats.buildings')"
 							:value="12"
 							variant="primary"
 							:trend="{ text: '+2 this month', positive: true }"
 						/>
 						<StatCard
 							icon="👥"
-							:label="$t('admin.stats.residents') || 'Total Residents'"
+							:label="$t('admin.stats.residents')"
 							:value="1248"
 							variant="secondary"
 							:trend="{ text: '+48 this month', positive: true }"
 						/>
 						<StatCard
 							icon="🔧"
-							:label="$t('admin.stats.maintenance') || 'Open Requests'"
+							:label="$t('admin.stats.maintenance')"
 							:value="23"
 							variant="warning"
 							:trend="{ text: '8 urgent', positive: false }"
 						/>
 						<StatCard
 							icon="💰"
-							:label="$t('admin.stats.revenue') || 'Monthly Revenue'"
+							:label="$t('admin.stats.revenue')"
 							:value="12500000"
 							format="currency"
 							variant="success"
@@ -116,12 +116,12 @@
 				<!-- Buildings Management -->
 				<section v-if="activeSection === 'buildings'" class="section">
 					<SectionHeader
-						:title="$t('admin.buildings.title') || 'Buildings Management'"
+						:title="$t('admin.buildings.title')"
 						icon="🏢"
 					>
 						<template #actions>
 							<KButton variant="primary" icon="➕" @click="showAddBuildingModal = true">
-								{{ $t('admin.buildings.add') || 'Add Building' }}
+								{{ $t('admin.buildings.add') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -138,15 +138,15 @@
 								<span class="building-status" :class="building.status">{{ building.status }}</span>
 							</template>
 							<div class="building-info">
-								<p><strong>{{ $t('admin.buildings.address') || 'Address' }}:</strong> {{ building.address }}</p>
-								<p><strong>{{ $t('admin.buildings.units') || 'Units' }}:</strong> {{ building.units }}</p>
-								<p><strong>{{ $t('admin.buildings.occupancy') || 'Occupancy' }}:</strong> {{ building.occupancy }}%</p>
+								<p><strong>{{ $t('admin.buildings.address') }}:</strong> {{ building.address }}</p>
+								<p><strong>{{ $t('admin.buildings.units') }}:</strong> {{ building.units }}</p>
+								<p><strong>{{ $t('admin.buildings.occupancy') }}:</strong> {{ building.occupancy }}%</p>
 							</div>
 							<template #footer>
 								<div class="building-actions">
-									<KButton size="sm" variant="secondary">{{ $t('common.edit') || 'Edit' }}</KButton>
-									<KButton size="sm" variant="primary">{{ $t('admin.buildings.manage') || 'Manage' }}</KButton>
-									<KButton size="sm" variant="danger">{{ $t('common.delete') || 'Delete' }}</KButton>
+									<KButton size="sm" variant="secondary">{{ $t('common.edit') }}</KButton>
+									<KButton size="sm" variant="primary">{{ $t('admin.buildings.manage') }}</KButton>
+									<KButton size="sm" variant="danger">{{ $t('common.delete') }}</KButton>
 								</div>
 							</template>
 						</KCard>
@@ -156,14 +156,14 @@
 				<!-- Users Management -->
 				<section v-if="activeSection === 'users'" class="section">
 					<SectionHeader
-						:title="$t('admin.users.title') || 'Users Management'"
+						:title="$t('admin.users.title')"
 						icon="👥"
 						searchable
 						search-placeholder="Search users..."
 					>
 						<template #actions>
 							<KButton variant="primary" icon="➕">
-								{{ $t('admin.users.invite') || 'Invite User' }}
+								{{ $t('admin.users.invite') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -173,12 +173,12 @@
 							<table>
 								<thead>
 									<tr>
-										<th>{{ $t('admin.users.name') || 'Name' }}</th>
-										<th>{{ $t('admin.users.email') || 'Email' }}</th>
-										<th>{{ $t('admin.users.role') || 'Role' }}</th>
-										<th>{{ $t('admin.users.building') || 'Building' }}</th>
-										<th>{{ $t('admin.users.status') || 'Status' }}</th>
-										<th>{{ $t('admin.users.actions') || 'Actions' }}</th>
+										<th>{{ $t('admin.users.name') }}</th>
+										<th>{{ $t('admin.users.email') }}</th>
+										<th>{{ $t('admin.users.role') }}</th>
+										<th>{{ $t('admin.users.building') }}</th>
+										<th>{{ $t('admin.users.status') }}</th>
+										<th>{{ $t('admin.users.actions') }}</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -202,39 +202,39 @@
 				<!-- Maintenance Overview -->
 				<section v-if="activeSection === 'maintenance'" class="section">
 					<SectionHeader
-						:title="$t('admin.maintenance.title') || 'Maintenance Overview'"
+						:title="$t('admin.maintenance.title')"
 						icon="🔧"
 					/>
 
 					<div class="maintenance-stats">
 						<StatCard
 							icon="🚨"
-							:label="$t('admin.maintenance.urgent') || 'Urgent'"
+							:label="$t('admin.maintenance.urgent')"
 							:value="8"
 							variant="danger"
 						/>
 						<StatCard
 							icon="⏳"
-							:label="$t('admin.maintenance.pending') || 'Pending'"
+							:label="$t('admin.maintenance.pending')"
 							:value="15"
 							variant="warning"
 						/>
 						<StatCard
 							icon="🔧"
-							:label="$t('admin.maintenance.inProgress') || 'In Progress'"
+							:label="$t('admin.maintenance.inProgress')"
 							:value="12"
 							variant="info"
 						/>
 						<StatCard
 							icon="✅"
-							:label="$t('admin.maintenance.completed') || 'Completed'"
+							:label="$t('admin.maintenance.completed')"
 							:value="142"
 							variant="success"
 						/>
 					</div>
 
 					<KCard
-						:title="$t('admin.maintenance.recent') || 'Recent Requests'"
+						:title="$t('admin.maintenance.recent')"
 						elevated
 					>
 						<div class="requests-list">
@@ -248,7 +248,7 @@
 								<div class="request-footer">
 									<span class="request-unit">Unit {{ request.unit }}</span>
 									<KButton size="sm" variant="primary">
-										{{ $t('admin.maintenance.assign') || 'Assign' }}
+										{{ $t('admin.maintenance.assign') }}
 									</KButton>
 								</div>
 							</div>
@@ -259,12 +259,12 @@
 				<!-- Financial Reports -->
 				<section v-if="activeSection === 'financial'" class="section">
 					<SectionHeader
-						:title="$t('admin.financial.title') || 'Financial Reports'"
+						:title="$t('admin.financial.title')"
 						icon="💰"
 					>
 						<template #actions>
 							<KButton variant="secondary" icon="📥">
-								{{ $t('admin.financial.export') || 'Export Report' }}
+								{{ $t('admin.financial.export') }}
 							</KButton>
 						</template>
 					</SectionHeader>
@@ -272,7 +272,7 @@
 					<div class="financial-summary">
 						<StatCard
 							icon="💵"
-							:label="$t('admin.financial.revenue') || 'Total Revenue'"
+							:label="$t('admin.financial.revenue')"
 							:value="152340000"
 							format="currency"
 							subtext="This Year"
@@ -280,7 +280,7 @@
 						/>
 						<StatCard
 							icon="💸"
-							:label="$t('admin.financial.expenses') || 'Total Expenses'"
+							:label="$t('admin.financial.expenses')"
 							:value="98200000"
 							format="currency"
 							subtext="This Year"
@@ -288,7 +288,7 @@
 						/>
 						<StatCard
 							icon="💰"
-							:label="$t('admin.financial.profit') || 'Net Profit'"
+							:label="$t('admin.financial.profit')"
 							:value="54140000"
 							format="currency"
 							subtext="This Year"
@@ -297,7 +297,7 @@
 					</div>
 
 					<KCard
-						:title="$t('admin.financial.paymentStatus') || 'Payment Status by Building'"
+						:title="$t('admin.financial.paymentStatus')"
 						elevated
 					>
 						<div class="payment-grid">
@@ -315,43 +315,43 @@
 				<!-- Settings -->
 				<section v-if="activeSection === 'settings'" class="section">
 					<SectionHeader
-						:title="$t('admin.settings.title') || 'System Settings'"
+						:title="$t('admin.settings.title')"
 						icon="⚙️"
 					/>
 
 					<div class="settings-sections">
 						<KCard
-							:title="$t('admin.settings.notifications') || 'Notification Settings'"
+							:title="$t('admin.settings.notifications')"
 							icon="🔔"
 							outlined
 						>
 							<div class="setting-item">
 								<label>
 									<input type="checkbox" checked>
-									{{ $t('admin.settings.emailNotifications') || 'Email notifications for urgent requests' }}
+									{{ $t('admin.settings.emailNotifications') }}
 								</label>
 							</div>
 							<div class="setting-item">
 								<label>
 									<input type="checkbox" checked>
-									{{ $t('admin.settings.dailyReports') || 'Daily summary reports' }}
+									{{ $t('admin.settings.dailyReports') }}
 								</label>
 							</div>
 						</KCard>
 
 						<KCard
-							:title="$t('admin.settings.security') || 'Security Settings'"
+							:title="$t('admin.settings.security')"
 							icon="🔐"
 							outlined
 						>
 							<div class="setting-item">
-								<label>{{ $t('admin.settings.twoFactor') || 'Two-factor authentication' }}</label>
+								<label>{{ $t('admin.settings.twoFactor') }}</label>
 								<KButton size="sm" variant="primary">
-									{{ $t('admin.settings.enable') || 'Enable' }}
+									{{ $t('admin.settings.enable') }}
 								</KButton>
 							</div>
 							<div class="setting-item">
-								<label>{{ $t('admin.settings.sessionTimeout') || 'Session timeout' }}</label>
+								<label>{{ $t('admin.settings.sessionTimeout') }}</label>
 								<select>
 									<option>30 minutes</option>
 									<option>1 hour</option>
@@ -361,12 +361,12 @@
 						</KCard>
 
 						<KCard
-							:title="$t('admin.settings.appearance') || 'Appearance'"
+							:title="$t('admin.settings.appearance')"
 							icon="🎨"
 							outlined
 						>
 							<div class="setting-item">
-								<label>{{ $t('common.language') || 'Language' }}</label>
+								<label>{{ $t('common.language') }}</label>
 								<LanguageSwitcher />
 							</div>
 						</KCard>
@@ -378,12 +378,12 @@
 					<div v-if="showAddBuildingModal" class="modal-overlay" @click.self="closeAddBuildingModal">
 						<div class="modal-content">
 							<div class="modal-header">
-								<h3>{{ $t('admin.buildings.addNew') || 'Add New Building' }}</h3>
+								<h3>{{ $t('admin.buildings.addNew') }}</h3>
 								<button class="modal-close" @click="closeAddBuildingModal">✕</button>
 							</div>
 							<form class="modal-body" @submit.prevent="addBuilding">
 								<div class="form-group">
-									<label for="building-name">{{ $t('admin.buildings.name') || 'Building Name' }} *</label>
+									<label for="building-name">{{ $t('admin.buildings.name') }} *</label>
 									<input
 										id="building-name"
 										v-model="newBuilding.name"
@@ -393,7 +393,7 @@
 									>
 								</div>
 								<div class="form-group">
-									<label for="building-address">{{ $t('admin.buildings.address') || 'Address' }} *</label>
+									<label for="building-address">{{ $t('admin.buildings.address') }} *</label>
 									<input
 										id="building-address"
 										v-model="newBuilding.address"
@@ -403,7 +403,7 @@
 									>
 								</div>
 								<div class="form-group">
-									<label for="building-description">{{ $t('admin.buildings.description') || 'Description' }}</label>
+									<label for="building-description">{{ $t('admin.buildings.description') }}</label>
 									<textarea
 										id="building-description"
 										v-model="newBuilding.description"
@@ -413,7 +413,7 @@
 								</div>
 								<div class="form-row">
 									<div class="form-group">
-										<label for="building-units">{{ $t('admin.buildings.totalUnits') || 'Total Units' }}</label>
+										<label for="building-units">{{ $t('admin.buildings.totalUnits') }}</label>
 										<input
 											id="building-units"
 											v-model.number="newBuilding.units"
@@ -423,7 +423,7 @@
 										>
 									</div>
 									<div class="form-group">
-										<label for="building-floors">{{ $t('admin.buildings.floors') || 'Floors' }}</label>
+										<label for="building-floors">{{ $t('admin.buildings.floors') }}</label>
 										<input
 											id="building-floors"
 											v-model.number="newBuilding.floors"
@@ -434,36 +434,36 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label>{{ $t('admin.buildings.facilities') || 'Facilities' }}</label>
+									<label>{{ $t('admin.buildings.facilities') }}</label>
 									<div class="facilities-checkboxes">
 										<label class="checkbox-label">
 											<input v-model="newBuilding.facilities" type="checkbox" value="gym">
-											<span>{{ $t('facilities.gym') || 'Gym' }}</span>
+											<span>{{ $t('facilities.gym') }}</span>
 										</label>
 										<label class="checkbox-label">
 											<input v-model="newBuilding.facilities" type="checkbox" value="pool">
-											<span>{{ $t('facilities.pool') || 'Pool' }}</span>
+											<span>{{ $t('facilities.pool') }}</span>
 										</label>
 										<label class="checkbox-label">
 											<input v-model="newBuilding.facilities" type="checkbox" value="parking">
-											<span>{{ $t('facilities.parking') || 'Parking' }}</span>
+											<span>{{ $t('facilities.parking') }}</span>
 										</label>
 										<label class="checkbox-label">
 											<input v-model="newBuilding.facilities" type="checkbox" value="lounge">
-											<span>{{ $t('facilities.lounge') || 'Lounge' }}</span>
+											<span>{{ $t('facilities.lounge') }}</span>
 										</label>
 										<label class="checkbox-label">
 											<input v-model="newBuilding.facilities" type="checkbox" value="rooftop">
-											<span>{{ $t('facilities.rooftop') || 'Rooftop' }}</span>
+											<span>{{ $t('facilities.rooftop') }}</span>
 										</label>
 										<label class="checkbox-label">
 											<input v-model="newBuilding.facilities" type="checkbox" value="laundry">
-											<span>{{ $t('facilities.laundry') || 'Laundry' }}</span>
+											<span>{{ $t('facilities.laundry') }}</span>
 										</label>
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="building-rules">{{ $t('admin.buildings.rules') || 'Building Rules' }}</label>
+									<label for="building-rules">{{ $t('admin.buildings.rules') }}</label>
 									<textarea
 										id="building-rules"
 										v-model="newBuilding.rules"
@@ -473,10 +473,10 @@
 								</div>
 								<div class="modal-actions">
 									<KButton type="button" variant="secondary" @click="closeAddBuildingModal">
-										{{ $t('common.cancel') || 'Cancel' }}
+										{{ $t('common.cancel') }}
 									</KButton>
 									<KButton type="submit" variant="primary" :loading="isAddingBuilding">
-										{{ $t('common.save') || 'Save Building' }}
+										{{ $t('common.save') }}
 									</KButton>
 								</div>
 							</form>

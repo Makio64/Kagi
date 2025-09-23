@@ -2,7 +2,7 @@
 	<div class="event-details">
 		<div class="details-header">
 			<button class="back-btn" @click="$emit('close')">
-				← {{ $t('common.back') || 'Back' }}
+				← {{ $t('common.back') }}
 			</button>
 			<h2>📢 {{ event.title }}</h2>
 		</div>
@@ -23,33 +23,33 @@
 
 			<!-- Event Info -->
 			<div class="info-section">
-				<h3>📅 {{ $t('events.eventInfo') || 'Event Information' }}</h3>
+				<h3>📅 {{ $t('events.eventInfo') }}</h3>
 				<div class="info-grid">
 					<div class="info-item">
 						<span class="icon">🕐</span>
 						<div>
-							<div class="label">{{ $t('events.time') || 'Time' }}</div>
+							<div class="label">{{ $t('events.time') }}</div>
 							<div class="value">{{ event.time }}</div>
 						</div>
 					</div>
 					<div class="info-item">
 						<span class="icon">📍</span>
 						<div>
-							<div class="label">{{ $t('events.location') || 'Location' }}</div>
+							<div class="label">{{ $t('events.location') }}</div>
 							<div class="value">{{ event.location }}</div>
 						</div>
 					</div>
 					<div class="info-item">
 						<span class="icon">👥</span>
 						<div>
-							<div class="label">{{ $t('events.attendees') || 'Expected Attendees' }}</div>
+							<div class="label">{{ $t('events.attendees') }}</div>
 							<div class="value">{{ event.attendees }}</div>
 						</div>
 					</div>
 					<div class="info-item">
 						<span class="icon">🎟️</span>
 						<div>
-							<div class="label">{{ $t('events.fee') || 'Participation Fee' }}</div>
+							<div class="label">{{ $t('events.fee') }}</div>
 							<div class="value">{{ event.fee }}</div>
 						</div>
 					</div>
@@ -58,19 +58,19 @@
 
 			<!-- Event Description -->
 			<div class="description-section">
-				<h3>📝 {{ $t('events.description') || 'Event Description' }}</h3>
+				<h3>📝 {{ $t('events.description') }}</h3>
 				<div class="description-content">
 					<p>{{ event.description }}</p>
 					
 					<div v-if="event.agenda" class="agenda">
-						<h4>{{ $t('events.agenda') || 'Event Agenda' }}</h4>
+						<h4>{{ $t('events.agenda') }}</h4>
 						<ul>
 							<li v-for="item in event.agenda" :key="item">{{ item }}</li>
 						</ul>
 					</div>
 
 					<div v-if="event.notes" class="notes">
-						<h4>{{ $t('events.notes') || 'Important Notes' }}</h4>
+						<h4>{{ $t('events.notes') }}</h4>
 						<ul>
 							<li v-for="note in event.notes" :key="note">{{ note }}</li>
 						</ul>
@@ -80,7 +80,7 @@
 
 			<!-- RSVP Section -->
 			<div v-if="!event.past" class="rsvp-section">
-				<h3>✋ {{ $t('events.rsvp') || 'RSVP' }}</h3>
+				<h3>✋ {{ $t('events.rsvp') }}</h3>
 				<div v-if="!rsvpSubmitted" class="rsvp-form">
 					<div class="rsvp-options">
 						<button 
@@ -88,70 +88,70 @@
 							@click="rsvpStatus = 'attending'"
 						>
 							<span class="option-icon">✅</span>
-							<span>{{ $t('events.attending') || 'I will attend' }}</span>
+							<span>{{ $t('events.attending') }}</span>
 						</button>
 						<button 
 							:class="['rsvp-option', { selected: rsvpStatus === 'maybe' }]"
 							@click="rsvpStatus = 'maybe'"
 						>
 							<span class="option-icon">🤔</span>
-							<span>{{ $t('events.maybe') || 'Maybe' }}</span>
+							<span>{{ $t('events.maybe') }}</span>
 						</button>
 						<button 
 							:class="['rsvp-option', { selected: rsvpStatus === 'not_attending' }]"
 							@click="rsvpStatus = 'not_attending'"
 						>
 							<span class="option-icon">❌</span>
-							<span>{{ $t('events.notAttending') || 'Cannot attend' }}</span>
+							<span>{{ $t('events.notAttending') }}</span>
 						</button>
 					</div>
 					
 					<div v-if="rsvpStatus === 'attending'" class="guest-count">
-						<label>{{ $t('events.numberOfGuests') || 'Number of guests (including yourself)' }}</label>
+						<label>{{ $t('events.numberOfGuests') }}</label>
 						<input v-model.number="guestCount" type="number" min="1" max="5">
 					</div>
 
 					<textarea 
 						v-model="rsvpComment"
 						class="rsvp-comment"
-						:placeholder="$t('events.commentPlaceholder') || 'Any dietary restrictions or comments? (optional)'"
+						:placeholder="$t('events.commentPlaceholder')"
 					/>
 
 					<button class="submit-rsvp-btn" :disabled="!rsvpStatus" @click="submitRSVP">
-						{{ $t('events.submitRsvp') || 'Submit RSVP' }}
+						{{ $t('events.submitRsvp') }}
 					</button>
 				</div>
 				
 				<div v-else class="rsvp-success">
 					<div class="success-icon">✅</div>
-					<h4>{{ $t('events.rsvpSuccess') || 'RSVP Submitted Successfully!' }}</h4>
-					<p>{{ $t('events.rsvpThanks') || 'Thank you for your response. We look forward to seeing you!' }}</p>
+					<h4>{{ $t('events.rsvpSuccess') }}</h4>
+					<p>{{ $t('events.rsvpThanks') }}</p>
 				</div>
 			</div>
 
 			<!-- Past Event Notice -->
 			<div v-if="event.past" class="past-event-notice">
 				<span class="notice-icon">📅</span>
-				<p>{{ $t('events.pastEvent') || 'This event has already taken place.' }}</p>
+				<p>{{ $t('events.pastEvent') }}</p>
 			</div>
 
 			<!-- Organizer Info -->
 			<div class="organizer-section">
-				<h3>👤 {{ $t('events.organizer') || 'Event Organizer' }}</h3>
+				<h3>👤 {{ $t('events.organizer') }}</h3>
 				<div class="organizer-card">
 					<div class="organizer-info">
 						<div class="organizer-name">{{ event.organizer }}</div>
 						<div class="organizer-role">{{ event.organizerRole }}</div>
 					</div>
 					<button class="contact-organizer-btn">
-						💬 {{ $t('events.contactOrganizer') || 'Contact Organizer' }}
+						💬 {{ $t('events.contactOrganizer') }}
 					</button>
 				</div>
 			</div>
 
 			<!-- Related Events -->
 			<div v-if="relatedEvents.length > 0" class="related-section">
-				<h3>📅 {{ $t('events.upcoming') || 'Other Upcoming Events' }}</h3>
+				<h3>📅 {{ $t('events.upcoming') }}</h3>
 				<div class="related-events">
 					<div v-for="related in relatedEvents" :key="related.id" class="related-event">
 						<div class="related-date">

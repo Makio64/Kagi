@@ -7,7 +7,7 @@
 			</h2>
 			<p v-if="subtitle" class="section-header__subtitle">{{ subtitle }}</p>
 		</div>
-		
+
 		<div v-if="$slots.actions || actions" class="section-header__actions">
 			<slot name="actions">
 				<div v-if="searchable" class="section-header__search">
@@ -47,7 +47,7 @@ const props = defineProps( {
 	},
 	subtitle: String,
 	icon: String,
-	
+
 	// Actions
 	actions: Array, // Array of { text, variant, size, icon, handler }
 	searchable: Boolean,
@@ -73,15 +73,15 @@ const handleSearch = () => {
 	margin-bottom $spacing-xl
 	padding-bottom $spacing-lg
 	border-bottom 2px solid $color-border-light
-	
+
 	&.has-actions
 		flex-wrap wrap
 		gap $spacing-md
-		
+
 		@media (max-width: $breakpoint-md)
 			.section-header__main
 				width 100%
-				
+
 			.section-header__actions
 				width 100%
 				justify-content flex-start
@@ -126,15 +126,15 @@ const handleSearch = () => {
 	min-width 250px
 	transition $transition-base
 	background white
-	
+
 	&::placeholder
 		color $color-text-light
-	
+
 	&:focus
 		outline none
 		border-color $color-primary
 		box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
-		
+
 	// Search icon
 	&[type="search"]
 		padding-left $spacing-xl
@@ -147,10 +147,10 @@ const handleSearch = () => {
 @media (max-width: $breakpoint-md)
 	.section-header__title
 		font-size $font-xl
-		
+
 	.section-header__icon
 		font-size 1.5rem
-		
+
 	.search-input
 		min-width auto
 		width 100%
