@@ -304,10 +304,13 @@ const handleLogoClick = () => {
 	width 100%
 	padding $spacing-lg
 	gap $spacing-lg
-	
+
 	@media (max-width: $breakpoint-md)
 		padding $spacing-md
 		gap $spacing-md
+
+	@media (max-width: 550px)
+		padding 0
 
 // Sidebar
 .dashboard-sidebar

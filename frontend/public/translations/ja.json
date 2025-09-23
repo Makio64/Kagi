@@ -390,5 +390,10 @@
 	"booking.noBookings": "この施設の予約はありません。",
 	"booking.filter.all": "すべて",
 	"booking.filter.upcoming": "今後の予約",
-	"booking.filter.past": "過去の予約"
+	"booking.filter.past": "過去の予約",
+	"booking.noUpcomingBookings": "今後の予約はありません",
+	"booking.noUpcomingBookingsDesc": "施設を予約するとここに表示されます",
+	"booking.noPastBookings": "過去の予約はありません",
+	"booking.noPastBookingsDesc": "完了した予約がここに表示されます",
+	"booking.noBookingsDesc": "利用可能な施設の予約から始めてください"
 }

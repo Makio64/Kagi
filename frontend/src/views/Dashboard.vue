@@ -201,11 +201,11 @@
 					<div class="section-header-modern">
 						<div class="header-content">
 							<h2 class="section-title-modern">
-								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="section-icon-svg">
-									<rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
-									<path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-									<rect x="8" y="14" width="2" height="2" fill="currentColor" />
-									<rect x="12" y="14" width="2" height="2" fill="currentColor" />
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="section-icon-svg yellow">
+									<rect x="3" y="4" width="18" height="18" rx="2" stroke="#FFC107" stroke-width="2" />
+									<path d="M16 2V6M8 2V6M3 10H21" stroke="#FFC107" stroke-width="2" stroke-linecap="round" />
+									<rect x="8" y="14" width="2" height="2" fill="#FFC107" />
+									<rect x="12" y="14" width="2" height="2" fill="#FFC107" />
 								</svg>
 								{{ $t('dashboard.booking.title') || 'Facility Booking' }}
 							</h2>
@@ -215,11 +215,10 @@
 					<div class="booking-two-column-layout">
 						<!-- Left Column: Available Facilities -->
 						<div class="facilities-column">
-							<h3 class="column-title">{{ $t('booking.availableFacilities') || 'Available Facilities' }}</h3>
 							<div class="facilities-list">
 								<!-- Party Room -->
-								<div class="facility-card-with-image" @click="bookFacility('party')">
-									<div class="facility-image party">
+								<div class="facility-card-vertical" @click="bookFacility('party')">
+									<div class="facility-image-top party">
 										<span class="facility-badge">🎉</span>
 									</div>
 									<div class="facility-content">
@@ -229,13 +228,13 @@
 											<span>👥 Up to 20 people</span>
 											<span>💴 ¥10,000/half-day</span>
 										</div>
-										<button class="book-btn-yellow">Book Now →</button>
 									</div>
+									<button class="book-btn-yellow">Book Now →</button>
 								</div>
 
 								<!-- Guest Room -->
-								<div class="facility-card-with-image" @click="bookFacility('guest')">
-									<div class="facility-image guest">
+								<div class="facility-card-vertical" @click="bookFacility('guest')">
+									<div class="facility-image-top guest">
 										<span class="facility-badge">🛏️</span>
 									</div>
 									<div class="facility-content">
@@ -245,13 +244,13 @@
 											<span>👥 Up to 2 guests</span>
 											<span>💴 ¥5,000/night</span>
 										</div>
-										<button class="book-btn-yellow">Book Now →</button>
 									</div>
+									<button class="book-btn-yellow">Book Now →</button>
 								</div>
 
 								<!-- Fitness Gym -->
-								<div class="facility-card-with-image" @click="bookFacility('gym')">
-									<div class="facility-image gym">
+								<div class="facility-card-vertical" @click="bookFacility('gym')">
+									<div class="facility-image-top gym">
 										<span class="facility-badge">💪</span>
 									</div>
 									<div class="facility-content">
@@ -261,8 +260,8 @@
 											<span>👥 10 people max</span>
 											<span>✨ Free for residents</span>
 										</div>
-										<button class="book-btn-yellow">Book Now →</button>
 									</div>
+									<button class="book-btn-yellow">Book Now →</button>
 								</div>
 							</div>
 						</div>
@@ -276,7 +275,7 @@
 								</h3>
 								<div v-if="userBookings && userBookings.length > 0" class="booking-filters">
 									<button
-										v-for="filter in ['all', 'upcoming', 'past']"
+										v-for="filter in ['upcoming', 'past']"
 										:key="filter"
 										:class="['filter-btn-modern', { active: activeFilter === filter }]"
 										@click="activeFilter = filter"
@@ -741,7 +740,7 @@ const showContactManager = ref( false )
 const selectedBill = ref( null )
 const selectedEvent = ref( null )
 const selectedFacility = ref( null )
-const activeFilter = ref( 'all' )
+const activeFilter = ref( 'upcoming' )
 
 // Sample user bookings data
 const userBookings = ref( [
@@ -790,8 +789,6 @@ const userBookings = ref( [
 // Filtered bookings based on active filter
 const filteredBookings = computed( () => {
 	const filter = activeFilter.value
-	if ( filter === 'all' ) return userBookings.value
-
 	const now = new Date()
 	now.setHours( 0, 0, 0, 0 )
 
@@ -1894,8 +1891,8 @@ watch( showMobileMenu, ( newVal ) => {
 		gap 1rem
 
 	@media (max-width: 550px)
-		padding 0.5rem
-		gap 0.5rem
+		padding 0
+		gap 0
 
 .sidebar
 	width 250px
@@ -2179,6 +2176,13 @@ watch( showMobileMenu, ( newVal ) => {
 	padding 2rem
 	// box-shadow 0 8px 25px rgba(255, 193, 7, 0.08)
 	// border 1px solid rgba(255, 193, 7, 0.1)
+
+	@media (max-width: 768px)
+		padding 1rem
+
+	@media (max-width: 550px)
+		padding 0
+		border-radius 0
 
 	// Special case for document viewer - remove padding
 	.document-viewer-section
@@ -3321,7 +3325,7 @@ watch( showMobileMenu, ( newVal ) => {
 		padding 0.75rem
 
 	.main-content
-		padding 0.75rem
+		padding 0
 
 	.section-title
 		font-size 1.5rem
@@ -3371,6 +3375,9 @@ watch( showMobileMenu, ( newVal ) => {
 // Modern Booking Styles
 .booking-section-modern
 	padding 0
+
+	@media (max-width: 550px)
+		padding 1rem
 
 .section-header-modern
 	margin-bottom 1.5rem
@@ -3424,9 +3431,9 @@ watch( showMobileMenu, ( newVal ) => {
 
 // Facility cards with images
 .facilities-list
-	display flex
-	flex-direction column
-	gap 1rem
+	display grid
+	grid-template-columns repeat(auto-fill, minmax(280px, 1fr))
+	gap 1.25rem
 
 .facility-card-with-image
 	display flex
@@ -3454,81 +3461,130 @@ watch( showMobileMenu, ( newVal ) => {
 		align-items center
 		justify-content center
 		position relative
+
+.facility-card-vertical
+	display flex
+	flex-direction column
+	background white
+	border 1px solid #e5e7eb
+	border-radius 16px
+	cursor pointer
+	transition all 0.3s ease
+	overflow hidden
+	height 100%
+
+	&:hover
+		transform translateY(-4px)
+		box-shadow 0 8px 20px rgba(255, 193, 7, 0.15)
+		border-color #FFC107
+
+		.facility-image-top
+			transform scale(1.05)
+
+		.book-btn-yellow
+			background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+
+	.facility-image-top
+		width 100%
+		height 160px
+		display flex
+		align-items center
+		justify-content center
+		position relative
+		transition transform 0.3s ease
 		overflow hidden
 
+		@media (max-width: 550px)
+			height 120px
+
 		&.party
-			background linear-gradient(135deg, #ec4899 0%, #f472b6 100%)
+			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 
 		&.guest
-			background linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)
+			background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
 
 		&.gym
-			background linear-gradient(135deg, #10b981 0%, #34d399 100%)
+			background linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)
 
 		.facility-badge
-			font-size 3rem
+			font-size 4rem
 			filter drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))
 
 	.facility-content
 		flex 1
+		padding 1.25rem
 		display flex
 		flex-direction column
-		justify-content center
+		align-items center
+		text-align center
+
+		@media (max-width: 550px)
+			padding 1rem
 
 		h4
-			font-size 1.25rem
-			font-weight 700
+			font-size 1.15rem
+			font-weight 600
 			color #1a1a1a
 			margin 0 0 0.5rem 0
 
+			@media (max-width: 550px)
+				font-size 1rem
+
 		.facility-desc
-			font-size 0.95rem
+			font-size 0.9rem
 			color #6b7280
-			margin 0 0 0.75rem 0
+			margin 0 0 1rem 0
 			line-height 1.4
+
+			@media (max-width: 550px)
+				font-size 0.85rem
+				margin 0 0 0.75rem 0
 
 		.facility-meta
 			display flex
-			gap 1rem
-			margin-bottom 1rem
+			flex-direction column
+			gap 0.5rem
+			margin-top auto
+			width 100%
+
+			@media (max-width: 550px)
+				gap 0.35rem
 
 			span
 				font-size 0.85rem
 				color #4b5563
+				display flex
+				align-items center
+				justify-content center
+				gap 0.25rem
 
-		.book-btn-primary
-			padding 0.6rem 1.5rem
-			background linear-gradient(135deg, #1a1a1a 0%, #333 100%)
-			color white
-			border none
-			border-radius 10px
+				@media (max-width: 550px)
+					font-size 0.8rem
+
+	.book-btn-yellow
+		margin 1rem 1.25rem 1.25rem 1.25rem
+		padding 0.75rem 1.75rem
+		width calc(100% - 2.5rem)
+
+		@media (max-width: 550px)
+			margin 0.75rem 1rem 1rem 1rem
+			padding 0.65rem 1.5rem
+			width calc(100% - 2rem)
 			font-size 0.9rem
-			font-weight 600
-			cursor pointer
-			transition all 0.2s ease
-			width fit-content
+		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+		color #333
+		border none
+		border-radius 25px
+		font-size 0.95rem
+		font-weight 600
+		cursor pointer
+		transition all 0.25s ease
+		box-shadow 0 3px 10px rgba(255, 193, 7, 0.25)
 
-			&:hover
-				background linear-gradient(135deg, #333 0%, #555 100%)
-				transform translateX(2px)
-
-		.book-btn-yellow
-			padding 0.65rem 1.6rem
-			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
-			color #333
-			border none
-			border-radius 25px
-			font-size 0.95rem
-			font-weight 600
-			cursor pointer
-			transition all 0.25s ease
-			width fit-content
-			box-shadow 0 3px 10px rgba(255, 193, 7, 0.25)
-
-			&:hover
-				background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
-				transform translateY(-2px) translateX(2px)
-				box-shadow 0 5px 15px rgba(255, 193, 7, 0.35)
+		&:hover
+			background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+			transform translateY(-2px)
+			box-shadow 0 5px 15px rgba(255, 193, 7, 0.35)
 
 .bookings-header
 	display flex

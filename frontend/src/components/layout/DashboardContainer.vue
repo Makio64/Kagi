@@ -96,7 +96,7 @@ export default {
 		flex-direction column
 
 	@media (max-width: 550px)
-		padding 0.5rem
+		padding 0
 		gap 0.5rem
 
 .main-content
