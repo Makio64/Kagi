@@ -223,6 +223,62 @@ When `VITE_TEST_MODE=true`:
 2. Support for: English (en), French (fr), Japanese (ja)
 3. Use `$t('key.path')` in Vue components
 
+## Vue Component Development Guidelines
+
+### IMPORTANT: Use Options API Only
+
+All Vue components MUST use the Options API pattern. Do NOT use:
+- `<script setup>` syntax
+- Composition API with `setup()` function
+- Composables
+
+### Correct Vue Component Structure
+
+```vue
+<template>
+  <!-- Template content -->
+</template>
+
+<script>
+export default {
+  name: 'ComponentName',
+  components: {
+    // Component imports
+  },
+  props: {
+    // Component props
+  },
+  data() {
+    return {
+      // Reactive data
+    }
+  },
+  computed: {
+    // Computed properties
+  },
+  watch: {
+    // Watchers
+  },
+  methods: {
+    // Methods
+  },
+  mounted() {
+    // Lifecycle hook
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+// Styles
+</style>
+```
+
+### Translation Pattern
+
+- Use `this.$t('key')` in methods
+- Use `$t('key')` in templates
+- Never use fallback text: ~~`$t('key') || 'fallback'`~~
+
 ## Security Best Practices Applied
 
 - JWT authentication with secure tokens
