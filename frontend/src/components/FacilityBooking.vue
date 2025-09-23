@@ -1,208 +1,407 @@
 <template>
 	<div class="facility-booking">
+		<!-- Header -->
 		<div class="booking-header">
 			<button class="back-btn" @click="$emit('close')">
 				← {{ $t('common.back') || 'Back' }}
 			</button>
-			<h2>📅 {{ facility.name }}</h2>
+			<h2>{{ $t(`booking.booking${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) || `Booking ${facility.name}` }}</h2>
 		</div>
 
-		<div class="booking-content">
-			<!-- Success Message (shown first when booking is confirmed) -->
-			<div v-if="bookingSuccess" class="booking-success prominent">
-				<div class="success-icon">✅</div>
+		<!-- Success Message -->
+		<transition name="slide-down">
+			<div v-if="bookingSuccess" class="booking-success">
+				<div class="success-icon">
+					<svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+						<circle cx="40" cy="40" r="38" stroke="currentColor" stroke-width="4" />
+						<path d="M25 40L35 50L55 30" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</div>
 				<h3>{{ $t('booking.successTitle') || 'Booking Confirmed!' }}</h3>
 				<p>{{ $t('booking.successMessage') || 'Your facility booking has been confirmed. You will receive a confirmation email shortly.' }}</p>
-				<div class="booking-reference">
-					<span>{{ $t('booking.reference') || 'Reference' }}:</span>
-					<strong>{{ bookingReference }}</strong>
-				</div>
-				<button class="new-booking-btn" @click="resetBooking">
-					{{ $t('booking.newBooking') || 'Make Another Booking' }}
-				</button>
-			</div>
-
-			<!-- Facility Hero -->
-			<div v-if="!bookingSuccess" class="facility-hero">
-				<div class="hero-image">
-					<span class="facility-emoji">{{ facility.icon }}</span>
-				</div>
-				<div class="hero-info">
-					<h1>{{ facility.name }}</h1>
-					<p class="facility-description">{{ facility.description }}</p>
-					<div class="facility-tags">
-						<span class="tag">{{ facility.capacity }}</span>
-						<span class="tag">{{ facility.price }}</span>
-						<span v-if="facility.amenities" class="tag">{{ facility.amenities }}</span>
+				<div class="booking-details-summary">
+					<div class="detail-item">
+						<span class="label">{{ $t('booking.reference') || 'Reference' }}:</span>
+						<span class="value">{{ bookingReference }}</span>
+					</div>
+					<div class="detail-item">
+						<span class="label">{{ $t('booking.facility') || 'Facility' }}:</span>
+						<span class="value">{{ facility.name }}</span>
+					</div>
+					<div class="detail-item">
+						<span class="label">{{ $t('booking.date') || 'Date' }}:</span>
+						<span class="value">{{ getBookingDateDisplay() }}</span>
+					</div>
+					<div v-if="selectedTime" class="detail-item">
+						<span class="label">{{ $t('booking.time') || 'Time' }}:</span>
+						<span class="value">{{ getBookingTimeDisplay() }}</span>
 					</div>
 				</div>
-			</div>
-
-			<!-- Calendar Section -->
-			<div v-if="!bookingSuccess" class="calendar-section">
-				<h3>📆 {{ $t('booking.selectDate') || 'Select Date & Time' }}</h3>
-				
-				<div class="month-selector">
-					<button @click="changeMonth(-1)">‹</button>
-					<span class="current-month">{{ currentMonthYear }}</span>
-					<button @click="changeMonth(1)">›</button>
+				<div class="success-actions">
+					<button class="calendar-btn" @click="addToCalendar">
+						<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+							<rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="2" />
+							<path d="M13 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+							<path d="M7 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+							<path d="M3 9H17" stroke="currentColor" stroke-width="2" />
+						</svg>
+						{{ $t('booking.addToCalendar') || 'Add to Calendar' }}
+					</button>
+					<button class="new-booking-btn" @click="resetBooking">
+						{{ $t('booking.newBooking') || 'Make Another Booking' }}
+					</button>
 				</div>
+			</div>
+		</transition>
 
-				<div class="calendar-grid">
-					<div class="calendar-header">
-						<div v-for="day in weekDays" :key="day" class="day-label">{{ day }}</div>
-					</div>
-					<div class="calendar-days">
-						<div 
-							v-for="date in calendarDays" 
-							:key="date.key"
-							:class="['calendar-day', {
-								'other-month': date.otherMonth,
-								'today': date.isToday,
-								'selected': date.selected,
-								'unavailable': date.unavailable,
-								'past': date.past
-							}]"
-							@click="selectDate(date)"
-						>
-							<span class="day-number">{{ date.day }}</span>
-							<span v-if="date.hasBooking" class="booking-indicator">•</span>
+		<!-- Main Booking Content -->
+		<div v-if="!bookingSuccess" class="booking-main">
+			<!-- Left: Booking Form -->
+			<div class="booking-form">
+				<h3>{{ $t('booking.details') || 'Booking Details' }}</h3>
+
+				<!-- Date Selection -->
+				<div v-if="facility.bookingType === 'full-day'" class="form-group">
+					<label>{{ $t('booking.checkInDate') || 'Check-in Date' }}</label>
+					<button
+						class="picker-button"
+						:class="{ 'has-value': startDate }"
+						@click="toggleDatePicker('checkin')"
+					>
+						<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+							<rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
+							<path d="M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<path d="M3 9H17" stroke="currentColor" stroke-width="1.5" />
+						</svg>
+						<span>{{ startDate ? formatDate(startDate) : $t('booking.selectCheckIn') || 'Select check-in date' }}</span>
+					</button>
+
+					<!-- Check-in Date Picker Dropdown -->
+					<transition name="dropdown">
+						<div v-if="showCheckinPicker" class="picker-dropdown">
+							<div class="month-navigation">
+								<button class="nav-btn" :disabled="isCurrentMonth" @click="changeMonth(-1)">
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<path d="M12 5L7 10L12 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+								</button>
+								<span class="current-month">{{ currentMonthYear }}</span>
+								<button class="nav-btn" @click="changeMonth(1)">
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+								</button>
+							</div>
+							<div class="calendar-container">
+								<div class="calendar-header">
+									<div v-for="day in weekDays" :key="day" class="day-label">{{ day }}</div>
+								</div>
+								<div class="calendar-grid">
+									<button
+										v-for="date in calendarDays"
+										:key="date.key"
+										:class="['calendar-date', {
+											'other-month': date.otherMonth,
+											'today': date.isToday,
+											'selected': isDateSelected(date, 'checkin'),
+											'unavailable': date.unavailable,
+											'past': date.past
+										}]"
+										:disabled="date.otherMonth || date.unavailable || date.past"
+										@click="selectCheckinDate(date)"
+									>
+										{{ date.day }}
+									</button>
+								</div>
+							</div>
 						</div>
-					</div>
+					</transition>
 				</div>
 
-				<!-- Time Slots -->
-				<div v-if="selectedDate" class="time-slots">
-					<h4>{{ $t('booking.selectTime') || 'Select Time Slot' }}</h4>
-					<div class="slots-grid">
-						<button 
-							v-for="slot in timeSlots" 
-							:key="slot.time"
-							:class="['time-slot', {
-								'selected': selectedTime === slot.time,
-								'unavailable': slot.booked
-							}]"
-							:disabled="slot.booked"
-							@click="selectTime(slot)"
+				<div v-if="facility.bookingType === 'full-day'" class="form-group">
+					<label>{{ $t('booking.checkOutDate') || 'Check-out Date' }}</label>
+					<button
+						class="picker-button"
+						:class="{ 'has-value': endDate, 'disabled': !startDate }"
+						:disabled="!startDate"
+						@click="toggleDatePicker('checkout')"
+					>
+						<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+							<rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
+							<path d="M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<path d="M3 9H17" stroke="currentColor" stroke-width="1.5" />
+						</svg>
+						<span>{{ endDate ? formatDate(endDate) : $t('booking.selectCheckOut') || 'Select check-out date' }}</span>
+					</button>
+
+					<!-- Check-out Date Picker Dropdown -->
+					<transition name="dropdown">
+						<div v-if="showCheckoutPicker" class="picker-dropdown">
+							<div class="month-navigation">
+								<button class="nav-btn" :disabled="isCurrentMonth" @click="changeMonth(-1)">
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<path d="M12 5L7 10L12 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+								</button>
+								<span class="current-month">{{ currentMonthYear }}</span>
+								<button class="nav-btn" @click="changeMonth(1)">
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+								</button>
+							</div>
+							<div class="calendar-container">
+								<div class="calendar-header">
+									<div v-for="day in weekDays" :key="day" class="day-label">{{ day }}</div>
+								</div>
+								<div class="calendar-grid">
+									<button
+										v-for="date in calendarDays"
+										:key="date.key"
+										:class="['calendar-date', {
+											'other-month': date.otherMonth,
+											'today': date.isToday,
+											'selected': isDateSelected(date, 'checkout'),
+											'unavailable': date.unavailable || (startDate && date.date <= startDate),
+											'past': date.past
+										}]"
+										:disabled="date.otherMonth || date.unavailable || date.past || (startDate && date.date <= startDate)"
+										@click="selectCheckoutDate(date)"
+									>
+										{{ date.day }}
+									</button>
+								</div>
+							</div>
+						</div>
+					</transition>
+				</div>
+
+				<!-- Single Date Selection for Party Room and Gym -->
+				<div v-else class="form-group">
+					<label>{{ $t('booking.date') || 'Date' }}</label>
+					<button
+						class="picker-button"
+						:class="{ 'has-value': startDate }"
+						@click="toggleDatePicker('single')"
+					>
+						<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+							<rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
+							<path d="M13 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<path d="M7 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<path d="M3 9H17" stroke="currentColor" stroke-width="1.5" />
+						</svg>
+						<span>{{ startDate ? formatDate(startDate) : $t('booking.selectDate') || 'Select date' }}</span>
+					</button>
+
+					<!-- Date Picker Dropdown -->
+					<transition name="dropdown">
+						<div v-if="showDatePicker" class="picker-dropdown">
+							<div class="month-navigation">
+								<button class="nav-btn" :disabled="isCurrentMonth" @click="changeMonth(-1)">
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<path d="M12 5L7 10L12 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+								</button>
+								<span class="current-month">{{ currentMonthYear }}</span>
+								<button class="nav-btn" @click="changeMonth(1)">
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+								</button>
+							</div>
+							<div class="calendar-container">
+								<div class="calendar-header">
+									<div v-for="day in weekDays" :key="day" class="day-label">{{ day }}</div>
+								</div>
+								<div class="calendar-grid">
+									<button
+										v-for="date in calendarDays"
+										:key="date.key"
+										:class="['calendar-date', {
+											'other-month': date.otherMonth,
+											'today': date.isToday,
+											'selected': isDateSelected(date, 'single'),
+											'unavailable': date.unavailable,
+											'past': date.past
+										}]"
+										:disabled="date.otherMonth || date.unavailable || date.past"
+										@click="selectSingleDate(date)"
+									>
+										{{ date.day }}
+									</button>
+								</div>
+							</div>
+						</div>
+					</transition>
+				</div>
+
+				<!-- Time Selection for Party Room and Gym -->
+				<div v-if="facility.bookingType !== 'full-day'" class="form-group">
+					<label>{{ $t('booking.time') || 'Time' }}</label>
+					<button
+						class="picker-button"
+						:class="{ 'has-value': selectedTime, 'disabled': !startDate }"
+						:disabled="!startDate"
+						@click="toggleTimePicker"
+					>
+						<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+							<circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" />
+							<path d="M10 5V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+						</svg>
+						<span>{{ getTimeDisplayText() }}</span>
+					</button>
+
+					<!-- Time Picker Dropdown -->
+					<transition name="dropdown">
+						<div v-if="showTimePicker" class="picker-dropdown time-picker">
+							<!-- Half-day selection for Party Room -->
+							<div v-if="facility.bookingType === 'half-day'" class="half-day-options">
+								<button
+									:class="['time-option', { 'selected': selectedTime === 'morning' }]"
+									@click="selectHalfDay('morning')"
+								>
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" />
+										<path d="M10 3V10L14 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+									<div>
+										<strong>{{ $t('booking.morning') || 'Morning' }}</strong>
+										<small>9:00 AM - 1:00 PM</small>
+									</div>
+								</button>
+								<button
+									:class="['time-option', { 'selected': selectedTime === 'afternoon' }]"
+									@click="selectHalfDay('afternoon')"
+								>
+									<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+										<circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" />
+										<path d="M10 3V10L6 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+									<div>
+										<strong>{{ $t('booking.afternoon') || 'Afternoon' }}</strong>
+										<small>2:00 PM - 6:00 PM</small>
+									</div>
+								</button>
+							</div>
+
+							<!-- Hourly slots for Gym -->
+							<div v-if="facility.bookingType === 'hourly'" class="hourly-slots">
+								<div class="time-grid">
+									<button
+										v-for="slot in timeSlots"
+										:key="slot.time"
+										:class="['time-slot', {
+											'selected': selectedTime === slot.time,
+											'unavailable': slot.booked
+										}]"
+										:disabled="slot.booked"
+										@click="selectTimeSlot(slot)"
+									>
+										{{ slot.time }}
+										<span v-if="slot.booked" class="booked-label">{{ $t('booking.booked') || 'Booked' }}</span>
+									</button>
+								</div>
+							</div>
+						</div>
+					</transition>
+				</div>
+
+				<!-- Special Notes -->
+				<div class="form-group">
+					<label>{{ $t('booking.specialNotes') || 'Special Notes' }} <span class="optional">({{ $t('common.optional') || 'Optional' }})</span></label>
+					<textarea
+						v-model="specialNotes"
+						:placeholder="$t('booking.notesPlaceholder') || 'Any special requirements or requests...'"
+						rows="3"
+					/>
+				</div>
+
+				<!-- Terms Agreement -->
+				<div class="terms-agreement">
+					<label class="checkbox-label">
+						<input
+							v-model="agreeToTerms"
+							type="checkbox"
 						>
-							<span class="slot-time">{{ slot.time }}</span>
-							<span v-if="slot.booked" class="slot-status">{{ $t('booking.booked') || 'Booked' }}</span>
-							<span v-else class="slot-status">{{ $t('booking.available') || 'Available' }}</span>
-						</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Booking Details -->
-			<div v-if="selectedDate && selectedTime" class="booking-details">
-				<h3>📝 {{ $t('booking.bookingDetails') || 'Booking Details' }}</h3>
-				
-				<div class="detail-card">
-					<div class="detail-row">
-						<span class="detail-label">{{ $t('booking.facility') || 'Facility' }}:</span>
-						<span class="detail-value">{{ facility.name }}</span>
-					</div>
-					<div class="detail-row">
-						<span class="detail-label">{{ $t('booking.date') || 'Date' }}:</span>
-						<span class="detail-value">{{ formatSelectedDate }}</span>
-					</div>
-					<div class="detail-row">
-						<span class="detail-label">{{ $t('booking.time') || 'Time' }}:</span>
-						<span class="detail-value">{{ selectedTime }}</span>
-					</div>
-					<div class="detail-row">
-						<span class="detail-label">{{ $t('booking.duration') || 'Duration' }}:</span>
-						<span class="detail-value">
-							<select v-model="duration">
-								<option value="1">1 {{ $t('booking.hour') || 'hour' }}</option>
-								<option value="2">2 {{ $t('booking.hours') || 'hours' }}</option>
-								<option value="3">3 {{ $t('booking.hours') || 'hours' }}</option>
-								<option value="4">4 {{ $t('booking.hours') || 'hours' }}</option>
-							</select>
-						</span>
-					</div>
-					<div class="detail-row">
-						<span class="detail-label">{{ $t('booking.cost') || 'Total Cost' }}:</span>
-						<span class="detail-value cost">{{ calculateCost }}</span>
-					</div>
+						<span>{{ $t('booking.agreeToTerms') || 'I agree to the facility usage terms and conditions' }}</span>
+					</label>
 				</div>
 
-				<div class="booking-form">
-					<div class="form-group">
-						<label>{{ $t('booking.purpose') || 'Purpose of Booking' }}</label>
-						<input 
-							v-model="bookingPurpose" 
-							type="text" 
-							:placeholder="$t('booking.purposePlaceholder') || 'e.g., Birthday party, Meeting, etc.'"
-						>
-					</div>
-
-					<div v-if="facility.id === 'party'" class="form-group">
-						<label>{{ $t('booking.guests') || 'Number of Guests' }}</label>
-						<input 
-							v-model.number="guestCount" 
-							type="number" 
-							min="1" 
-							:max="facility.maxCapacity"
-							:placeholder="`Maximum ${facility.maxCapacity} guests`"
-						>
-					</div>
-
-					<div class="form-group">
-						<label>{{ $t('booking.notes') || 'Special Requirements' }} ({{ $t('common.optional') || 'optional' }})</label>
-						<textarea 
-							v-model="specialNotes" 
-							rows="3"
-							:placeholder="$t('booking.notesPlaceholder') || 'Any special requirements or notes...'"
-						/>
-					</div>
-
-					<div class="terms-checkbox">
-						<input id="terms" v-model="agreeToTerms" type="checkbox">
-						<label for="terms">
-							{{ $t('booking.agreeTerms') || 'I agree to the facility usage guidelines and will follow all rules' }}
-						</label>
-					</div>
+				<!-- Total Cost Display -->
+				<div v-if="calculateCost" class="cost-display">
+					<span class="cost-label">{{ $t('booking.totalCost') || 'Total Cost' }}:</span>
+					<span class="cost-value">{{ calculateCost }}</span>
 				</div>
 
-				<button 
-					class="confirm-booking-btn" 
-					:disabled="!agreeToTerms || processingBooking"
+				<!-- Book Button -->
+				<button
+					class="book-button"
+					:disabled="!canBook"
 					@click="confirmBooking"
 				>
-					{{ processingBooking ? ($t('booking.processing') || 'Processing...') : ($t('booking.confirmBooking') || 'Confirm Booking') }}
+					<span v-if="processingBooking" class="btn-content">
+						<div class="spinner" />
+						{{ $t('booking.processing') || 'Processing...' }}
+					</span>
+					<span v-else class="btn-content">
+						{{ $t(`booking.book${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) || `Book ${facility.name}` }}
+					</span>
 				</button>
 			</div>
 
-			<!-- Existing Bookings -->
-			<div class="existing-bookings">
-				<h3>📋 {{ $t('booking.yourBookings') || 'Your Current Bookings' }}</h3>
-				<div v-if="userBookings.length > 0" class="bookings-list">
-					<div v-for="(booking, index) in userBookings" :key="booking.id" :class="['booking-item', { 'new-booking': index === 0 && bookingSuccess }]">
-						<div class="booking-date">
-							<span class="month">{{ booking.month }}</span>
-							<span class="day">{{ booking.day }}</span>
+			<!-- Right: Facility Card -->
+			<div class="facility-info-card">
+				<div class="facility-image">
+					<div class="facility-icon-large">{{ facility.icon }}</div>
+				</div>
+				<div class="facility-details">
+					<h3>{{ facility.name }}</h3>
+					<p class="description">{{ facility.description }}</p>
+
+					<div class="info-items">
+						<div class="info-item">
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+								<path d="M8 8C10.21 8 12 6.21 12 4C12 1.79 10.21 0 8 0C5.79 0 4 1.79 4 4C4 6.21 5.79 8 8 8Z" fill="currentColor" opacity="0.5" />
+								<path d="M8 10C3.59 10 0 13.59 0 18V20H16V18C16 13.59 12.41 10 8 10Z" fill="currentColor" opacity="0.5" />
+							</svg>
+							{{ facility.capacity }}
 						</div>
-						<div class="booking-info">
-							<h4>{{ booking.facility }}</h4>
-							<p>{{ booking.time }} ({{ booking.duration }})</p>
-							<p class="booking-purpose">{{ booking.purpose }}</p>
+
+						<div class="info-item">
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+								<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" />
+								<path d="M8 5V8.5M8 11V11.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							</svg>
+							{{ facility.price }}
 						</div>
-						<button class="cancel-btn" @click="cancelBooking(booking.id)">
-							{{ $t('common.cancel') || 'Cancel' }}
-						</button>
+					</div>
+
+					<div v-if="facility.amenities" class="amenities">
+						<h4>{{ $t('booking.amenities') || 'Amenities' }}</h4>
+						<div class="amenities-list">
+							{{ facility.amenities }}
+						</div>
+					</div>
+
+					<!-- Booking Rules -->
+					<div class="booking-rules">
+						<h4>{{ $t('booking.rules') || 'Booking Rules' }}</h4>
+						<ul>
+							<li>{{ $t('booking.rule1') || 'Cancellation must be made 24 hours in advance' }}</li>
+							<li>{{ $t('booking.rule2') || 'Please clean up after use' }}</li>
+							<li v-if="facility.bookingType === 'full-day'">{{ $t('booking.rule3') || 'Check-in after 3 PM, Check-out before 11 AM' }}</li>
+						</ul>
 					</div>
 				</div>
-				<p v-else class="no-bookings">
-					{{ $t('booking.noBookings') || 'You have no current bookings for this facility.' }}
-				</p>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const props = defineProps( {
 	facility: {
@@ -214,56 +413,45 @@ const props = defineProps( {
 			description: 'Perfect for celebrations and gatherings',
 			capacity: '20 people',
 			maxCapacity: 20,
-			price: '¥2,000/hour',
-			priceValue: 2000,
-			amenities: 'Kitchen, Audio system'
+			price: '¥10,000/half-day',
+			priceValue: 10000,
+			amenities: 'Kitchen, Audio system, Projector',
+			bookingType: 'half-day' // 'hourly', 'half-day', 'full-day'
 		} )
 	}
 } )
 
-const emit = defineEmits( ['close'] )
+const emit = defineEmits( ['close', 'booking-confirmed'] )
 
 // Calendar state
 const currentDate = new Date()
 const selectedMonth = ref( currentDate.getMonth() )
 const selectedYear = ref( currentDate.getFullYear() )
-const selectedDate = ref( null )
+const startDate = ref( null )
+const endDate = ref( null )
 const selectedTime = ref( null )
 
-// Booking form state
-const duration = ref( 2 )
-const bookingPurpose = ref( '' )
-const guestCount = ref( 10 )
+// Dropdown visibility
+const showDatePicker = ref( false )
+const showCheckinPicker = ref( false )
+const showCheckoutPicker = ref( false )
+const showTimePicker = ref( false )
+
+// Form state
 const specialNotes = ref( '' )
 const agreeToTerms = ref( false )
 const processingBooking = ref( false )
 const bookingSuccess = ref( false )
 const bookingReference = ref( '' )
+const confirmedBooking = ref( null )
 
-// Sample existing bookings
-const userBookings = ref( [
-	{
-		id: 1,
-		facility: 'Party Room',
-		month: 'DEC',
-		day: '20',
-		time: '14:00 - 16:00',
-		duration: '2 hours',
-		purpose: 'Birthday celebration'
-	}
-] )
+// Week days
+const weekDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-const timeSlots = computed( () => {
-	const slots = []
-	for ( let hour = 9; hour < 21; hour++ ) {
-		slots.push( {
-			time: `${hour.toString().padStart( 2, '0' )}:00`,
-			booked: Math.random() > 0.7 // Randomly mark some as booked
-		} )
-	}
-	return slots
+// Computed
+const isCurrentMonth = computed( () => {
+	const now = new Date()
+	return selectedMonth.value === now.getMonth() && selectedYear.value === now.getFullYear()
 } )
 
 const currentMonthYear = computed( () => {
@@ -289,10 +477,10 @@ const calendarDays = computed( () => {
 	const firstDay = new Date( selectedYear.value, selectedMonth.value, 1 )
 	const lastDay = new Date( selectedYear.value, selectedMonth.value + 1, 0 )
 	const prevLastDay = new Date( selectedYear.value, selectedMonth.value, 0 )
-	
+
 	const startPadding = firstDay.getDay()
 	const endPadding = 6 - lastDay.getDay()
-	
+
 	// Previous month padding
 	for ( let i = startPadding - 1; i >= 0; i-- ) {
 		days.push( {
@@ -302,51 +490,100 @@ const calendarDays = computed( () => {
 			past: true
 		} )
 	}
-	
+
 	// Current month days
 	const today = new Date()
+	today.setHours( 0, 0, 0, 0 )
+
 	for ( let day = 1; day <= lastDay.getDate(); day++ ) {
 		const date = new Date( selectedYear.value, selectedMonth.value, day )
 		const isToday = date.toDateString() === today.toDateString()
-		const isPast = date < today && !isToday
+		const isPast = date < today
+
 		days.push( {
 			key: `current-${day}`,
 			day,
 			date,
 			isToday,
 			past: isPast,
-			selected: selectedDate.value?.getDate() === day,
-			hasBooking: Math.random() > 0.9, // Random bookings
-			unavailable: Math.random() > 0.85 // Random unavailable days
+			otherMonth: false,
+			unavailable: Math.random() > 0.85 // Random unavailable dates for demo
 		} )
 	}
-	
+
 	// Next month padding
-	for ( let day = 1; day <= endPadding; day++ ) {
+	for ( let i = 1; i <= endPadding; i++ ) {
 		days.push( {
-			key: `next-${day}`,
-			day,
-			otherMonth: true
+			key: `next-${i}`,
+			day: i,
+			otherMonth: true,
+			past: false
 		} )
 	}
-	
+
 	return days
 } )
 
-const formatSelectedDate = computed( () => {
-	if ( !selectedDate.value ) return ''
-	return selectedDate.value.toLocaleDateString( 'en-US', {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric'
-	} )
+const timeSlots = computed( () => {
+	const slots = []
+	for ( let hour = 7; hour <= 21; hour++ ) {
+		slots.push( {
+			time: `${hour.toString().padStart( 2, '0' )}:00`,
+			booked: Math.random() > 0.7 // Random booking status for demo
+		} )
+	}
+	return slots
+} )
+
+const canBook = computed( () => {
+	const hasDate = props.facility.bookingType === 'full-day'
+		? startDate.value && endDate.value
+		: startDate.value
+
+	const hasTime = props.facility.bookingType === 'full-day' || selectedTime.value
+
+	return hasDate && hasTime && agreeToTerms.value && !processingBooking.value
 } )
 
 const calculateCost = computed( () => {
-	const cost = props.facility.priceValue * duration.value
-	return `¥${cost.toLocaleString()}`
+	if ( !startDate.value ) return null
+
+	let cost = 0
+	if ( props.facility.bookingType === 'full-day' && endDate.value ) {
+		const days = Math.ceil( ( endDate.value - startDate.value ) / ( 1000 * 60 * 60 * 24 ) ) + 1
+		cost = props.facility.priceValue * days
+	} else if ( props.facility.bookingType === 'half-day' ) {
+		cost = props.facility.priceValue
+	} else if ( props.facility.bookingType === 'hourly' ) {
+		cost = props.facility.priceValue || 0
+	}
+
+	return cost > 0 ? `¥${cost.toLocaleString()}` : 'Free'
 } )
+
+// Methods
+const toggleDatePicker = ( type ) => {
+	if ( type === 'checkin' ) {
+		showCheckinPicker.value = !showCheckinPicker.value
+		showCheckoutPicker.value = false
+		showTimePicker.value = false
+	} else if ( type === 'checkout' ) {
+		showCheckoutPicker.value = !showCheckoutPicker.value
+		showCheckinPicker.value = false
+		showTimePicker.value = false
+	} else {
+		showDatePicker.value = !showDatePicker.value
+		showTimePicker.value = false
+	}
+}
+
+const toggleTimePicker = () => {
+	if ( !startDate.value ) return
+	showTimePicker.value = !showTimePicker.value
+	showDatePicker.value = false
+	showCheckinPicker.value = false
+	showCheckoutPicker.value = false
+}
 
 const changeMonth = ( direction ) => {
 	if ( direction === -1 ) {
@@ -366,70 +603,158 @@ const changeMonth = ( direction ) => {
 	}
 }
 
-const selectDate = ( date ) => {
-	if ( date.otherMonth || date.unavailable || date.past ) return
-	selectedDate.value = date.date
-	selectedTime.value = null // Reset time when date changes
+const isDateSelected = ( date, type ) => {
+	if ( !date.date ) return false
+
+	if ( type === 'checkin' ) {
+		return startDate.value && date.date.toDateString() === startDate.value.toDateString()
+	} else if ( type === 'checkout' ) {
+		return endDate.value && date.date.toDateString() === endDate.value.toDateString()
+	} else {
+		return startDate.value && date.date.toDateString() === startDate.value.toDateString()
+	}
 }
 
-const selectTime = ( slot ) => {
+const selectSingleDate = ( date ) => {
+	if ( date.otherMonth || date.unavailable || date.past ) return
+	startDate.value = date.date
+	endDate.value = date.date
+	showDatePicker.value = false
+}
+
+const selectCheckinDate = ( date ) => {
+	if ( date.otherMonth || date.unavailable || date.past ) return
+	startDate.value = date.date
+	endDate.value = null
+	showCheckinPicker.value = false
+}
+
+const selectCheckoutDate = ( date ) => {
+	if ( date.otherMonth || date.unavailable || date.past ) return
+	if ( startDate.value && date.date <= startDate.value ) return
+	endDate.value = date.date
+	showCheckoutPicker.value = false
+}
+
+const selectHalfDay = ( period ) => {
+	selectedTime.value = period
+	showTimePicker.value = false
+}
+
+const selectTimeSlot = ( slot ) => {
 	if ( slot.booked ) return
 	selectedTime.value = slot.time
+	showTimePicker.value = false
+}
+
+const getTimeDisplayText = () => {
+	if ( !startDate.value ) return 'Select date first'
+
+	if ( selectedTime.value ) {
+		if ( props.facility.bookingType === 'half-day' ) {
+			return selectedTime.value === 'morning'
+				? 'Morning (9:00 AM - 1:00 PM)'
+				: 'Afternoon (2:00 PM - 6:00 PM)'
+		}
+		return selectedTime.value
+	}
+
+	return 'Select time'
+}
+
+const getBookingDateDisplay = () => {
+	if ( props.facility.bookingType === 'full-day' && startDate.value && endDate.value ) {
+		return `${formatDate( startDate.value )} - ${formatDate( endDate.value )}`
+	}
+	return startDate.value ? formatDate( startDate.value ) : ''
+}
+
+const getBookingTimeDisplay = () => {
+	if ( props.facility.bookingType === 'half-day' ) {
+		return selectedTime.value === 'morning'
+			? 'Morning (9:00 AM - 1:00 PM)'
+			: 'Afternoon (2:00 PM - 6:00 PM)'
+	}
+	return selectedTime.value || ''
+}
+
+const formatDate = ( date ) => {
+	if ( !date ) return ''
+	return date.toLocaleDateString( 'en-US', {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric'
+	} )
 }
 
 const confirmBooking = async () => {
 	processingBooking.value = true
-	// Simulate API call
 	await new Promise( resolve => setTimeout( resolve, 2000 ) )
-	
-	// Add new booking to the list
-	const newBooking = {
-		id: Date.now(),
+
+	confirmedBooking.value = {
 		facility: props.facility.name,
-		month: selectedDate.value.toLocaleDateString( 'en-US', { month: 'short' } ).toUpperCase(),
-		day: selectedDate.value.getDate().toString(),
-		time: `${selectedTime.value} - ${calculateEndTime()}`,
-		duration: `${duration.value} hour${duration.value > 1 ? 's' : ''}`,
-		purpose: bookingPurpose.value || 'Personal use'
+		startDate: startDate.value,
+		endDate: endDate.value,
+		time: selectedTime.value
 	}
-	userBookings.value.unshift( newBooking )
-	
+
 	processingBooking.value = false
 	bookingSuccess.value = true
 	bookingReference.value = `BK${Date.now().toString().slice( -8 )}`
-	
-	// Hide form sections after booking
-	selectedDate.value = null
-	selectedTime.value = null
-}
 
-const calculateEndTime = () => {
-	const [hours, minutes] = selectedTime.value.split( ':' ).map( Number )
-	const endHour = hours + duration.value
-	return `${endHour.toString().padStart( 2, '0' )}:${minutes.toString().padStart( 2, '0' )}`
-}
-
-const cancelBooking = ( bookingId ) => {
-	if ( confirm( 'Are you sure you want to cancel this booking?' ) ) {
-		userBookings.value = userBookings.value.filter( b => b.id !== bookingId )
-	}
+	// Emit event for parent to handle
+	emit( 'booking-confirmed', {
+		id: Date.now(),
+		facility: props.facility.name,
+		startDate: startDate.value,
+		endDate: endDate.value,
+		time: selectedTime.value,
+		specialNotes: specialNotes.value,
+		reference: bookingReference.value
+	} )
 }
 
 const resetBooking = () => {
 	bookingSuccess.value = false
 	bookingReference.value = ''
-	bookingPurpose.value = ''
-	guestCount.value = 10
+	startDate.value = null
+	endDate.value = null
+	selectedTime.value = null
 	specialNotes.value = ''
 	agreeToTerms.value = false
-	duration.value = 2
+	confirmedBooking.value = null
 }
+
+const addToCalendar = () => {
+	alert( 'Calendar integration coming soon!' )
+}
+
+// Click outside to close dropdowns
+const handleClickOutside = ( event ) => {
+	const isDateButton = event.target.closest( '.picker-button' )
+	const isDropdown = event.target.closest( '.picker-dropdown' )
+
+	if ( !isDateButton && !isDropdown ) {
+		showDatePicker.value = false
+		showCheckinPicker.value = false
+		showCheckoutPicker.value = false
+		showTimePicker.value = false
+	}
+}
+
+onMounted( () => {
+	document.addEventListener( 'click', handleClickOutside )
+} )
+
+onUnmounted( () => {
+	document.removeEventListener( 'click', handleClickOutside )
+} )
 </script>
 
 <style lang="stylus" scoped>
 .facility-booking
 	background white
-	border-radius 20px
+	border-radius 16px
 	height 100%
 	max-height 90vh
 	display flex
@@ -440,444 +765,551 @@ const resetBooking = () => {
 	display flex
 	align-items center
 	gap 1rem
-	padding 1.5rem 2rem
-	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-	border-bottom 2px solid #FFC107
-	flex-shrink 0
-
-	h2
-		flex 1
-		margin 0
-		color #333
-		font-size 1.5rem
-		text-align center
-
-.back-btn
-	padding 0.6rem 1.25rem
-	background white
-	color #333
-	border 2px solid #FFC107
-	border-radius 50px
-	cursor pointer
-	font-size 0.9rem
-	font-weight 500
-	transition all 0.2s ease
-
-	&:hover
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-		transform translateY(-1px)
-
-.booking-content
-	flex 1
-	overflow-y auto
-	padding 2rem
-
-	@media (max-width: 768px)
-		padding 1rem
-
-.facility-hero
-	display flex
-	gap 2rem
-	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-	border-radius 15px
-	padding 2rem
-	margin-bottom 2rem
-
-	@media (max-width: 768px)
-		flex-direction column
-		text-align center
-
-.hero-image
-	display flex
-	align-items center
-	justify-content center
-	width 120px
-	height 120px
-	background white
-	border-radius 15px
-	flex-shrink 0
-
-	.facility-emoji
-		font-size 4rem
-
-.hero-info
-	flex 1
-
-	h1
-		margin 0 0 0.5rem 0
-		color #333
-
-	.facility-description
-		color #666
-		margin-bottom 1rem
-
-.facility-tags
-	display flex
-	gap 0.5rem
-	flex-wrap wrap
-
-	.tag
-		padding 0.25rem 0.75rem
-		background white
-		border-radius 20px
-		font-size 0.85rem
-		color #666
-
-.calendar-section, .booking-details, .existing-bookings
-	background white
-	border 2px solid #FFE082
-	border-radius 15px
 	padding 1.5rem
-	margin-bottom 1.5rem
+	border-bottom 1px solid #f0f0f0
 
-	h3
-		margin 0 0 1rem 0
-		color #333
-
-.month-selector
-	display flex
-	justify-content space-between
-	align-items center
-	margin-bottom 1.5rem
-	padding 0.5rem
-	background #f9f9f9
-	border-radius 10px
-
-	button
+	.back-btn
 		padding 0.5rem 1rem
-		background white
-		border 1px solid #e0e0e0
+		background transparent
+		border 1px solid #e5e7eb
 		border-radius 8px
+		color #6b7280
 		cursor pointer
-		font-size 1.2rem
+		transition all 0.2s ease
+		font-size 0.9rem
 
 		&:hover
-			background #FFF9C4
+			background #f9fafb
+			border-color #d1d5db
+			color #1a1a1a
+
+	h2
+		margin 0
+		font-size 1.5rem
+		color #1a1a1a
+		font-weight 600
+
+// Success Message
+.booking-success
+	padding 3rem
+	text-align center
+
+	.success-icon
+		margin 0 auto 1.5rem
+		color #10b981
+		animation pulse 2s ease infinite
+
+	h3
+		margin 0 0 1rem
+		font-size 1.75rem
+		color #1a1a1a
+
+	p
+		color #6b7280
+		margin-bottom 2rem
+		font-size 1rem
+
+	.booking-details-summary
+		background #f9fafb
+		border-radius 12px
+		padding 1.5rem
+		margin-bottom 2rem
+
+		.detail-item
+			display flex
+			justify-content space-between
+			padding 0.75rem 0
+
+			&:not(:last-child)
+				border-bottom 1px solid #e5e7eb
+
+			.label
+				color #6b7280
+				font-weight 500
+
+			.value
+				color #1a1a1a
+				font-weight 600
+
+	.success-actions
+		display flex
+		gap 1rem
+		justify-content center
+
+		button
+			padding 0.75rem 1.5rem
+			border-radius 8px
+			font-weight 500
+			cursor pointer
+			transition all 0.2s ease
+
+		.calendar-btn
+			background white
+			border 2px solid #3b82f6
+			color #3b82f6
+			display flex
+			align-items center
+			gap 0.5rem
+
+			&:hover
+				background #eff6ff
+
+		.new-booking-btn
+			background #3b82f6
+			border none
+			color white
+
+			&:hover
+				background #2563eb
+
+// Main Layout
+.booking-main
+	display grid
+	grid-template-columns 1fr 380px
+	gap 2rem
+	padding 2rem
+	overflow-y auto
+	flex 1
+
+	@media (max-width: 900px)
+		grid-template-columns 1fr
+		gap 1.5rem
+		padding 1.5rem
+
+// Booking Form
+.booking-form
+	h3
+		margin 0 0 1.5rem
+		font-size 1.25rem
+		color #1a1a1a
+		font-weight 600
+
+.form-group
+	margin-bottom 1.5rem
+
+	label
+		display block
+		margin-bottom 0.5rem
+		color #374151
+		font-weight 500
+		font-size 0.9rem
+
+		.optional
+			color #9ca3af
+			font-weight 400
+			font-size 0.85rem
+
+// Picker Button
+.picker-button
+	width 100%
+	display flex
+	align-items center
+	gap 0.75rem
+	padding 0.75rem 1rem
+	background white
+	border 1px solid #d1d5db
+	border-radius 8px
+	cursor pointer
+	transition all 0.2s ease
+	font-size 0.95rem
+	color #6b7280
+	text-align left
+
+	&:hover:not(.disabled)
+		border-color #3b82f6
+		background #f9fafb
+
+	&.has-value
+		color #1a1a1a
+		font-weight 500
+
+	&.disabled
+		opacity 0.5
+		cursor not-allowed
+
+	svg
+		flex-shrink 0
+		color #6b7280
+
+// Picker Dropdown
+.picker-dropdown
+	position absolute
+	z-index 100
+	background white
+	border 1px solid #e5e7eb
+	border-radius 12px
+	box-shadow 0 10px 40px rgba(0, 0, 0, 0.15)
+	margin-top 0.5rem
+	padding 1rem
+	min-width 320px
+
+.month-navigation
+	display flex
+	align-items center
+	justify-content space-between
+	margin-bottom 1rem
+	padding 0.25rem
+
+	.nav-btn
+		width 28px
+		height 28px
+		display flex
+		align-items center
+		justify-content center
+		background white
+		border 1px solid #e5e7eb
+		border-radius 6px
+		cursor pointer
+		transition all 0.2s ease
+		color #6b7280
+
+		&:hover:not(:disabled)
+			background #f9fafb
+			border-color #3b82f6
+			color #3b82f6
+
+		&:disabled
+			opacity 0.4
+			cursor not-allowed
 
 	.current-month
 		font-weight 600
-		color #333
+		color #1a1a1a
+		font-size 0.95rem
 
-.calendar-grid
-	margin-bottom 1.5rem
+.calendar-container
+	.calendar-header
+		display grid
+		grid-template-columns repeat(7, 1fr)
+		margin-bottom 0.25rem
 
-.calendar-header
-	display grid
-	grid-template-columns repeat(7, 1fr)
-	margin-bottom 0.5rem
+		.day-label
+			text-align center
+			font-weight 600
+			color #6b7280
+			font-size 0.7rem
+			padding 0.25rem
 
-	.day-label
-		text-align center
-		font-weight 600
-		color #666
-		font-size 0.9rem
-		padding 0.5rem
+	.calendar-grid
+		display grid
+		grid-template-columns repeat(7, 1fr)
+		gap 2px
 
-.calendar-days
-	display grid
-	grid-template-columns repeat(7, 1fr)
-	gap 2px
-
-.calendar-day
+.calendar-date
 	aspect-ratio 1
+	background white
+	border 1px solid transparent
+	border-radius 6px
+	cursor pointer
+	transition all 0.15s ease
 	display flex
-	flex-direction column
 	align-items center
 	justify-content center
-	background white
-	border 1px solid #f0f0f0
-	cursor pointer
-	transition all 0.2s ease
-	position relative
+	font-weight 500
+	font-size 0.8rem
+	color #374151
+	min-height 32px
 
-	&:hover:not(.unavailable):not(.past)
-		background #FFF9C4
-		border-color #FFC107
+	&:hover:not(:disabled)
+		background #eff6ff
+		border-color #3b82f6
 
 	&.other-month
 		opacity 0.3
 
 	&.today
-		background linear-gradient(135deg, #FFE082 0%, #FFCA28 100%)
-		font-weight bold
+		border-color #9ca3af
+		font-weight 600
 
 	&.selected
-		background linear-gradient(135deg, #FF9800 0%, #FFB300 100%)
+		background #3b82f6
 		color white
+		font-weight 600
+		border-color #3b82f6
 
 	&.unavailable, &.past
 		background #f5f5f5
-		color #ccc
+		color #d1d5db
 		cursor not-allowed
 
-	.day-number
-		font-size 0.9rem
-
-	.booking-indicator
-		position absolute
-		bottom 2px
-		color #FF9800
-		font-size 0.8rem
-
-.time-slots
-	h4
-		color #666
-		margin-bottom 1rem
-
-.slots-grid
-	display grid
-	grid-template-columns repeat(auto-fill, minmax(120px, 1fr))
-	gap 0.75rem
-
-.time-slot
-	padding 0.75rem
-	background white
-	border 2px solid #e0e0e0
-	border-radius 10px
-	cursor pointer
-	transition all 0.2s ease
-	text-align center
-
-	&:hover:not(.unavailable)
-		border-color #FFC107
-
-	&.selected
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-		border-color #FF9800
-
-	&.unavailable
-		background #f5f5f5
+	&:disabled
 		cursor not-allowed
-		opacity 0.6
 
-	.slot-time
-		display block
-		font-weight 600
-		color #333
+// Time Picker Styles
+.time-picker
+	.half-day-options
+		display flex
+		gap 0.75rem
 
-	.slot-status
-		display block
-		font-size 0.75rem
-		color #666
-		margin-top 0.25rem
+		.time-option
+			flex 1
+			display flex
+			align-items center
+			gap 0.75rem
+			padding 1rem
+			background white
+			border 2px solid #e5e7eb
+			border-radius 8px
+			cursor pointer
+			transition all 0.2s ease
 
-.detail-card
-	background #f9f9f9
-	padding 1rem
-	border-radius 10px
-	margin-bottom 1.5rem
+			&:hover
+				border-color #3b82f6
+				background #eff6ff
 
-.detail-row
-	display flex
-	justify-content space-between
-	padding 0.5rem 0
-	border-bottom 1px solid #e0e0e0
+			&.selected
+				border-color #3b82f6
+				background #3b82f6
+				color white
 
-	&:last-child
-		border-bottom none
+				svg
+					color white
 
-	.detail-label
-		color #666
+			svg
+				flex-shrink 0
+				color #6b7280
 
-	.detail-value
-		font-weight 500
-		color #333
+			div
+				text-align left
 
-		&.cost
-			color #FF9800
-			font-size 1.1rem
+				strong
+					display block
+					margin-bottom 0.25rem
 
-		select
-			padding 0.25rem 0.5rem
-			border 1px solid #e0e0e0
+				small
+					opacity 0.8
+					font-size 0.85rem
+
+	.hourly-slots
+		.time-grid
+			display grid
+			grid-template-columns repeat(4, 1fr)
+			gap 0.5rem
+			max-height 300px
+			overflow-y auto
+
+		.time-slot
+			padding 0.5rem
+			background white
+			border 1px solid #e5e7eb
 			border-radius 6px
-
-.booking-form
-	.form-group
-		margin-bottom 1rem
-
-		label
-			display block
-			color #666
-			margin-bottom 0.5rem
+			cursor pointer
+			transition all 0.2s ease
 			font-size 0.9rem
+			text-align center
+			position relative
 
-		input, textarea
-			width 100%
-			padding 0.75rem
-			border 2px solid #e0e0e0
-			border-radius 10px
-			font-size 1rem
+			&:hover:not(.unavailable)
+				border-color #3b82f6
+				background #eff6ff
 
-			&:focus
-				outline none
-				border-color #FFC107
+			&.selected
+				background #3b82f6
+				color white
+				border-color #3b82f6
 
-.terms-checkbox
-	display flex
-	align-items start
-	gap 0.5rem
+			&.unavailable
+				background #f5f5f5
+				color #9ca3af
+				cursor not-allowed
+
+				.booked-label
+					display block
+					font-size 0.7rem
+					margin-top 0.25rem
+					color #ef4444
+
+// Form Elements
+textarea
+	width 100%
+	padding 0.75rem
+	border 1px solid #d1d5db
+	border-radius 8px
+	font-family inherit
+	font-size 0.9rem
+	resize vertical
+	transition border-color 0.2s ease
+
+	&:focus
+		outline none
+		border-color #3b82f6
+
+.terms-agreement
 	margin 1.5rem 0
 
-	input[type="checkbox"]
-		margin-top 0.25rem
-
-	label
-		color #666
+	.checkbox-label
+		display flex
+		align-items flex-start
+		gap 0.5rem
+		cursor pointer
 		font-size 0.9rem
-		line-height 1.4
+		color #4b5563
 
-.confirm-booking-btn, .done-btn
+		input[type="checkbox"]
+			margin-top 0.125rem
+			cursor pointer
+
+.cost-display
+	display flex
+	justify-content space-between
+	align-items center
+	padding 1rem
+	background #f9fafb
+	border-radius 8px
+	margin-bottom 1.5rem
+
+	.cost-label
+		color #6b7280
+		font-weight 500
+
+	.cost-value
+		font-size 1.25rem
+		font-weight 700
+		color #1a1a1a
+
+.book-button
 	width 100%
 	padding 1rem
-	background linear-gradient(135deg, #FF9800 0%, #FFB300 100%)
+	background #3b82f6
 	color white
 	border none
-	border-radius 50px
-	font-size 1.1rem
+	border-radius 8px
+	font-size 1rem
 	font-weight 600
 	cursor pointer
 	transition all 0.2s ease
 
 	&:hover:not(:disabled)
-		transform translateY(-2px)
-		box-shadow 0 8px 20px rgba(255, 152, 0, 0.3)
+		background #2563eb
+		transform translateY(-1px)
+		box-shadow 0 4px 12px rgba(59, 130, 246, 0.3)
 
 	&:disabled
 		opacity 0.5
 		cursor not-allowed
+		transform none
 
-.booking-success
-	background linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)
-	border-radius 15px
-	padding 2rem
-	text-align center
-	margin-bottom 1.5rem
+	.btn-content
+		display flex
+		align-items center
+		justify-content center
+		gap 0.5rem
 
-	&.prominent
-		padding 3rem
-		margin-bottom 2rem
-		box-shadow 0 8px 24px rgba(76, 175, 80, 0.15)
+	.spinner
+		width 20px
+		height 20px
+		border 2px solid rgba(255, 255, 255, 0.3)
+		border-top-color white
+		border-radius 50%
+		animation spin 0.6s linear infinite
 
-	.success-icon
-		font-size 3rem
+// Facility Info Card
+.facility-info-card
+	background #f9fafb
+	border-radius 12px
+	padding 1.5rem
+	height fit-content
+	position sticky
+	top 0
+
+	@media (max-width: 900px)
+		position static
+
+	.facility-image
+		width 100%
+		height 180px
+		background linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)
+		border-radius 8px
+		display flex
+		align-items center
+		justify-content center
 		margin-bottom 1rem
 
-	h3
-		color #4CAF50
-		margin 0 0 0.5rem 0
-		font-size 1.5rem
+		.facility-icon-large
+			font-size 4rem
 
-	p
-		color #666
-		margin-bottom 1rem
+	.facility-details
+		h3
+			margin 0 0 0.5rem
+			font-size 1.25rem
+			color #1a1a1a
+			font-weight 600
 
-	.booking-reference
-		background white
-		padding 1rem
-		border-radius 10px
-		margin-bottom 1.5rem
+		.description
+			color #6b7280
+			font-size 0.9rem
+			margin-bottom 1rem
+			line-height 1.5
 
-		span
-			color #666
-			margin-right 0.5rem
+		.info-items
+			display flex
+			gap 1rem
+			margin-bottom 1rem
 
-		strong
-			color #333
-			font-family monospace
-			font-size 1.1rem
+			.info-item
+				display flex
+				align-items center
+				gap 0.5rem
+				color #4b5563
+				font-size 0.85rem
 
-.new-booking-btn
-	padding 0.75rem 2rem
-	background white
-	color #4CAF50
-	border 2px solid #4CAF50
-	border-radius 50px
-	cursor pointer
-	font-weight 600
+				svg
+					flex-shrink 0
+
+		.amenities
+			margin-top 1.5rem
+
+			h4
+				margin 0 0 0.5rem
+				font-size 0.95rem
+				color #1a1a1a
+				font-weight 600
+
+			.amenities-list
+				color #6b7280
+				font-size 0.85rem
+				line-height 1.5
+
+		.booking-rules
+			margin-top 1.5rem
+
+			h4
+				margin 0 0 0.5rem
+				font-size 0.95rem
+				color #1a1a1a
+				font-weight 600
+
+			ul
+				margin 0
+				padding-left 1.25rem
+				color #6b7280
+				font-size 0.85rem
+
+				li
+					margin-bottom 0.25rem
+
+// Animations
+.dropdown-enter-active, .dropdown-leave-active
 	transition all 0.2s ease
 
-	&:hover
-		background #4CAF50
-		color white
-		transform translateY(-1px)
+.dropdown-enter-from, .dropdown-leave-to
+	opacity 0
+	transform translateY(-10px)
 
-.bookings-list
-	display flex
-	flex-direction column
-	gap 1rem
-
-.booking-item
-	display flex
-	gap 1rem
-	padding 1rem
-	background #f9f9f9
-	border-radius 10px
-	align-items center
+.slide-down-enter-active, .slide-down-leave-active
 	transition all 0.3s ease
 
-	&.new-booking
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-		border 2px solid #FFC107
-		animation highlight 2s ease-in-out
+.slide-down-enter-from, .slide-down-leave-to
+	opacity 0
+	transform translateY(-20px)
 
-@keyframes highlight
+@keyframes pulse
 	0%, 100%
 		transform scale(1)
 	50%
-		transform scale(1.02)
+		transform scale(1.05)
 
-.booking-date
-		background white
-		border-radius 8px
-		padding 0.75rem
-		text-align center
-		min-width 60px
-
-		.month
-			display block
-			color #FF9800
-			font-size 0.75rem
-			font-weight 600
-
-		.day
-			display block
-			font-size 1.25rem
-			font-weight bold
-			color #333
-
-	.booking-info
-		flex 1
-
-		h4
-			margin 0 0 0.25rem 0
-			color #333
-
-		p
-			margin 0
-			color #666
-			font-size 0.9rem
-
-		.booking-purpose
-			font-style italic
-
-	.cancel-btn
-		padding 0.5rem 1rem
-		background white
-		color #F44336
-		border 2px solid #F44336
-		border-radius 50px
-		cursor pointer
-		font-size 0.85rem
-		font-weight 500
-		transition all 0.2s ease
-
-		&:hover
-			background #FFEBEE
-
-.no-bookings
-	text-align center
-	color #999
-	padding 2rem
-	font-style italic
+@keyframes spin
+	to
+		transform rotate(360deg)
 </style>

@@ -41,8 +41,12 @@ export default {
 			type: String,
 			default: 'top-right',
 			validator: value => [
-				'top-left', 'top-center', 'top-right',
-				'bottom-left', 'bottom-center', 'bottom-right'
+				'top-left',
+				'top-center',
+				'top-right',
+				'bottom-left',
+				'bottom-center',
+				'bottom-right'
 			].includes( value )
 		},
 		maxToasts: {

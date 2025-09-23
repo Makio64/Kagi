@@ -26,7 +26,7 @@
 						@change="handleChange"
 					>
 					<span class="k-radio-circle" aria-hidden="true">
-						<span v-if="internalValue === getOptionValue(option)" class="k-radio-dot"></span>
+						<span v-if="internalValue === getOptionValue(option)" class="k-radio-dot" />
 					</span>
 					<span class="k-radio-text">{{ getOptionLabel(option) }}</span>
 				</label>

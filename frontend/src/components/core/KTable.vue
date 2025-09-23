@@ -16,7 +16,7 @@
 
 		<div class="table-container" role="region" :aria-label="tableLabel || 'Data table'" :aria-busy="loading">
 			<div v-if="loading" class="table-loading-overlay">
-				<div class="table-loading-spinner" aria-hidden="true"></div>
+				<div class="table-loading-spinner" aria-hidden="true" />
 				<span class="table-loading-text">{{ loadingText }}</span>
 			</div>
 			<table role="table" :aria-rowcount="data.length" :aria-colcount="columns.length">
@@ -45,7 +45,7 @@
 					<tr v-if="loading" role="row">
 						<td :colspan="columns.length" class="loading-rows" role="cell">
 							<div v-for="n in 3" :key="n" class="skeleton-row">
-								<div v-for="column in columns" :key="column.key" class="skeleton-cell"></div>
+								<div v-for="column in columns" :key="column.key" class="skeleton-cell" />
 							</div>
 						</td>
 					</tr>

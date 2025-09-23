@@ -28,7 +28,7 @@
 		<!-- Card Body -->
 		<div class="k-card-body" :aria-busy="loading">
 			<div v-if="loading" class="k-card-loading">
-				<div class="k-card-loading-spinner" aria-hidden="true"></div>
+				<div class="k-card-loading-spinner" aria-hidden="true" />
 				<span class="k-card-loading-text">{{ loadingText }}</span>
 			</div>
 			<template v-else>
