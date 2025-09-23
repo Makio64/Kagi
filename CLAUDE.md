@@ -145,7 +145,7 @@ Key models:
 ### Frontend Configuration
 
 - **Vite**: HTTPS dev server (port 3000), auto-imports, CSS injection
-- **Vue 3**: Composition API, component auto-registration
+- **Vue 3**: Options API (IMPORTANT: Use Options API, NOT Composition API or setup syntax)
 - **Routing**: vue-tiny-router (lightweight)
 - **i18n**: vue-tiny-translation with JSON files in `/public/translations/`
 - **Styling**: Stylus preprocessor, global styles in `/src/css/global.styl`
