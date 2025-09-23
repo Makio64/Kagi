@@ -769,164 +769,166 @@
 	</div>
 </template>
 
-<script setup>
-import { computed, ref } from 'vue'
-import { getCurrentInstance } from 'vue'
-
-// Stores
+<script>
 import * as store from '../store'
 
-const instance = getCurrentInstance()
-const router = instance.proxy.$router
+export default {
+	name: 'MansionAdminDashboard',
+	data() {
+		return {
+			// Building Information
+			buildingName: 'Sakura Tower',
 
-// Computed properties for store
-const user = computed( () => store.user.value )
+			// Navigation
+			activeSection: 'overview',
+			showMobileMenu: false,
 
-// Building Information
-const buildingName = ref( 'Sakura Tower' )
+			// Menu items for sidebar
+			menuItems: [
+				{ id: 'overview', icon: '📊', label: 'Overview' },
+				{ id: 'residents', icon: '👥', label: 'Residents' },
+				{ id: 'maintenance', icon: '🔧', label: 'Maintenance' },
+				{ id: 'bookings', icon: '📅', label: 'Bookings' },
+				{ id: 'announcements', icon: '📢', label: 'Announcements' },
+				{ id: 'documents', icon: '📄', label: 'Documents' },
+				{ id: 'services', icon: '🛎️', label: 'Services' },
+				{ id: 'financial', icon: '💳', label: 'Financial' },
+				{ id: 'reports', icon: '📊', label: 'Reports' },
+				{ id: 'settings', icon: '⚙️', label: 'Settings' }
+			],
 
-// Navigation
-const activeSection = ref( 'overview' )
-const showMobileMenu = ref( false )
+			// Sample Data
+			residents: [
+				{ id: 1, name: 'Tanaka Yuki', unit: '502', email: 'tanaka@example.com', phone: '090-1234-5678', moveInDate: 'Jan 2023', status: 'active' },
+				{ id: 2, name: 'Sato Kenji', unit: '301', email: 'sato@example.com', phone: '090-2345-6789', moveInDate: 'Mar 2022', status: 'active' },
+				{ id: 3, name: 'Yamada Hana', unit: '105', email: 'yamada@example.com', phone: '090-3456-7890', moveInDate: 'Jun 2023', status: 'active' }
+			],
 
-// Menu items for sidebar
-const menuItems = ref( [
-	{ id: 'overview', icon: '📊', label: 'Overview' },
-	{ id: 'residents', icon: '👥', label: 'Residents' },
-	{ id: 'maintenance', icon: '🔧', label: 'Maintenance' },
-	{ id: 'bookings', icon: '📅', label: 'Bookings' },
-	{ id: 'announcements', icon: '📢', label: 'Announcements' },
-	{ id: 'documents', icon: '📄', label: 'Documents' },
-	{ id: 'services', icon: '🛎️', label: 'Services' },
-	{ id: 'financial', icon: '💳', label: 'Financial' },
-	{ id: 'reports', icon: '📊', label: 'Reports' },
-	{ id: 'settings', icon: '⚙️', label: 'Settings' }
-] )
+			maintenanceRequests: [
+				{ id: 1, title: 'Water leak in bathroom', description: 'Water dripping from ceiling', unit: '502', priority: 'urgent', status: 'open', created: '2 hours ago' },
+				{ id: 2, title: 'AC not working', description: 'Air conditioning unit making noise', unit: '301', priority: 'high', status: 'assigned', assignedTo: 'Tech Team', created: '1 day ago' },
+				{ id: 3, title: 'Door lock issue', description: 'Key card reader not responding', unit: '105', priority: 'medium', status: 'in-progress', assignedTo: 'Security', created: '3 days ago' }
+			],
 
-const navigateToSection = ( section ) => {
-	activeSection.value = section
-}
+			announcements: [
+				{ id: 1, title: 'Pool Maintenance', category: 'maintenance', content: 'The swimming pool will be closed for maintenance from Dec 10-12.', date: 'Dec 5, 2024', views: 89 },
+				{ id: 2, title: 'New Year Party', category: 'event', content: 'Join us for the annual New Year celebration in the party room!', date: 'Dec 3, 2024', views: 156 },
+				{ id: 3, title: 'Elevator Inspection', category: 'urgent', content: 'Mandatory elevator inspection on Dec 15. Service may be interrupted.', date: 'Dec 1, 2024', views: 201 }
+			],
 
-const handleLogout = async () => {
-	await store.logout()
-	router.push( '/login' )
-}
+			documents: [
+				{ id: 1, name: 'Building Rules', icon: '📋', description: 'Complete building rules and regulations', size: '2.3 MB', lastModified: 'Nov 15, 2024' },
+				{ id: 2, name: 'Emergency Procedures', icon: '🚨', description: 'Emergency evacuation and safety procedures', size: '1.5 MB', lastModified: 'Oct 20, 2024' },
+				{ id: 3, name: 'Facility Guide', icon: '📖', description: 'Guide to all building facilities', size: '4.1 MB', lastModified: 'Sep 10, 2024' }
+			],
 
-// Sample Data
-const residents = ref( [
-	{ id: 1, name: 'Tanaka Yuki', unit: '502', email: 'tanaka@example.com', phone: '090-1234-5678', moveInDate: 'Jan 2023', status: 'active' },
-	{ id: 2, name: 'Sato Kenji', unit: '301', email: 'sato@example.com', phone: '090-2345-6789', moveInDate: 'Mar 2022', status: 'active' },
-	{ id: 3, name: 'Yamada Hana', unit: '105', email: 'yamada@example.com', phone: '090-3456-7890', moveInDate: 'Jun 2023', status: 'active' }
-] )
+			facilities: [
+				{ id: 1, name: 'Party Room' },
+				{ id: 2, name: 'Gym' },
+				{ id: 3, name: 'Meeting Room' },
+				{ id: 4, name: 'Guest Parking' }
+			],
 
-const maintenanceRequests = ref( [
-	{ id: 1, title: 'Water leak in bathroom', description: 'Water dripping from ceiling', unit: '502', priority: 'urgent', status: 'open', created: '2 hours ago' },
-	{ id: 2, title: 'AC not working', description: 'Air conditioning unit making noise', unit: '301', priority: 'high', status: 'assigned', assignedTo: 'Tech Team', created: '1 day ago' },
-	{ id: 3, title: 'Door lock issue', description: 'Key card reader not responding', unit: '105', priority: 'medium', status: 'in-progress', assignedTo: 'Security', created: '3 days ago' }
-] )
+			unitPayments: [
+				{ unit: '101', resident: 'Tanaka Y.', amount: 125000, status: 'paid' },
+				{ unit: '102', resident: 'Sato K.', amount: 125000, status: 'paid' },
+				{ unit: '103', resident: 'Yamada H.', amount: 125000, status: 'pending' },
+				{ unit: '201', resident: 'Suzuki M.', amount: 135000, status: 'paid' },
+				{ unit: '202', resident: 'Watanabe T.', amount: 135000, status: 'overdue' }
+			],
 
-const announcements = ref( [
-	{ id: 1, title: 'Pool Maintenance', category: 'maintenance', content: 'The swimming pool will be closed for maintenance from Dec 10-12.', date: 'Dec 5, 2024', views: 89 },
-	{ id: 2, title: 'New Year Party', category: 'event', content: 'Join us for the annual New Year celebration in the party room!', date: 'Dec 3, 2024', views: 156 },
-	{ id: 3, title: 'Elevator Inspection', category: 'urgent', content: 'Mandatory elevator inspection on Dec 15. Service may be interrupted.', date: 'Dec 1, 2024', views: 201 }
-] )
+			// Modal States
+			showEditModal: false,
+			showAnnouncementModal: false,
+			editingResident: {},
+			newAnnouncement: {
+				title: '',
+				category: 'general',
+				content: ''
+			},
 
-const documents = ref( [
-	{ id: 1, name: 'Building Rules', icon: '📋', description: 'Complete building rules and regulations', size: '2.3 MB', lastModified: 'Nov 15, 2024' },
-	{ id: 2, name: 'Emergency Procedures', icon: '🚨', description: 'Emergency evacuation and safety procedures', size: '1.5 MB', lastModified: 'Oct 20, 2024' },
-	{ id: 3, name: 'Facility Guide', icon: '📖', description: 'Guide to all building facilities', size: '4.1 MB', lastModified: 'Sep 10, 2024' }
-] )
+			// Booking Calendar
+			currentWeek: 'Dec 9-15, 2024',
+			weekDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
 
-const facilities = ref( [
-	{ id: 1, name: 'Party Room' },
-	{ id: 2, name: 'Gym' },
-	{ id: 3, name: 'Meeting Room' },
-	{ id: 4, name: 'Guest Parking' }
-] )
+			// Settings
+			buildingSettings: {
+				name: 'Sakura Tower',
+				address: 'Shibuya, Tokyo',
+				totalUnits: 120,
+				facilities: [
+					{ id: 1, name: 'Swimming Pool', enabled: true, hours: '6:00 - 22:00' },
+					{ id: 2, name: 'Gym', enabled: true, hours: '5:00 - 23:00' },
+					{ id: 3, name: 'Party Room', enabled: true, hours: 'By reservation' },
+					{ id: 4, name: 'Rooftop Garden', enabled: true, hours: '7:00 - 20:00' }
+				]
+			},
 
-const unitPayments = ref( [
-	{ unit: '101', resident: 'Tanaka Y.', amount: 125000, status: 'paid' },
-	{ unit: '102', resident: 'Sato K.', amount: 125000, status: 'paid' },
-	{ unit: '103', resident: 'Yamada H.', amount: 125000, status: 'pending' },
-	{ unit: '201', resident: 'Suzuki M.', amount: 135000, status: 'paid' },
-	{ unit: '202', resident: 'Watanabe T.', amount: 135000, status: 'overdue' }
-] )
+			notificationSettings: {
+				emailAlerts: true,
+				dailyDigest: true,
+				paymentReminders: true
+			}
+		}
+	},
+	computed: {
+		user() {
+			return store.user.value
+		}
+	},
+	methods: {
+		navigateToSection( section ) {
+			this.activeSection = section
+		},
 
-// Modal States
-const showEditModal = ref( false )
-const showAnnouncementModal = ref( false )
-const editingResident = ref( {} )
-const newAnnouncement = ref( {
-	title: '',
-	category: 'general',
-	content: ''
-} )
+		async handleLogout() {
+			await store.logout()
+			this.$router.push( '/login' )
+		},
 
-// Booking Calendar
-const currentWeek = ref( 'Dec 9-15, 2024' )
-const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+		editResident( resident ) {
+			this.editingResident = { ...resident }
+			this.showEditModal = true
+		},
 
-// Settings
-const buildingSettings = ref( {
-	name: 'Sakura Tower',
-	address: 'Shibuya, Tokyo',
-	totalUnits: 120,
-	facilities: [
-		{ id: 1, name: 'Swimming Pool', enabled: true, hours: '6:00 - 22:00' },
-		{ id: 2, name: 'Gym', enabled: true, hours: '5:00 - 23:00' },
-		{ id: 3, name: 'Party Room', enabled: true, hours: 'By reservation' },
-		{ id: 4, name: 'Rooftop Garden', enabled: true, hours: '7:00 - 20:00' }
-	]
-} )
+		saveResident() {
+			// Save resident logic
+			console.log( 'Saving resident:', this.editingResident )
+			this.showEditModal = false
+		},
 
-const notificationSettings = ref( {
-	emailAlerts: true,
-	dailyDigest: true,
-	paymentReminders: true
-} )
+		createAnnouncement() {
+			// Create announcement logic
+			console.log( 'Creating announcement:', this.newAnnouncement )
+			this.showAnnouncementModal = false
+			// Reset form
+			this.newAnnouncement = {
+				title: '',
+				category: 'general',
+				content: ''
+			}
+		},
 
-// Methods
-const editResident = ( resident ) => {
-	editingResident.value = { ...resident }
-	showEditModal.value = true
-}
+		getBooking( facilityId, day ) {
+			// Mock booking data
+			const bookings = {
+				'1-Mon': { time: '14:00-16:00', user: 'Unit 502' },
+				'2-Wed': { time: '18:00-19:00', user: 'Unit 301' },
+				'3-Fri': { time: '19:00-21:00', user: 'Unit 105' }
+			}
+			return bookings[`${facilityId}-${day}`]
+		},
 
-const saveResident = () => {
-	// Save resident logic
-	console.log( 'Saving resident:', editingResident.value )
-	showEditModal.value = false
-}
+		previousWeek() {
+			// Navigate to previous week
+			console.log( 'Previous week' )
+		},
 
-const createAnnouncement = () => {
-	// Create announcement logic
-	console.log( 'Creating announcement:', newAnnouncement.value )
-	showAnnouncementModal.value = false
-	// Reset form
-	newAnnouncement.value = {
-		title: '',
-		category: 'general',
-		content: ''
+		nextWeek() {
+			// Navigate to next week
+			console.log( 'Next week' )
+		}
 	}
-}
-
-const getBooking = ( facilityId, day ) => {
-	// Mock booking data
-	const bookings = {
-		'1-Mon': { time: '14:00-16:00', user: 'Unit 502' },
-		'2-Wed': { time: '18:00-19:00', user: 'Unit 301' },
-		'3-Fri': { time: '19:00-21:00', user: 'Unit 105' }
-	}
-	return bookings[`${facilityId}-${day}`]
-}
-
-const previousWeek = () => {
-	// Navigate to previous week
-	console.log( 'Previous week' )
-}
-
-const nextWeek = () => {
-	// Navigate to next week
-	console.log( 'Next week' )
 }
 </script>
 

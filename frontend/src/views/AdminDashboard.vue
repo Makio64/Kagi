@@ -488,158 +488,23 @@
 	</div>
 </template>
 
-<script setup>
-import { computed, ref } from 'vue'
-
-// Stores
+<script>
 import * as store from '../store'
 
+export default {
+	name: 'AdminDashboard',
+	data() {
+		return {
 
-// Computed properties for store
-const user = computed( () => store.user.value )
-const token = computed( () => store.token.value )
-
-// Navigation
-const activeSection = ref( 'overview' )
-
-// Menu items for sidebar
-const menuItems = ref( [
-	{ id: 'overview', icon: '📊', label: 'Overview' },
-	{ id: 'buildings', icon: '🏢', label: 'Buildings' },
-	{ id: 'users', icon: '👥', label: 'Users' },
-	{ id: 'maintenance', icon: '🔧', label: 'Maintenance' },
-	{ id: 'reports', icon: '📈', label: 'Reports' },
-	{ id: 'settings', icon: '⚙️', label: 'Settings' }
-] )
-
-const navigateToSection = ( section ) => {
-	activeSection.value = section
-}
-
-// Sample data
-const buildings = ref( [
-	{ id: 1, name: 'Sakura Tower', address: 'Shibuya, Tokyo', units: 120, occupancy: 95, status: 'active' },
-	{ id: 2, name: 'Maple Heights', address: 'Shinjuku, Tokyo', units: 80, occupancy: 88, status: 'active' },
-	{ id: 3, name: 'Ocean View', address: 'Minato, Tokyo', units: 200, occupancy: 92, status: 'active' }
-] )
-
-const users = ref( [
-	{ id: 1, name: 'Tanaka Yuki', email: 'tanaka@example.com', role: 'resident', building: 'Sakura Tower', status: 'active' },
-	{ id: 2, name: 'Sato Kenji', email: 'sato@example.com', role: 'mansion_admin', building: 'Maple Heights', status: 'active' },
-	{ id: 3, name: 'Yamada Hana', email: 'yamada@example.com', role: 'resident', building: 'Ocean View', status: 'active' }
-] )
-
-const maintenanceRequests = ref( [
-	{ id: 1, title: 'Water leak in bathroom', description: 'Urgent: Water dripping from ceiling', unit: '502', priority: 'urgent', time: '10 min ago' },
-	{ id: 2, title: 'AC not working', description: 'Air conditioning unit making strange noise', unit: '301', priority: 'high', time: '1 hour ago' },
-	{ id: 3, title: 'Door lock issue', description: 'Key card reader not responding', unit: '105', priority: 'medium', time: '3 hours ago' }
-] )
-
-const buildingPayments = ref( [
-	{ id: 1, name: 'Sakura Tower', percentage: 92, collected: '110', total: '120' },
-	{ id: 2, name: 'Maple Heights', percentage: 85, collected: '68', total: '80' },
-	{ id: 3, name: 'Ocean View', percentage: 78, collected: '156', total: '200' }
-] )
-
-// Add Building Modal State
-const showAddBuildingModal = ref( false )
-const isAddingBuilding = ref( false )
-const newBuilding = ref( {
-	name: '',
-	address: '',
-	description: '',
-	units: null,
-	floors: null,
-	facilities: [],
-	rules: ''
-} )
-
-const closeAddBuildingModal = () => {
-	showAddBuildingModal.value = false
-	// Reset form
-	newBuilding.value = {
-		name: '',
-		address: '',
-		description: '',
-		units: null,
-		floors: null,
-		facilities: [],
-		rules: ''
-	}
-}
-
-const addBuilding = async () => {
-	if ( !newBuilding.value.name || !newBuilding.value.address ) {
-		alert( 'Please fill in required fields' )
-		return
-	}
-
-	isAddingBuilding.value = true
-
-	try {
-		// Prepare the data for API
-		const buildingData = {
-			name: newBuilding.value.name,
-			address: newBuilding.value.address,
-			description: newBuilding.value.description || '',
-			facilities: newBuilding.value.facilities.join( ', ' ),
-			rules: newBuilding.value.rules || ''
 		}
-
-		// Check if we're in test mode or real mode
-		if ( store.USE_MOCK_BACKEND ) {
-			// In test mode, just add to local array
-			const newId = Math.max( ...buildings.value.map( b => b.id ) ) + 1
-			buildings.value.push( {
-				id: newId,
-				name: newBuilding.value.name,
-				address: newBuilding.value.address,
-				units: newBuilding.value.units || 0,
-				occupancy: 0,
-				status: 'active'
-			} )
-
-			// Show success message
-			alert( `Building "${newBuilding.value.name}" added successfully!` )
-		} else {
-			// Make API call to backend
-			const response = await fetch( 'http://localhost:3333/api/mansions', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token.value}`
-				},
-				credentials: 'include',
-				body: JSON.stringify( buildingData )
-			} )
-
-			if ( !response.ok ) {
-				throw new Error( 'Failed to add building' )
-			}
-
-			const data = await response.json()
-
-			// Add to local array
-			buildings.value.push( {
-				id: data.mansion.id,
-				name: data.mansion.name,
-				address: data.mansion.address,
-				units: newBuilding.value.units || 0,
-				occupancy: 0,
-				status: 'active'
-			} )
-
-			// Show success message
-			alert( `Building "${data.mansion.name}" added successfully!` )
+	},
+	computed: {
+		USE_MOCK_BACKEND() {
+			return store.USE_MOCK_BACKEND
 		}
+	},
+	methods: {
 
-		// Close modal
-		closeAddBuildingModal()
-	} catch ( error ) {
-		console.error( 'Error adding building:', error )
-		alert( 'Failed to add building. Please try again.' )
-	} finally {
-		isAddingBuilding.value = false
 	}
 }
 </script>
