@@ -229,7 +229,7 @@
 											<span>👥 Up to 20 people</span>
 											<span>💴 ¥10,000/half-day</span>
 										</div>
-										<button class="book-btn-primary">Book Now →</button>
+										<button class="book-btn-yellow">Book Now →</button>
 									</div>
 								</div>
 
@@ -245,7 +245,7 @@
 											<span>👥 Up to 2 guests</span>
 											<span>💴 ¥5,000/night</span>
 										</div>
-										<button class="book-btn-primary">Book Now →</button>
+										<button class="book-btn-yellow">Book Now →</button>
 									</div>
 								</div>
 
@@ -261,7 +261,7 @@
 											<span>👥 10 people max</span>
 											<span>✨ Free for residents</span>
 										</div>
-										<button class="book-btn-primary">Book Now →</button>
+										<button class="book-btn-yellow">Book Now →</button>
 									</div>
 								</div>
 							</div>
@@ -302,7 +302,7 @@
 							</div>
 
 							<!-- Bookings Grid -->
-							<div v-else class="bookings-grid-modern">
+							<div v-else-if="filteredBookings.length > 0" class="bookings-grid-modern">
 								<div v-for="booking in filteredBookings" :key="booking.id" class="booking-card-modern-v2">
 									<div class="card-status-bar" :class="getBookingCountdown(booking.date).class" />
 									<div class="card-content">
@@ -341,6 +341,20 @@
 
 									</div>
 								</div>
+							</div>
+							<!-- Empty State for filtered results -->
+							<div v-else class="empty-state-modern">
+								<div class="empty-illustration">
+									<svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+										<circle cx="60" cy="60" r="50" fill="#FFF9C4" />
+										<rect x="40" y="40" width="40" height="40" rx="4" fill="white" stroke="#FFC107" stroke-width="2" />
+										<path d="M50 35V45M70 35V45M40 55H80" stroke="#FFB300" stroke-width="2" stroke-linecap="round" />
+										<circle cx="55" cy="65" r="2" fill="#FFB300" />
+										<circle cx="65" cy="65" r="2" fill="#FFB300" />
+									</svg>
+								</div>
+								<h3>{{ activeFilter === 'upcoming' ? $t('booking.noUpcomingBookings') || 'No upcoming bookings' : activeFilter === 'past' ? $t('booking.noPastBookings') || 'No past bookings' : $t('booking.noBookings') || 'No bookings yet' }}</h3>
+								<p>{{ activeFilter === 'upcoming' ? $t('booking.noUpcomingBookingsDesc') || 'Book a facility to see it here' : activeFilter === 'past' ? $t('booking.noPastBookingsDesc') || 'Your completed bookings will appear here' : $t('booking.noBookingsDesc') || 'Start by booking one of our available facilities' }}</p>
 							</div>
 						</div> <!-- End bookings column -->
 					</div> <!-- End two-column layout -->
@@ -3498,6 +3512,24 @@ watch( showMobileMenu, ( newVal ) => {
 				background linear-gradient(135deg, #333 0%, #555 100%)
 				transform translateX(2px)
 
+		.book-btn-yellow
+			padding 0.65rem 1.6rem
+			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+			color #333
+			border none
+			border-radius 25px
+			font-size 0.95rem
+			font-weight 600
+			cursor pointer
+			transition all 0.25s ease
+			width fit-content
+			box-shadow 0 3px 10px rgba(255, 193, 7, 0.25)
+
+			&:hover
+				background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+				transform translateY(-2px) translateX(2px)
+				box-shadow 0 5px 15px rgba(255, 193, 7, 0.35)
+
 .bookings-header
 	display flex
 	justify-content space-between
@@ -3538,9 +3570,10 @@ watch( showMobileMenu, ( newVal ) => {
 .empty-state-modern
 	text-align center
 	padding 3rem 2rem
-	background #fafafa
+	background linear-gradient(135deg, #FFFEF7 0%, #FFF9F0 100%)
 	border-radius 12px
 	margin-bottom 2rem
+	border 1px solid rgba(255, 193, 7, 0.1)
 
 	.empty-illustration
 		margin-bottom 1.5rem
@@ -3548,7 +3581,7 @@ watch( showMobileMenu, ( newVal ) => {
 		svg
 			width 120px
 			height 120px
-			opacity 0.8
+			opacity 0.9
 
 	h3
 		font-size 1.25rem
