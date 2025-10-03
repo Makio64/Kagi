@@ -1,0 +1,271 @@
+<template>
+	<section class="section">
+		<div class="section-header">
+			<h2 class="section-title">
+				<span class="section-icon">📅</span>
+				{{ $t('dashboard.menu.booking') }}
+			</h2>
+		</div>
+		<!-- Bookings Filter -->
+		<div class="bookings-filter">
+			<button
+				:class="['filter-btn', { active: activeFilter === 'upcoming' }]"
+				@click="activeFilter = 'upcoming'"
+			>
+				{{ $t('booking.upcoming') }}
+			</button>
+			<button
+				:class="['filter-btn', { active: activeFilter === 'past' }]"
+				@click="activeFilter = 'past'"
+			>
+				{{ $t('booking.past') }}
+			</button>
+		</div>
+		<!-- Current Bookings -->
+		<div v-if="filteredBookings.length > 0" class="bookings-container">
+			<h3>{{ $t('booking.yourBookings') }}</h3>
+			<div class="bookings-grid">
+				<div
+					v-for="booking in filteredBookings"
+					:key="booking.id"
+					class="booking-card"
+				>
+					<div class="booking-header">
+						<div class="booking-date">
+							<span class="month">{{ booking.month }}</span>
+							<span class="day">{{ booking.day }}</span>
+						</div>
+						<div class="booking-info">
+							<h4>{{ booking.facility }}</h4>
+							<p class="booking-time">{{ booking.time }}</p>
+							<p class="booking-purpose">{{ booking.purpose }}</p>
+						</div>
+						<span class="facility-icon">{{ booking.icon }}</span>
+					</div>
+					<div class="booking-footer">
+						<span :class="['booking-status', getBookingCountdown(booking.date).class]">
+							{{ getBookingCountdown(booking.date).text }}
+						</span>
+						<div class="booking-actions">
+							<button
+								v-if="getBookingCountdown(booking.date).class !== 'past'"
+								class="action-btn cancel"
+								@click="$emit('cancel-booking', booking.id)"
+							>
+								{{ $t('common.cancel') }}
+							</button>
+							<button
+								v-else
+								class="action-btn rebook"
+								@click="$emit('rebook-facility', booking)"
+							>
+								{{ $t('booking.bookAgain') }}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Empty State -->
+		<div v-else class="empty-bookings">
+			<div class="empty-icon">📅</div>
+			<h3>{{ emptyTitle }}</h3>
+			<p>{{ emptyDescription }}</p>
+		</div>
+		<!-- Available Facilities -->
+		<div class="facilities-section">
+			<FacilityBooking @book-facility="$emit('book-facility', $event)" />
+		</div>
+	</section>
+</template>
+<script>
+import { filterBookings, getBookingCountdown, sampleBookings } from '../../../utils/bookingUtils'
+export default {
+	name: 'BookingsSection',
+	emits: ['cancel-booking', 'rebook-facility', 'book-facility'],
+	data() {
+		return {
+			activeFilter: 'upcoming',
+			userBookings: sampleBookings
+		}
+	},
+	computed: {
+		filteredBookings() {
+			return filterBookings( this.userBookings, this.activeFilter )
+		},
+		emptyTitle() {
+			return this.activeFilter === 'upcoming'
+				? this.$t( 'booking.noUpcomingBookings' )
+				: this.$t( 'booking.noPastBookings' )
+		},
+		emptyDescription() {
+			return this.activeFilter === 'upcoming'
+				? this.$t( 'booking.noUpcomingBookingsDesc' )
+				: this.$t( 'booking.noPastBookingsDesc' )
+		}
+	},
+	methods: {
+		getBookingCountdown
+	}
+}
+</script>
+<style lang="stylus" scoped>
+.section
+	animation fadeIn 0.3s ease
+.section-header
+	margin-bottom 2rem
+.section-title
+	font-size 1.75rem
+	color #333
+	display flex
+	align-items center
+	gap 0.75rem
+	.section-icon
+		font-size 1.5rem
+.bookings-filter
+	display flex
+	gap 0.5rem
+	margin-bottom 2rem
+.filter-btn
+	padding 0.625rem 1.25rem
+	background white
+	border 2px solid #e0e0e0
+	border-radius 25px
+	color #666
+	font-size 0.95rem
+	font-weight 500
+	cursor pointer
+	transition all 0.2s ease
+	&:hover
+		border-color #FFC107
+	&.active
+		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+		border-color #FFC107
+		color white
+.bookings-container
+	margin-bottom 3rem
+	h3
+		font-size 1.25rem
+		color #333
+		margin-bottom 1.5rem
+.bookings-grid
+	display grid
+	grid-template-columns repeat(auto-fill, minmax(320px, 1fr))
+	gap 1rem
+	@media (max-width: 768px)
+		grid-template-columns 1fr
+.booking-card
+	background white
+	border 1px solid #e0e0e0
+	border-radius 12px
+	padding 1.25rem
+	transition all 0.2s ease
+	&:hover
+		box-shadow 0 4px 12px rgba(0, 0, 0, 0.08)
+.booking-header
+	display flex
+	align-items flex-start
+	gap 1rem
+	margin-bottom 1rem
+.booking-date
+	display flex
+	flex-direction column
+	align-items center
+	padding 0.5rem
+	background #f8f8f8
+	border-radius 8px
+	min-width 50px
+	.month
+		font-size 0.75rem
+		color #666
+		font-weight 600
+	.day
+		font-size 1.5rem
+		font-weight bold
+		color #333
+.booking-info
+	flex 1
+	h4
+		font-size 1.1rem
+		color #333
+		margin-bottom 0.25rem
+	.booking-time
+		font-size 0.9rem
+		color #666
+		margin-bottom 0.25rem
+	.booking-purpose
+		font-size 0.85rem
+		color #999
+.facility-icon
+	font-size 2rem
+	opacity 0.8
+.booking-footer
+	display flex
+	justify-content space-between
+	align-items center
+	padding-top 1rem
+	border-top 1px solid #f0f0f0
+.booking-status
+	padding 0.25rem 0.75rem
+	border-radius 20px
+	font-size 0.75rem
+	font-weight 600
+	&.today
+		background #FFF3E0
+		color #F57C00
+	&.tomorrow
+		background #E3F2FD
+		color #1976D2
+	&.upcoming
+		background #F1F8E9
+		color #689F38
+	&.past
+		background #F5F5F5
+		color #999
+.booking-actions
+	display flex
+	gap 0.5rem
+.action-btn
+	padding 0.5rem 1rem
+	border none
+	border-radius 6px
+	font-size 0.85rem
+	font-weight 500
+	cursor pointer
+	transition all 0.2s ease
+	&.cancel
+		background #fee
+		color #d32f2f
+		&:hover
+			background #fdd
+	&.rebook
+		background #e3f2fd
+		color #1976d2
+		&:hover
+			background #bbdefb
+.empty-bookings
+	text-align center
+	padding 3rem 1rem
+	background #f8f8f8
+	border-radius 12px
+	margin-bottom 3rem
+	.empty-icon
+		font-size 3rem
+		margin-bottom 1rem
+	h3
+		font-size 1.25rem
+		color #333
+		margin-bottom 0.5rem
+	p
+		color #666
+		font-size 0.95rem
+.facilities-section
+	margin-top 3rem
+@keyframes fadeIn
+	from
+		opacity 0
+		transform translateY(10px)
+	to
+		opacity 1
+		transform translateY(0)
+</style>

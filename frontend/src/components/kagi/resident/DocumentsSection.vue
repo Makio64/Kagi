@@ -1,0 +1,275 @@
+<template>
+	<section class="section">
+		<!-- Document List -->
+		<div v-if="!selectedDocument">
+			<div class="section-header">
+				<h2 class="section-title">📄 {{ $t('dashboard.menu.documents') }}</h2>
+			</div>
+
+			<div class="documents-grid">
+				<div
+					v-for="doc in mockDocuments"
+					:key="doc.id"
+					class="document-card"
+					@click="viewDocument(doc.id)"
+				>
+					<div class="document-icon">{{ doc.icon }}</div>
+					<div class="document-content">
+						<h3>{{ doc.title }}</h3>
+						<p class="document-updated">{{ $t('dashboard.documents.lastUpdated') }}: {{ doc.lastUpdated }}</p>
+					</div>
+					<div class="document-action">
+						<span class="view-btn">{{ $t('dashboard.documents.view') }} →</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Document Viewer -->
+		<div v-else class="document-viewer-wrapper">
+			<DocumentViewer
+				:title="selectedDocument.title"
+				:content="selectedDocument.content"
+				:last-updated="selectedDocument.lastUpdated"
+				:document-id="selectedDocument.id"
+				@close="selectedDocument = null"
+			/>
+		</div>
+	</section>
+</template>
+
+<script>
+export default {
+	name: 'DocumentsSection',
+	data() {
+		return {
+			selectedDocument: null,
+			// Mock documents data - in the future this will come from API
+			mockDocuments: [
+				{
+					id: 'management',
+					icon: '📋',
+					title: 'Management Rules',
+					lastUpdated: '2024/01',
+					content: `# Building Management Rules
+
+## General Rules
+
+1. **Quiet Hours**: 10:00 PM - 7:00 AM
+   - Please keep noise to a minimum during these hours
+   - No construction or renovation work allowed
+
+2. **Common Areas**
+   - Keep common areas clean and tidy
+   - Report any damage or maintenance issues immediately
+   - No storage of personal items in hallways
+
+3. **Pets**
+   - All pets must be registered with management
+   - Dogs must be on a leash in common areas
+   - Owners are responsible for cleaning up after pets
+
+## Security
+
+- Do not prop open entrance doors
+- Report suspicious activity to management
+- Ensure all guests are registered at reception
+
+## Waste Management
+
+- Separate recyclables from general waste
+- Dispose of large items by arrangement with management
+- Use designated waste disposal times
+
+For questions, please contact building management.`
+				},
+				{
+					id: 'facility',
+					icon: '🏢',
+					title: 'Facility Usage Rules',
+					lastUpdated: '2024/03',
+					content: `# Facility Usage Rules
+
+## Party Room
+
+- Maximum capacity: 30 people
+- Booking required 48 hours in advance
+- Clean and return furniture to original positions
+- No smoking or vaping
+- Security deposit may be required
+
+## Guest Room
+
+- Maximum 2 guests per night
+- Check-in after 3:00 PM
+- Check-out before 11:00 AM
+- Residents are responsible for guest behavior
+- Report any damages immediately
+
+## Fitness Gym
+
+- Operating hours: 6:00 AM - 10:00 PM
+- Age restriction: 16 years and above
+- Wipe down equipment after use
+- Return weights to proper storage
+- Appropriate footwear required
+
+## Rooftop Garden
+
+- Respect plants and garden equipment
+- No BBQ without prior permission
+- Clean up after use
+- Children must be supervised
+
+## General
+
+- Reservations can be cancelled up to 24 hours before
+- Failure to show up may result in booking restrictions
+- Be considerate of other residents
+
+Contact management for bookings and inquiries.`
+				},
+				{
+					id: 'parking',
+					icon: '🚗',
+					title: 'Parking Rules',
+					lastUpdated: '2023/12',
+					content: `# Parking Rules & Regulations
+
+## Assigned Parking
+
+- Each unit is allocated specific parking space(s)
+- Parking space numbers must match unit registration
+- Unauthorized vehicles will be towed at owner's expense
+
+## Visitor Parking
+
+- Limited to 2 hours for short-term visitors
+- Register at reception for extended stays
+- Overnight parking requires prior approval
+- Maximum 3 consecutive nights
+
+## General Rules
+
+1. **Speed Limit**: 10 km/h maximum
+2. **No Parking Zones**:
+   - Fire lanes
+   - Loading zones
+   - Handicapped spaces (without permit)
+
+3. **Vehicle Maintenance**:
+   - No major repairs in parking area
+   - No washing vehicles in parking garage
+   - Oil leaks must be cleaned immediately
+
+4. **Motorcycles & Bicycles**:
+   - Use designated areas only
+   - Secure with proper locks
+   - No blocking walkways
+
+## Electric Vehicle Charging
+
+- Use designated EV charging stations
+- Maximum 4 hours during peak times
+- Report malfunctioning chargers to management
+
+## Violations
+
+First offense: Warning
+Second offense: Fine (¥10,000)
+Third offense: Parking privileges revoked
+
+For parking permits or questions, contact management office.`
+				}
+			]
+		}
+	},
+	methods: {
+		viewDocument(docId) {
+			this.selectedDocument = this.mockDocuments.find(doc => doc.id === docId)
+		}
+	}
+}
+</script>
+
+<style lang="stylus" scoped>
+.section
+	padding 0
+
+.section-header
+	padding 2rem 2rem 2rem 2rem
+
+.section-title
+	margin 0
+	font-size 1.75rem
+	font-weight 600
+	color #333
+
+.documents-grid
+	display grid
+	grid-template-columns repeat(auto-fill, minmax(320px, 1fr))
+	gap 1.5rem
+	padding 0 2rem 3rem 2rem
+
+@media (max-width: 768px)
+	.section-header
+		padding 1rem 1rem 1rem 1rem
+
+	.documents-grid
+		padding 0 1rem 2rem 1rem
+
+.document-card
+	background white
+	border-radius 12px
+	padding 1.5rem
+	box-shadow 0 2px 8px rgba(0,0,0,0.08)
+	transition all 0.3s ease
+	cursor pointer
+	display flex
+	align-items center
+	gap 1rem
+
+	&:hover
+		transform translateY(-2px)
+		box-shadow 0 4px 16px rgba(0,0,0,0.15)
+
+.document-icon
+	font-size 2.5rem
+	min-width 60px
+	height 60px
+	display flex
+	align-items center
+	justify-content center
+	background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
+	border-radius 10px
+
+.document-content
+	flex 1
+
+	h3
+		margin 0 0 0.5rem 0
+		font-size 1.1rem
+		color #333
+		font-weight 600
+
+.document-updated
+	margin 0
+	color #888
+	font-size 0.9rem
+
+.document-action
+	.view-btn
+		color #1976D2
+		font-weight 500
+		font-size 0.95rem
+		white-space nowrap
+
+@media (max-width: 768px)
+	.documents-grid
+		grid-template-columns 1fr
+
+.document-viewer-wrapper
+	position relative
+	min-height 600px
+	padding 1.5rem
+</style>

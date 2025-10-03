@@ -21,10 +21,8 @@
 		</div>
 	</transition>
 </template>
-
 <script>
-import * as store from '../../store'
-
+import * as store from '../../../store'
 export default {
 	name: 'MobileSettingsMenu',
 	props: {
@@ -51,7 +49,6 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 .mobile-settings-menu
 	position fixed
@@ -65,7 +62,6 @@ export default {
 	z-index 1000
 	display flex
 	flex-direction column
-
 .mobile-menu-header
 	padding 1.5rem
 	background linear-gradient(135deg, #FFC107 0%, #FFD54F 100%)
@@ -73,11 +69,9 @@ export default {
 	display flex
 	justify-content space-between
 	align-items center
-
 	h3
 		margin 0
 		font-size 1.25rem
-
 .close-menu-btn
 	background transparent
 	border none
@@ -92,35 +86,28 @@ export default {
 	height 32px
 	border-radius 50%
 	transition background 0.3s ease
-
 	&:hover
 		background rgba(255,255,255,0.2)
-
 .mobile-menu-content
 	flex 1
 	padding 1.5rem
 	overflow-y auto
-
 .mobile-user-info
 	padding 1rem
 	background #f9f9f9
 	border-radius 12px
 	margin-bottom 1.5rem
-
 	.user-email
 		font-weight 600
 		color #333
 		margin-bottom 0.25rem
-
 	.user-role
 		font-size 0.85rem
 		color #666
-
 .mobile-lang-section
 	margin-bottom 1.5rem
 	padding-bottom 1.5rem
 	border-bottom 1px solid #f0f0f0
-
 .mobile-logout-btn
 	width 100%
 	padding 1rem
@@ -132,17 +119,14 @@ export default {
 	font-weight 600
 	cursor pointer
 	transition all 0.3s ease
-
 	&:hover
 		background #FF1744
 		transform translateY(-2px)
 		box-shadow 0 4px 12px rgba(255, 82, 82, 0.3)
-
 // Slide transition
 .slide-enter-active,
 .slide-leave-active
 	transition transform 0.3s ease
-
 .slide-enter-from,
 .slide-leave-to
 	transform translateX(100%)

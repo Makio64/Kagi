@@ -4,7 +4,6 @@
 			:title="$t('admin.overview.title')"
 			icon="📊"
 		/>
-
 		<!-- Statistics Cards -->
 		<div class="stats-grid">
 			<StatCard
@@ -37,7 +36,6 @@
 				:trend="{ text: '+12%', positive: true }"
 			/>
 		</div>
-
 		<!-- Recent Activities -->
 		<KCard title="Recent Activity" icon="🔔" variant="default" elevated>
 			<div class="activity-list">
@@ -52,7 +50,6 @@
 		</KCard>
 	</section>
 </template>
-
 <script>
 export default {
 	name: 'AdminOverviewSection',
@@ -77,13 +74,10 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 @import '../../../styles/tokens.styl'
-
 .overview-section
 	animation fadeIn 0.3s ease
-
 @keyframes fadeIn
 	from
 		opacity 0
@@ -91,35 +85,28 @@ export default {
 	to
 		opacity 1
 		transform translateY(0)
-
 .stats-grid
 	display grid
 	grid-template-columns repeat(auto-fit, minmax(280px, 1fr))
 	gap 1.5rem
 	margin-bottom 2rem
-
 .activity-list
 	display flex
 	flex-direction column
 	gap 1rem
-
 .activity-item
 	display flex
 	gap 1rem
 	padding 1rem
 	background #f9f9f9
 	border-radius 10px
-
 	.activity-icon
 		font-size 1.5rem
-
 	.activity-content
 		flex 1
-
 		p
 			margin 0 0 0.25rem 0
 			color #333
-
 		.activity-time
 			color #999
 			font-size 0.85rem

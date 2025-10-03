@@ -13,7 +13,6 @@
 				<span class="nav-label">{{ getLabel(item) }}</span>
 			</button>
 		</nav>
-
 		<!-- Mobile Navigation -->
 		<nav class="nav-menu-mobile">
 			<button
@@ -31,7 +30,6 @@
 		</nav>
 	</aside>
 </template>
-
 <script>
 export default {
 	name: 'DashboardSidebar',
@@ -56,10 +54,8 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 @import '../../../styles/tokens.styl'
-
 .sidebar
 	width 250px
 	background white
@@ -70,7 +66,6 @@ export default {
 	position sticky
 	top 100px
 	border 1px solid rgba(255, 193, 7, 0.15)
-
 	@media (max-width: 768px)
 		width 100%
 		padding 0.75rem 0
@@ -79,18 +74,14 @@ export default {
 		background #f9f9f9
 		position static
 		border-bottom 2px solid #e0e0e0
-
 .nav-menu
 	display flex
 	flex-direction column
 	gap 0.5rem
-
 	@media (max-width: 768px)
 		display none
-
 .nav-menu-mobile
 	display none
-
 	@media (max-width: 768px)
 		display flex
 		flex-direction row
@@ -100,21 +91,16 @@ export default {
 		overflow-y hidden
 		-webkit-overflow-scrolling touch
 		scrollbar-width thin
-
 		&::-webkit-scrollbar
 			height 4px
-
 		&::-webkit-scrollbar-track
 			background #f0f0f0
 			border-radius 2px
-
 		&::-webkit-scrollbar-thumb
 			background #ccc
 			border-radius 2px
-
 	@media (max-width: 550px)
 		gap 0.4rem
-
 .nav-item
 	display flex
 	align-items center
@@ -131,24 +117,19 @@ export default {
 	width 100%
 	font-size 0.95rem
 	font-family inherit
-
 	&:hover
 		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 		color #333
 		transform translateX(5px)
-
 	&.active
 		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 		color white
 		font-weight 600
 		box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
-
 	.nav-icon
 		font-size 1.2rem
-
 	.nav-label
 		font-size 0.95rem
-
 .nav-item-mobile
 	display flex
 	flex-direction column
@@ -161,11 +142,9 @@ export default {
 	transition all 0.2s ease
 	min-width 70px
 	flex-shrink 0
-
 	@media (max-width: 550px)
 		min-width 60px
 		padding 0.25rem
-
 	.nav-icon-circle
 		width 50px
 		height 50px
@@ -176,35 +155,27 @@ export default {
 		justify-content center
 		box-shadow 0 2px 8px rgba(0, 0, 0, 0.1)
 		transition all 0.2s ease
-
 		@media (max-width: 550px)
 			width 45px
 			height 45px
-
 	.nav-icon
 		font-size 1.5rem
-
 		@media (max-width: 550px)
 			font-size 1.3rem
-
 	.nav-label-mobile
 		font-size 0.75rem
 		color #666
 		text-align center
-
 		@media (max-width: 550px)
 			font-size 0.7rem
-
 	&:hover
 		.nav-icon-circle
 			background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 			transform scale(1.05)
-
 	&.active
 		.nav-icon-circle
 			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 			box-shadow 0 4px 12px rgba(255, 193, 7, 0.4)
-
 		.nav-label-mobile
 			color #333
 			font-weight 600

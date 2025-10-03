@@ -9,7 +9,6 @@
 		</span>
 	</div>
 </template>
-
 <script>
 import { gsap, Quad } from 'gsap'
 export default {
@@ -49,12 +48,10 @@ export default {
 	},
 }
 </script>
-
 <style lang="stylus" scoped>
 .GradientButton
 	text-align: center
 	cursor pointer
-
 	a,span
 		text-decoration: none
 		display: inline-block
@@ -73,7 +70,6 @@ export default {
 		border-radius: 40px
 		padding 9px 20px 11px 20px
 		position relative
-
 		&:before
 			content: ''
 			position: absolute
@@ -83,7 +79,6 @@ export default {
 			margin: -2px
 			border-radius: inherit
 			background: linear-gradient(100.57deg, rgba(0, 151, 254, 0.6), rgba(0, 151, 254, 1) )
-
 	&.red
 		a,span
 			&:before

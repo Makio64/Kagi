@@ -13,7 +13,6 @@
 				<slot name="headerLeft" />
 			</template>
 		</DashboardHeader>
-
 		<!-- Main Content Area -->
 		<div class="dashboard-content">
 			<!-- Sidebar Navigation -->
@@ -22,7 +21,6 @@
 				:active-section="activeSection"
 				@navigate="$emit('navigate', $event)"
 			/>
-
 			<!-- Main Content -->
 			<main class="main-content">
 				<slot />
@@ -30,7 +28,6 @@
 		</div>
 	</div>
 </template>
-
 <script>
 export default {
 	name: 'DashboardContainer',
@@ -67,20 +64,16 @@ export default {
 	emits: ['logout', 'navigate']
 }
 </script>
-
 <style lang="stylus" scoped>
 @import '../../../styles/tokens.styl'
-
 .dashboard-container
 	min-height 100vh
 	display flex
 	flex-direction column
 	background linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%)
 	box-sizing border-box
-
 *, *::before, *::after
 	box-sizing border-box
-
 .dashboard-content
 	display flex
 	flex 1
@@ -89,16 +82,13 @@ export default {
 	width 100%
 	gap 2rem
 	padding 2rem
-
 	@media (max-width: 768px)
 		padding 1rem
 		gap 1rem
 		flex-direction column
-
 	@media (max-width: 550px)
 		padding 0
 		gap 0.5rem
-
 .main-content
 	flex 1
 	background white
@@ -108,12 +98,10 @@ export default {
 	border 1px solid rgba(255, 193, 7, 0.15)
 	overflow-x hidden
 	min-height calc(100vh - 200px)
-
 	@media (max-width: 768px)
 		padding 1.5rem
 		border-radius 15px
 		min-height auto
-
 	@media (max-width: 550px)
 		padding 1rem
 		border-radius 10px

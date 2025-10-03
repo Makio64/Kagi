@@ -1,20 +1,15 @@
 <!-- Modern style Spinner for infinite loading by @makio64-->
 <template>
-	<div class="Spinner" :class="{ blue: color == 'blue' }" role="status" aria-label="Loading" />
+	<div class="Spinner" :class="{ blue: color == 'blue' }" role="status" />
 </template>
-
 <script>
 export default {
 	name: 'Spinner',
 	props: {
-		color: {
-			type: String,
-			default: 'red',
-		},
+		color: { type: String, default: 'red' },
 	},
 }
 </script>
-
 <style lang="stylus" scoped>
 .Spinner
 	margin auto
@@ -26,7 +21,6 @@ export default {
 	animation: spinner-c7wet2 1s infinite linear;
 	&.blue
 		background: radial-gradient(farthest-side,#0097FE 94%,#0000) top/9px 9px no-repeat,conic-gradient(#0000 30%,#0097FE);
-
 @keyframes spinner-c7wet2 {
    100% {
       transform: rotate(1turn);

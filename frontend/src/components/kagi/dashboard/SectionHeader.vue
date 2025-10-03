@@ -7,7 +7,6 @@
 			</h2>
 			<p v-if="subtitle" class="section-header__subtitle">{{ subtitle }}</p>
 		</div>
-
 		<div v-if="$slots.actions || actions" class="section-header__actions">
 			<slot name="actions">
 				<div v-if="searchable" class="section-header__search">
@@ -33,7 +32,6 @@
 		</div>
 	</div>
 </template>
-
 <script>
 export default {
 	name: 'SectionHeader',
@@ -46,7 +44,6 @@ export default {
 		},
 		subtitle: String,
 		icon: String,
-
 		// Actions
 		actions: Array, // Array of { text, variant, size, icon, handler }
 		searchable: Boolean,
@@ -64,10 +61,8 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 @import '../../../styles/tokens.styl'
-
 .section-header
 	display flex
 	justify-content space-between
@@ -75,22 +70,17 @@ export default {
 	margin-bottom $spacing-xl
 	padding-bottom $spacing-lg
 	border-bottom 2px solid $color-border-light
-
 	&.has-actions
 		flex-wrap wrap
 		gap $spacing-md
-
 		@media (max-width: $breakpoint-md)
 			.section-header__main
 				width 100%
-
 			.section-header__actions
 				width 100%
 				justify-content flex-start
-
 .section-header__main
 	flex 1
-
 .section-header__title
 	margin 0
 	font-size $font-xxl
@@ -99,27 +89,22 @@ export default {
 	display flex
 	align-items center
 	gap $spacing-md
-
 .section-header__icon
 	font-size 2rem
 	display inline-flex
 	align-items center
-
 .section-header__subtitle
 	margin $spacing-sm 0 0 0
 	font-size $font-base
 	color $color-text-secondary
 	line-height $line-relaxed
-
 .section-header__actions
 	display flex
 	align-items center
 	gap $spacing-md
 	flex-shrink 0
-
 .section-header__search
 	position relative
-
 .search-input
 	padding $spacing-sm $spacing-lg
 	border 1px solid $color-border
@@ -128,15 +113,12 @@ export default {
 	min-width 250px
 	transition $transition-base
 	background white
-
 	&::placeholder
 		color $color-text-light
-
 	&:focus
 		outline none
 		border-color $color-primary
 		box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
-
 	// Search icon
 	&[type="search"]
 		padding-left $spacing-xl
@@ -144,15 +126,12 @@ export default {
 		background-repeat no-repeat
 		background-position $spacing-md center
 		background-size 20px 20px
-
 // Mobile responsive
 @media (max-width: $breakpoint-md)
 	.section-header__title
 		font-size $font-xl
-
 	.section-header__icon
 		font-size 1.5rem
-
 	.search-input
 		min-width auto
 		width 100%

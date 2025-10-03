@@ -16,7 +16,6 @@
 				</div>
 			</div>
 		</header>
-
 		<!-- Mobile Settings Menu -->
 		<transition name="slide">
 			<div v-if="showMobileMenu" class="mobile-settings-menu">
@@ -38,7 +37,6 @@
 				</div>
 			</div>
 		</transition>
-
 		<!-- Main Content Area -->
 		<div class="dashboard-content">
 			<!-- Sidebar Navigation -->
@@ -54,11 +52,10 @@
 						<span class="nav-label">{{ item.label }}</span>
 					</button>
 				</nav>
-
 				<!-- Mobile menu with circular icons -->
 				<nav class="nav-menu-mobile">
 					<button
-						v-for="item in menuItems"
+						v-for="item in mobileMenuItems"
 						:key="item.id"
 						:class="['nav-item-mobile', { active: activeSection === item.id }]"
 						@click="handleNavigation(item.id)"
@@ -70,7 +67,6 @@
 					</button>
 				</nav>
 			</aside>
-
 			<!-- Main Content -->
 			<main class="dashboard-main">
 				<slot />
@@ -78,7 +74,6 @@
 		</div>
 	</div>
 </template>
-
 <script>
 export default {
 	name: 'DashboardLayout',
@@ -91,7 +86,6 @@ export default {
 		},
 		userEmail: String,
 		userRole: String,
-
 		// Navigation
 		menuItems: {
 			type: Array,
@@ -108,6 +102,13 @@ export default {
 			showMobileMenu: false
 		}
 	},
+	computed: {
+		mobileMenuItems() {
+			// Filter out documents, bills, and maintenance from mobile menu
+			const hiddenOnMobile = ['documents', 'bills', 'maintenance']
+			return this.menuItems.filter(item => !hiddenOnMobile.includes(item.id))
+		}
+	},
 	methods: {
 		handleNavigation( sectionId ) {
 			this.$emit( 'navigate', sectionId )
@@ -122,16 +123,13 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 @import '../../../styles/tokens.styl'
-
 .dashboard-layout
 	min-height 100vh
 	background $gradient-subtle
 	display flex
 	flex-direction column
-
 // Header
 .dashboard-header
 	background $gradient-light
@@ -139,7 +137,6 @@ export default {
 	position sticky
 	top 0
 	z-index $z-sticky
-
 .header-content
 	display flex
 	justify-content space-between
@@ -147,30 +144,24 @@ export default {
 	padding $spacing-md $spacing-xl
 	max-width 1600px
 	margin 0 auto
-	
 	@media (max-width: $breakpoint-md)
 		padding $spacing-md
-
 .header-left
 	display flex
 	align-items center
 	gap $spacing-md
 	cursor pointer
-	
 	h1
 		margin 0
 		font-size $font-xl
 		font-weight $font-semibold
 		color $color-text
-		
 		@media (max-width: $breakpoint-sm)
 			display none
-
 .header-right
 	display flex
 	align-items center
 	gap $spacing-md
-
 .user-badge
 	padding $spacing-xs $spacing-md
 	background $color-primary
@@ -178,10 +169,8 @@ export default {
 	border-radius $radius-pill
 	font-size $font-sm
 	font-weight $font-semibold
-	
 	@media (max-width: $breakpoint-md)
 		display none
-
 .user-menu-btn
 	display flex
 	align-items center
@@ -192,22 +181,17 @@ export default {
 	border-radius $radius-pill
 	cursor pointer
 	transition $transition-base
-	
 	&:hover
 		background $color-background-light
 		border-color $color-primary
-		
 	.user-email
 		font-size $font-sm
 		color $color-text
-		
 		@media (max-width: $breakpoint-sm)
 			display none
-			
 	.menu-arrow
 		color $color-text-secondary
 		font-size $font-xs
-
 // Mobile Settings Menu
 .mobile-settings-menu
 	position fixed
@@ -219,22 +203,18 @@ export default {
 	box-shadow -2px 0 10px rgba(0, 0, 0, 0.15)
 	z-index $z-modal
 	overflow-y auto
-	
 	@media (max-width: $breakpoint-sm)
 		width 100%
-
 .mobile-menu-header
 	display flex
 	justify-content space-between
 	align-items center
 	padding $spacing-lg
 	background $gradient-light
-	
 	h3
 		margin 0
 		font-size $font-lg
 		color $color-text
-
 .close-menu-btn
 	background none
 	border none
@@ -249,36 +229,29 @@ export default {
 	justify-content center
 	border-radius $radius-round
 	transition $transition-base
-	
 	&:hover
 		background $color-background-light
 		color $color-text
-
 .mobile-menu-content
 	padding $spacing-lg
-
 .mobile-user-info
 	padding $spacing-md
 	background $color-background-light
 	border-radius $radius-md
 	margin-bottom $spacing-lg
-	
 	.user-email
 		font-size $font-base
 		color $color-text
 		font-weight $font-medium
-		
 	.user-role
 		font-size $font-sm
 		color $color-text-secondary
 		margin-top $spacing-xs
-
 .mobile-lang-section
 	padding $spacing-md 0
 	border-top 1px solid $color-border
 	border-bottom 1px solid $color-border
 	margin-bottom $spacing-lg
-
 .mobile-logout-btn
 	width 100%
 	padding $spacing-md
@@ -290,32 +263,26 @@ export default {
 	font-weight $font-medium
 	cursor pointer
 	transition $transition-base
-	
 	&:hover
 		background darken($color-danger, 10%)
-
 // Main Content Area
 .dashboard-content
 	display flex
 	flex 1
-	max-width 1600px
+	max-width 1440px
 	margin 0 auto
 	width 100%
 	padding $spacing-lg
 	gap $spacing-lg
-
 	@media (max-width: $breakpoint-md)
 		padding $spacing-md
 		gap $spacing-md
-
 	@media (max-width: 550px)
 		padding 0
-
 // Sidebar
 .dashboard-sidebar
 	width 260px
 	flex-shrink 0
-	
 	@media (max-width: $breakpoint-md)
 		width auto
 		position fixed
@@ -326,16 +293,13 @@ export default {
 		box-shadow 0 -2px 10px rgba(0, 0, 0, 0.1)
 		z-index $z-fixed
 		padding $spacing-sm
-
 .nav-menu
 	background white
 	border-radius $radius-lg
 	padding $spacing-md
 	box-shadow $shadow-sm
-	
 	@media (max-width: $breakpoint-md)
 		display none
-
 .nav-item
 	display flex
 	align-items center
@@ -348,36 +312,28 @@ export default {
 	cursor pointer
 	transition $transition-base
 	margin-bottom $spacing-xs
-	
 	&:last-child
 		margin-bottom 0
-		
 	&:hover
 		background $color-background-light
-		
 	&.active
 		background $gradient-light
 		border-left 3px solid $color-primary
-		
 	.nav-icon
 		font-size $font-xl
 		width 24px
 		text-align center
-		
 	.nav-label
 		font-size $font-base
 		color $color-text
 		font-weight $font-medium
-
 // Mobile Navigation
 .nav-menu-mobile
 	display none
-	
 	@media (max-width: $breakpoint-md)
 		display flex
 		justify-content space-around
 		padding $spacing-xs 0
-
 .nav-item-mobile
 	display flex
 	flex-direction column
@@ -389,16 +345,13 @@ export default {
 	cursor pointer
 	transition $transition-base
 	flex 1
-	
 	&.active
 		.nav-icon-circle
 			background $gradient-primary
 			color white
-			
 		.nav-label-mobile
 			color $color-primary
 			font-weight $font-semibold
-
 .nav-icon-circle
 	width 48px
 	height 48px
@@ -408,15 +361,12 @@ export default {
 	align-items center
 	justify-content center
 	transition $transition-base
-	
 	.nav-icon
 		font-size $font-xl
-
 .nav-label-mobile
 	font-size 10px
 	color $color-text-secondary
 	text-align center
-
 // Main Content
 .dashboard-main
 	flex 1
@@ -425,22 +375,17 @@ export default {
 	border-radius $radius-lg
 	padding $spacing-xl
 	box-shadow $shadow-sm
-	
 	@media (max-width: $breakpoint-md)
 		padding $spacing-lg
 		margin-bottom 80px // Space for mobile nav
-		
-	@media (max-width: $breakpoint-sm)
-		padding $spacing-md
-		border-radius $radius-md
-
+	@media (max-width: 768px)
+		padding 0
+		border-radius 0
 // Transitions
 .slide-enter-active, .slide-leave-active
 	transition transform 0.3s ease
-
 .slide-enter-from
 	transform translateX(100%)
-
 .slide-leave-to
 	transform translateX(100%)
 </style>

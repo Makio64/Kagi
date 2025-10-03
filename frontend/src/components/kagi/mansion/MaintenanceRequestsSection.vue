@@ -8,11 +8,9 @@
 			<template #cell-priority="{ value }">
 				<StatusBadge :status="value" :variant="getPriorityVariant(value)" />
 			</template>
-
 			<template #cell-status="{ value }">
 				<StatusBadge :status="value" />
 			</template>
-
 			<template #actions="{ row }">
 				<KButton size="small" variant="secondary" @click="$emit('view', row)">
 					View
@@ -21,7 +19,6 @@
 		</KDataTable>
 	</div>
 </template>
-
 <script>
 export default {
 	name: 'MaintenanceRequestsSection',
@@ -57,7 +54,6 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 .maintenance-requests
 	width 100%

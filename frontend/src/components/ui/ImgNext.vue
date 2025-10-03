@@ -2,10 +2,8 @@
 <template>
 	<img :srcset="srcset" :src="srcToShow" :alt="alt">
 </template>
-
 <script>
 import stage from '@/makio/core/stage'
-
 export default {
 	name: 'ImgNext',
 	props: {

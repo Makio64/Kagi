@@ -16,10 +16,8 @@
 		</div>
 	</div>
 </template>
-
 <script>
 import { loadTranslations } from 'vue-tiny-translation'
-
 export default {
 	name: 'LanguageSwitcher',
 	data() {
@@ -66,12 +64,10 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 .language-switcher
 	position relative
 	display inline-block
-
 .language-button
 	display flex
 	align-items center
@@ -83,14 +79,11 @@ export default {
 	cursor pointer
 	font-size 0.9rem
 	transition all 0.3s ease
-
 	&:hover
 		background #FFF9C4
-
 	.arrow
 		font-size 0.7rem
 		color #666
-
 .language-dropdown
 	position absolute
 	top calc(100% + 0.5rem)
@@ -102,7 +95,6 @@ export default {
 	box-shadow 0 4px 10px rgba(0,0,0,0.1)
 	min-width 150px
 	z-index 1000
-
 .language-option
 	width 100%
 	padding 0.75rem 1rem
@@ -111,10 +103,8 @@ export default {
 	cursor pointer
 	text-align left
 	transition all 0.3s ease
-
 	&:hover
 		background #FFF9C4
-
 	&.active
 		background #FFC107
 		font-weight 600

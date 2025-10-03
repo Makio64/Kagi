@@ -6,10 +6,8 @@
 		<span />
 	</div>
 </template>
-
 <script>
 import { isMenuOpen as storeIsMenuOpen } from '../../store'
-
 export default {
 	name: 'BurgerButton',
 	computed: {
@@ -24,7 +22,6 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 .BurgerButton
 	z-index 1000
@@ -37,7 +34,6 @@ export default {
 	cursor: pointer
 	@media screen and (min-width: 600px)
 		display none
-
 	span
 		background-color: black
 		height: 2px
@@ -51,7 +47,6 @@ export default {
 			top: 6px
 		&:last-child
 			top: 12px
-
 	&.cross
 		span:nth-child(2)
 			opacity: 0

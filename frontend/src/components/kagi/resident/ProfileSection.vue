@@ -6,7 +6,6 @@
 				{{ $t('dashboard.profile.myProfile') }}
 			</h2>
 		</div>
-
 		<div class="profile-container">
 			<!-- Personal Information -->
 			<div class="profile-card">
@@ -33,7 +32,6 @@
 					</button>
 				</form>
 			</div>
-
 			<!-- Emergency Contact -->
 			<div class="profile-card">
 				<h3>{{ $t('dashboard.profile.emergencyContact') }}</h3>
@@ -55,7 +53,6 @@
 					</button>
 				</form>
 			</div>
-
 			<!-- Notification Preferences -->
 			<div class="profile-card">
 				<h3>{{ $t('dashboard.profile.notificationPreferences') }}</h3>
@@ -80,10 +77,8 @@
 		</div>
 	</section>
 </template>
-
 <script>
-import * as store from '../../store'
-
+import * as store from '../../../store'
 export default {
 	name: 'ProfileSection',
 	data() {
@@ -121,55 +116,44 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 .section
 	animation fadeIn 0.3s ease
-
 .section-header
 	margin-bottom 2rem
-
 .section-title
 	font-size 1.75rem
 	color #333
 	display flex
 	align-items center
 	gap 0.75rem
-
 	.section-icon
 		font-size 1.5rem
-
 .profile-container
 	display grid
 	grid-template-columns repeat(auto-fit, minmax(350px, 1fr))
 	gap 1.5rem
-
 	@media (max-width: 768px)
 		grid-template-columns 1fr
-
 .profile-card
 	background white
 	border 1px solid #e0e0e0
 	border-radius 12px
 	padding 1.5rem
-
 	h3
 		font-size 1.25rem
 		margin-bottom 1.5rem
 		color #333
 		border-bottom 2px solid #FFC107
 		padding-bottom 0.5rem
-
 .form-group
 	margin-bottom 1.25rem
-
 	label
 		display block
 		font-size 0.9rem
 		color #555
 		margin-bottom 0.5rem
 		font-weight 500
-
 	input
 		width 100%
 		padding 0.75rem
@@ -177,31 +161,25 @@ export default {
 		border-radius 8px
 		font-size 0.95rem
 		transition border-color 0.2s ease
-
 		&:focus
 			outline none
 			border-color #FFC107
-
 		&:disabled
 			background #f5f5f5
 			color #999
-
 .checkbox-group
 	margin-bottom 1rem
-
 	label
 		display flex
 		align-items center
 		cursor pointer
 		font-size 0.95rem
 		color #333
-
 		input
 			margin-right 0.5rem
 			width 18px
 			height 18px
 			cursor pointer
-
 .save-btn
 	width 100%
 	padding 0.875rem
@@ -213,11 +191,9 @@ export default {
 	font-weight 600
 	cursor pointer
 	transition all 0.2s ease
-
 	&:hover
 		transform translateY(-1px)
 		box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
-
 @keyframes fadeIn
 	from
 		opacity 0

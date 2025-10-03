@@ -6,7 +6,6 @@
 		</div>
 	</div>
 </template>
-
 <script>
 export default {
 	name: 'ButtonFX',
@@ -49,7 +48,6 @@ export default {
 	},
 }
 </script>
-
 <style lang="stylus" scoped>
 .ButtonFX
 	text-align: center

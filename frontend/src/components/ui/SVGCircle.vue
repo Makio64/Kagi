@@ -4,13 +4,10 @@
 		<path ref="progress" :stroke-width="strokeWidth" fill="transparent" :stroke="color" class="progress" :d="path" />
 	</svg>
 </template>
-
 <script>
 import gsap, { Quad } from 'gsap'
-
 import DrawSVGPlugin from '@/lib/gsap-bonus/DrawSVGPlugin'
 gsap.registerPlugin( DrawSVGPlugin )
-
 export default {
 	name: 'SVGCircle',
 	props: {
@@ -36,7 +33,6 @@ export default {
 			}
 		},
 	},
-
 	computed: {
 		path() {
 			const r = this.radius - this.strokeWidth
@@ -45,7 +41,6 @@ export default {
 	},
 }
 </script>
-
 <style lang="stylus" scoped>
 .percent
 	width 46px

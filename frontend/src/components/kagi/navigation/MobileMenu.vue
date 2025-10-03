@@ -14,7 +14,6 @@
 				<span class="nav-label-mobile">{{ item.label }}</span>
 			</button>
 		</nav>
-
 		<!-- Mobile Side Menu -->
 		<transition name="slide-left">
 			<div v-if="isMenuOpen" class="mobile-side-menu-overlay" @click="closeMenu">
@@ -30,11 +29,9 @@
 							</div>
 						</div>
 					</div>
-
 					<div class="language-selector">
 						<LanguageSwitcher />
 					</div>
-
 					<nav class="side-menu-nav">
 						<button
 							v-for="item in menuItems"
@@ -46,7 +43,6 @@
 							<span class="menu-label">{{ item.label }}</span>
 						</button>
 					</nav>
-
 					<div class="side-menu-actions">
 						<button class="side-menu-item" @click="handleProfile">
 							<span class="menu-icon">👤</span>
@@ -62,10 +58,8 @@
 		</transition>
 	</div>
 </template>
-
 <script>
-import * as store from '../../store'
-
+import * as store from '../../../store'
 export default {
 	name: 'MobileMenu',
 	props: {
@@ -122,12 +116,10 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 // Mobile Bottom Navigation
 .mobile-nav
 	display none
-
 	@media (max-width: 768px)
 		display flex
 		justify-content space-around
@@ -139,7 +131,6 @@ export default {
 		box-shadow 0 -2px 10px rgba(0, 0, 0, 0.1)
 		padding 0.5rem 0
 		z-index 1000
-
 .nav-item-mobile
 	display flex
 	flex-direction column
@@ -151,16 +142,13 @@ export default {
 	cursor pointer
 	transition all 0.2s ease
 	flex 1
-
 	&.active
 		.nav-icon-circle
 			background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 			color white
-
 		.nav-label-mobile
 			color #FFC107
 			font-weight 600
-
 .nav-icon-circle
 	width 48px
 	height 48px
@@ -170,15 +158,12 @@ export default {
 	align-items center
 	justify-content center
 	transition all 0.2s ease
-
 	.nav-icon
 		font-size 1.25rem
-
 .nav-label-mobile
 	font-size 10px
 	color #666
 	text-align center
-
 // Mobile Side Menu
 .mobile-side-menu-overlay
 	position fixed
@@ -188,7 +173,6 @@ export default {
 	bottom 0
 	background rgba(0, 0, 0, 0.5)
 	z-index 2000
-
 .mobile-side-menu
 	position absolute
 	top 0
@@ -197,19 +181,15 @@ export default {
 	width 280px
 	background white
 	overflow-y auto
-
 	@media (max-width: 400px)
 		width 85%
-
 .side-menu-header
 	padding 1.5rem
 	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
-
 .user-profile-section
 	display flex
 	align-items center
 	gap 1rem
-
 .user-avatar
 	width 50px
 	height 50px
@@ -221,27 +201,21 @@ export default {
 	font-size 1.25rem
 	font-weight bold
 	color #FFC107
-
 .user-info
 	flex 1
 	color white
-
 	.user-name
 		font-size 1.1rem
 		font-weight 600
 		margin-bottom 0.25rem
-
 	.user-email
 		font-size 0.85rem
 		opacity 0.9
-
 .language-selector
 	padding 1rem 1.5rem
 	border-bottom 1px solid #eee
-
 .side-menu-nav
 	padding 1rem
-
 .side-menu-item
 	display flex
 	align-items center
@@ -254,46 +228,36 @@ export default {
 	cursor pointer
 	transition all 0.2s ease
 	margin-bottom 0.5rem
-
 	&:hover
 		background #f8f8f8
-
 	&.active
 		background #FFF9C4
 		font-weight 600
-
 	.menu-icon
 		font-size 1.25rem
 		width 30px
 		text-align center
-
 	.menu-label
 		flex 1
 		text-align left
 		color #333
 		font-size 0.95rem
-
 .side-menu-actions
 	padding 1rem
 	border-top 1px solid #eee
 	margin-top auto
-
 	.logout-item
 		background #fee
 		color #d32f2f
-
 		&:hover
 			background #fdd
-
 // Transitions
 .slide-left-enter-active,
 .slide-left-leave-active
 	transition all 0.3s ease
-
 .slide-left-enter-from,
 .slide-left-leave-to
 	.mobile-side-menu
 		transform translateX(-100%)
-
 	opacity 0
 </style>

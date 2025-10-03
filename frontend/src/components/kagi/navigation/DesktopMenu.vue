@@ -13,7 +13,6 @@
 		</nav>
 	</aside>
 </template>
-
 <script>
 export default {
 	name: 'DesktopMenu',
@@ -39,21 +38,17 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 .desktop-sidebar
 	width 260px
 	flex-shrink 0
-
 	@media (max-width: 768px)
 		display none
-
 .nav-menu
 	background white
 	border-radius 16px
 	padding 1rem
 	box-shadow 0 2px 8px rgba(0, 0, 0, 0.06)
-
 .nav-item
 	display flex
 	align-items center
@@ -66,22 +61,17 @@ export default {
 	cursor pointer
 	transition all 0.2s ease
 	margin-bottom 0.5rem
-
 	&:last-child
 		margin-bottom 0
-
 	&:hover
 		background #f8f8f8
-
 	&.active
 		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 		border-left 3px solid #FFC107
-
 	.nav-icon
 		font-size 1.25rem
 		width 24px
 		text-align center
-
 	.nav-label
 		font-size 0.95rem
 		color #333

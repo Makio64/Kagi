@@ -31,7 +31,6 @@
 		</div>
 	</div>
 </template>
-
 <script>
 export default {
 	name: 'EmailPopup',
@@ -71,7 +70,6 @@ export default {
 	}
 }
 </script>
-
 <style lang="stylus" scoped>
 .email-popup-overlay
 	position fixed
@@ -85,13 +83,11 @@ export default {
 	justify-content center
 	z-index 10000
 	animation fadeIn 0.2s ease
-
 @keyframes fadeIn
 	from
 		opacity 0
 	to
 		opacity 1
-
 .email-popup
 	background white
 	border-radius 15px
@@ -99,7 +95,6 @@ export default {
 	width 90%
 	max-width 600px
 	animation slideUp 0.3s ease
-
 @keyframes slideUp
 	from
 		transform translateY(20px)
@@ -107,7 +102,6 @@ export default {
 	to
 		transform translateY(0)
 		opacity 1
-
 .email-header
 	display flex
 	justify-content space-between
@@ -116,12 +110,10 @@ export default {
 	border-bottom 2px solid #f0f0f0
 	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 	border-radius 15px 15px 0 0
-
 	h3
 		margin 0
 		color #333
 		font-size 1.3rem
-
 .close-btn
 	background none
 	border none
@@ -136,14 +128,11 @@ export default {
 	align-items center
 	justify-content center
 	transition all 0.2s ease
-
 	&:hover
 		background rgba(0, 0, 0, 0.1)
 		color #333
-
 .email-body
 	padding 1.5rem
-
 .test-notice
 	background #FFF3E0
 	color #F57C00
@@ -153,32 +142,26 @@ export default {
 	font-weight 600
 	margin-bottom 1.5rem
 	border 1px solid #FFE0B2
-
 .email-field
 	display flex
 	gap 1rem
 	margin-bottom 1rem
 	padding-bottom 1rem
 	border-bottom 1px solid #f0f0f0
-
 	label
 		font-weight 600
 		color #666
 		min-width 80px
-
 	span
 		color #333
-
 .email-content
 	margin-top 1.5rem
 	padding 1.5rem
 	background #f9f9f9
 	border-radius 10px
-
 	p
 		color #666
 		margin 1rem 0
-
 .link-container
 	display flex
 	align-items center
@@ -188,7 +171,6 @@ export default {
 	background white
 	border 2px solid #FFC107
 	border-radius 8px
-
 .magic-link
 	flex 1
 	color #2196F3
@@ -196,10 +178,8 @@ export default {
 	word-break break-all
 	font-family monospace
 	font-size 0.9rem
-
 	&:hover
 		text-decoration underline
-
 .copy-btn
 	padding 0.5rem 1rem
 	background #FFC107
@@ -210,26 +190,21 @@ export default {
 	cursor pointer
 	white-space nowrap
 	transition all 0.2s ease
-
 	&:hover
 		background #FFB300
 		transform translateY(-1px)
-
 .link-expiry
 	text-align center
 	color #999
 	font-size 0.85rem
 	margin-top 1.5rem
-
 @media (max-width: 600px)
 	.email-popup
 		width 95%
 		margin 1rem
-
 	.link-container
 		flex-direction column
 		align-items stretch
-
 	.copy-btn
 		width 100%
 </style>

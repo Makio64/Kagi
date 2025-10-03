@@ -6,10 +6,8 @@
 		</div>
 	</div>
 </template>
-
 <script>
 import { gsap, Quad } from 'gsap'
-
 export default {
 	name: 'ProgressBar',
 	props: {
@@ -52,7 +50,6 @@ export default {
 	},
 }
 </script>
-
 <style lang="stylus" scoped>
 .progressBar
 	width 100%
