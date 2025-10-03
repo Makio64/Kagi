@@ -1,6 +1,8 @@
 <template>
-	<div class="view">
-		<TinyRouter v-if="basicLoaded" :routes="routes" :redirects="redirects" />
+	<div class="app-container">
+		<div class="view">
+			<TinyRouter v-if="basicLoaded" :routes="routes" :redirects="redirects" />
+		</div>
 	</div>
 </template>
 
@@ -151,10 +153,20 @@ html
 body
 	overflow-y auto
 
+// App container - let each view handle safe areas
+.app-container
+	min-height 100vh
+	box-sizing border-box
+	display flex
+	flex-direction column
+	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+
 .view
 	color #333
-	min-height 100vh
+	flex 1
 	width 100%
+	display flex
+	flex-direction column
 
 	.loader
 		user-select none

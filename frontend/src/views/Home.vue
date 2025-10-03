@@ -137,13 +137,13 @@ export default {
 <style lang="stylus" scoped>
 .home
 	min-height 100vh
-	background linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)
+	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 	position relative
 
 .language-switcher-container
 	position fixed
-	top 20px
-	right 20px
+	top calc(20px + var(--sait, 0px))
+	right calc(20px + var(--sair, 0px))
 	z-index 100
 
 .hero
@@ -153,6 +153,7 @@ export default {
 	justify-content center
 	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 	padding 2rem
+	padding-top calc(2rem + var(--sait, 0px))
 
 .hero-content
 	text-align center
