@@ -147,7 +147,7 @@ export default defineConfig( {
 			minifyURLs: true,
 		} : false,
 	},
-	base: process.env.NODE_ENV === 'production' ? '/' : '/',
+	base: './', // Relative path for mobile apps
 	resolve: {
 		alias: [
 			{ find: '@', replacement: path.resolve( configDir, 'src' ) },

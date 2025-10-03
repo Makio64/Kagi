@@ -4,6 +4,7 @@ import TranslatePlugin, { loadTranslations } from 'vue-tiny-translation'
 
 import App from './App.vue'
 import { detectLang } from './makio/utils/detect.js'
+import { initMobile } from './mobile.js'
 
 async function init() {
 	// Detect user's language
@@ -32,5 +33,8 @@ async function init() {
 	app.use( TranslatePlugin )
 	app.use( TinyRouterInstall )
 	app.mount( '#app' )
+
+	// Initialize mobile features
+	await initMobile()
 }
 init()
