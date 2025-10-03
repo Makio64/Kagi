@@ -2,7 +2,7 @@
 	<div class="k-data-table">
 		<div v-if="title || $slots.header" class="table-header">
 			<h3 v-if="title">{{ title }}</h3>
-			<slot name="header"></slot>
+			<slot name="header" />
 		</div>
 
 		<div class="table-wrapper">
@@ -29,7 +29,7 @@
 							</slot>
 						</td>
 						<td v-if="$slots.actions" class="actions-cell">
-							<slot name="actions" :row="row" :index="index"></slot>
+							<slot name="actions" :row="row" :index="index" />
 						</td>
 					</tr>
 				</tbody>
@@ -37,7 +37,7 @@
 		</div>
 
 		<div v-if="$slots.footer" class="table-footer">
-			<slot name="footer"></slot>
+			<slot name="footer" />
 		</div>
 	</div>
 </template>
@@ -53,7 +53,7 @@ export default {
 		columns: {
 			type: Array,
 			required: true,
-			validator: cols => cols.every(col => col.key && col.label)
+			validator: cols => cols.every( col => col.key && col.label )
 		},
 		data: {
 			type: Array,
@@ -65,17 +65,17 @@ export default {
 		}
 	},
 	methods: {
-		getNestedValue(obj, path) {
-			return path.split('.').reduce((acc, part) => acc && acc[part], obj)
+		getNestedValue( obj, path ) {
+			return path.split( '.' ).reduce( ( acc, part ) => acc && acc[part], obj )
 		},
-		formatValue(value, type) {
-			if (value === null || value === undefined) return '-'
+		formatValue( value, type ) {
+			if ( value === null || value === undefined ) return '-'
 
-			switch(type) {
+			switch( type ) {
 				case 'date':
-					return new Date(value).toLocaleDateString()
+					return new Date( value ).toLocaleDateString()
 				case 'datetime':
-					return new Date(value).toLocaleString()
+					return new Date( value ).toLocaleString()
 				case 'currency':
 					return '¥' + value.toLocaleString()
 				case 'percent':

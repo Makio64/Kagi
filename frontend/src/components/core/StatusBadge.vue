@@ -19,7 +19,7 @@ export default {
 		variant: {
 			type: String,
 			default: '',
-			validator: v => ['', 'success', 'warning', 'danger', 'info', 'primary', 'secondary'].includes(v)
+			validator: v => ['', 'success', 'warning', 'danger', 'info', 'primary', 'secondary'].includes( v )
 		},
 		small: {
 			type: Boolean,
@@ -28,24 +28,24 @@ export default {
 	},
 	computed: {
 		computedVariant() {
-			if (this.variant) return this.variant
+			if ( this.variant ) return this.variant
 
 			// Auto-detect variant based on status text
-			const statusLower = (this.status || this.text || '').toLowerCase()
+			const statusLower = ( this.status || this.text || '' ).toLowerCase()
 
-			if (['active', 'paid', 'completed', 'success', 'approved', 'available'].includes(statusLower)) {
+			if ( ['active', 'paid', 'completed', 'success', 'approved', 'available'].includes( statusLower ) ) {
 				return 'success'
 			}
-			if (['pending', 'in-progress', 'processing', 'assigned'].includes(statusLower)) {
+			if ( ['pending', 'in-progress', 'processing', 'assigned'].includes( statusLower ) ) {
 				return 'warning'
 			}
-			if (['urgent', 'overdue', 'failed', 'rejected', 'expired', 'error'].includes(statusLower)) {
+			if ( ['urgent', 'overdue', 'failed', 'rejected', 'expired', 'error'].includes( statusLower ) ) {
 				return 'danger'
 			}
-			if (['high', 'important'].includes(statusLower)) {
+			if ( ['high', 'important'].includes( statusLower ) ) {
 				return 'primary'
 			}
-			if (['draft', 'inactive', 'disabled'].includes(statusLower)) {
+			if ( ['draft', 'inactive', 'disabled'].includes( statusLower ) ) {
 				return 'secondary'
 			}
 
