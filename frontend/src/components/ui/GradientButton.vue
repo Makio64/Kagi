@@ -26,6 +26,7 @@ export default {
 	text-align center
 	cursor pointer
 	display inline-block
+	user-select none
 
 	.gradient-border
 		position relative
@@ -47,6 +48,7 @@ export default {
 		border-radius 38px
 		padding 9px 20px 11px 20px
 		background #fff
+		user-select none
 	&.red
 		.gradient-border
 			background linear-gradient(100.57deg, rgba(255, 83, 121, 0.5) 0%, rgba(255, 83, 121, 1) 100%)
