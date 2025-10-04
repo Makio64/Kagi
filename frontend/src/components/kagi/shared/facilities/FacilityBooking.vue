@@ -312,7 +312,10 @@
 							v-model="agreeToTerms"
 							type="checkbox"
 						>
-						<span>{{ $t('booking.agreeToTerms') }}</span>
+						<span>
+							{{ $t('booking.agreeToTerms') }}
+							<a href="#" class="terms-link" @click.prevent="showTermsModal = true">{{ $t('booking.termsAndConditions') }}</a>
+						</span>
 					</label>
 				</div>
 				<!-- Total Cost Display -->
@@ -370,6 +373,20 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Terms & Conditions Modal -->
+		<transition name="modal-fade">
+			<div v-if="showTermsModal" class="modal-overlay" @click="showTermsModal = false">
+				<div class="modal-content" @click.stop>
+					<DocumentViewer
+						title="Terms & Conditions"
+						:content="termsMarkdown"
+						last-updated="January 2025"
+						@close="showTermsModal = false"
+					/>
+				</div>
+			</div>
+		</transition>
 	</div>
 </template>
 <script>
@@ -407,6 +424,7 @@ export default {
 			showCheckinPicker: false,
 			showCheckoutPicker: false,
 			showTimePicker: false,
+			showTermsModal: false,
 			// Form state
 			specialNotes: '',
 			agreeToTerms: false,
@@ -415,7 +433,41 @@ export default {
 			bookingReference: '',
 			confirmedBooking: null,
 			// Week days
-			weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+			weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+			// Terms content in markdown
+			termsMarkdown: `# Facility Booking Terms & Conditions
+
+## 1. Booking Policy
+
+All bookings must be made at least 24 hours in advance. Bookings are confirmed only after payment is processed.
+
+## 2. Cancellation Policy
+
+Cancellations made 48 hours before the booking date will receive a full refund. Cancellations within 48 hours are non-refundable.
+
+## 3. Usage Rules
+
+- Facilities must be used respectfully and left in clean condition
+- Maximum capacity limits must be strictly followed
+- Noise levels must be kept reasonable, especially after 10 PM
+- No smoking or vaping inside facilities
+- Residents are responsible for their guests' behavior
+
+## 4. Liability
+
+The building management is not liable for any personal injury or property damage during facility use. Users book facilities at their own risk.
+
+## 5. Payment
+
+Payment must be made in full at the time of booking. Accepted payment methods include credit cards and building account credits.
+
+## 6. Damage
+
+Any damage to the facility or equipment will be charged to the booking resident. A damage deposit may be required for certain facilities.
+
+## 7. Contact
+
+For questions or concerns, please contact building management at **info@kagi-building.com** or call the front desk.`
 		}
 	},
 	computed: {
@@ -993,6 +1045,8 @@ export default {
 // Form Elements
 textarea
 	width 100%
+	max-width 100%
+	box-sizing border-box
 	padding 0.75rem
 	border 1px solid #d1d5db
 	border-radius 8px
@@ -1012,9 +1066,19 @@ textarea
 		cursor pointer
 		font-size 0.9rem
 		color #4b5563
+		line-height 1.5
 		input[type="checkbox"]
 			margin-top 0.125rem
 			cursor pointer
+			flex-shrink 0
+			accent-color #FFA000
+		.terms-link
+			color #FFA000
+			text-decoration underline
+			cursor pointer
+			font-weight 600
+			&:hover
+				color #FF8F00
 .cost-display
 	display flex
 	justify-content space-between
@@ -1033,18 +1097,19 @@ textarea
 .book-button
 	width 100%
 	padding 1rem
-	background #3b82f6
-	color white
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+	color #333
 	border none
 	border-radius 8px
 	font-size 1rem
 	font-weight 600
 	cursor pointer
 	transition all 0.2s ease
+	box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
 	&:hover:not(:disabled)
-		background #2563eb
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
 		transform translateY(-1px)
-		box-shadow 0 4px 12px rgba(59, 130, 246, 0.3)
+		box-shadow 0 6px 16px rgba(255, 193, 7, 0.4)
 	&:disabled
 		opacity 0.5
 		cursor not-allowed
@@ -1161,4 +1226,45 @@ textarea
 @keyframes spin
 	to
 		transform rotate(360deg)
+
+// Modal Styles
+.modal-overlay
+	position fixed
+	top 0
+	left 0
+	right 0
+	bottom 0
+	background linear-gradient(135deg, rgba(255, 213, 79, 0.92) 0%, rgba(255, 171, 64, 0.92) 50%, rgba(251, 192, 45, 0.92) 100%)
+	backdrop-filter blur(8px)
+	display flex
+	align-items center
+	justify-content center
+	z-index 10000
+	padding 1rem
+
+.modal-content
+	background white
+	border-radius 20px
+	max-width 900px
+	width 100%
+	max-height 90vh
+	height 90vh
+	display flex
+	flex-direction column
+	overflow hidden
+	box-shadow 0 20px 60px rgba(255, 193, 7, 0.3)
+	@media (max-width: 768px)
+		max-height 95vh
+		height 95vh
+		border-radius 20px
+
+.modal-fade-enter-active, .modal-fade-leave-active
+	transition all 0.3s ease
+
+.modal-fade-enter-from, .modal-fade-leave-to
+	opacity 0
+
+.modal-fade-enter-from .modal-content,
+.modal-fade-leave-to .modal-content
+	transform scale(0.9)
 </style>

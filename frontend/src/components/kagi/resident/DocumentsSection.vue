@@ -214,6 +214,7 @@ For parking permits or questions, contact management office.`
 @media (max-width: 768px)
 	.section-header
 		padding 1rem 1rem 1rem 1rem
+		margin-bottom 1rem
 
 	.documents-grid
 		padding 0 1rem 2rem 1rem
@@ -267,6 +268,9 @@ For parking permits or questions, contact management office.`
 @media (max-width: 768px)
 	.documents-grid
 		grid-template-columns 1fr
+
+	.document-action
+		display none
 
 .document-viewer-wrapper
 	position relative

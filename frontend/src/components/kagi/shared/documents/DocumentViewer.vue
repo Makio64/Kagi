@@ -105,8 +105,8 @@ export default {
 	overflow hidden
 
 .document-header
-	padding 1rem 1.5rem
-	border-bottom 1px solid #e5e7eb
+	padding 0.75rem 1.5rem
+	border-bottom none
 
 .back-btn
 	padding 0.5rem 1rem
@@ -120,6 +120,7 @@ export default {
 	&:hover
 		background #f9fafb
 		border-color #d1d5db
+		color #333
 .edit-btn, .save-btn, .cancel-btn
 	padding 0.5rem 1rem
 	background rgba(255, 255, 255, 0.95)
@@ -159,7 +160,7 @@ export default {
 	flex 1
 	overflow-y auto
 	padding 0
-	padding-top 3rem
+	padding-top 0
 .markdown-body
 	color #333
 	line-height 1.8
@@ -180,6 +181,7 @@ export default {
 		margin-bottom 1rem
 		font-weight 600
 		position relative
+		line-height 1.3
 	:deep(h1)
 		font-size 2.4rem
 		background linear-gradient(135deg, #FFC107, #FFB300)
@@ -190,6 +192,7 @@ export default {
 		margin-bottom 2rem
 		padding 1rem
 		position relative
+		line-height 1.2
 		&::after
 			content ''
 			position absolute
@@ -206,6 +209,7 @@ export default {
 		text-align left
 		padding-left 1.5rem
 		position relative
+		line-height 1.25
 		&::before
 			content '✨'
 			position absolute
@@ -216,6 +220,7 @@ export default {
 		color #F57C00
 		text-align left
 		padding-left 1.2rem
+		line-height 1.3
 		&::before
 			content '▸'
 			position absolute
@@ -226,6 +231,7 @@ export default {
 		color #666
 		text-align left
 		font-weight 500
+		line-height 1.4
 	:deep(p)
 		margin-bottom 1.2rem
 		text-align left

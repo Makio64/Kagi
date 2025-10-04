@@ -54,17 +54,20 @@
 				</nav>
 				<!-- Mobile menu with circular icons -->
 				<nav class="nav-menu-mobile">
-					<button
+					<ButtonFX
 						v-for="item in mobileMenuItems"
 						:key="item.id"
-						:class="['nav-item-mobile', { active: activeSection === item.id }]"
 						@click="handleNavigation(item.id)"
 					>
-						<div class="nav-icon-circle">
-							<span class="nav-icon">{{ item.icon }}</span>
-						</div>
-						<span class="nav-label-mobile">{{ item.label }}</span>
-					</button>
+						<button
+							:class="['nav-item-mobile', { active: activeSection === item.id }]"
+						>
+							<div class="nav-icon-circle">
+								<span class="nav-icon">{{ item.icon }}</span>
+							</div>
+							<span class="nav-label-mobile">{{ item.label }}</span>
+						</button>
+					</ButtonFX>
 				</nav>
 			</aside>
 			<!-- Main Content -->
@@ -111,6 +114,8 @@ export default {
 	},
 	methods: {
 		handleNavigation( sectionId ) {
+			// Scroll #app to top instantly
+			document.querySelector('#app').scrollTop = 0
 			this.$emit( 'navigate', sectionId )
 			this.showMobileMenu = false
 		},
@@ -294,6 +299,7 @@ export default {
 		box-shadow 0 -2px 10px rgba(0, 0, 0, 0.1)
 		z-index $z-fixed
 		padding $spacing-sm
+		padding-bottom "calc(%s + %s)" % ($spacing-sm var(--saib, 0px))
 .nav-menu
 	background white
 	border-radius $radius-lg

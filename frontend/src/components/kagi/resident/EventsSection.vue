@@ -14,9 +14,9 @@
 					<div class="event-icon">{{ event.icon }}</div>
 				</div>
 				<div class="event-content">
-					<div class="event-date">{{ event.date }}</div>
 					<h3>{{ event.title }}</h3>
 					<p>{{ event.description }}</p>
+					<div class="event-date">{{ event.date }}</div>
 				</div>
 			</div>
 		</div>
@@ -178,6 +178,7 @@ p
 @media (max-width: 768px)
 	.section-header
 		padding 1rem 1rem 1rem 1rem
+		margin-bottom 1rem
 
 	.events-list
 		padding 0 1rem 2rem 1rem

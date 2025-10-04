@@ -5,17 +5,18 @@
 			<p>{{ $t('dashboard.welcomeSubtitle') }}</p>
 		</div>
 		<div class="services-grid">
-			<button
+			<ButtonFX
 				v-for="item in menuItems"
 				v-show="item.id !== 'home'"
 				:key="item.id"
-				class="service-card"
 				@click="$emit('navigate', item.id)"
 			>
-				<div class="service-icon">{{ item.icon }}</div>
-				<h3>{{ item.label }}</h3>
-				<p class="service-description">{{ item.description }}</p>
-			</button>
+				<button class="service-card">
+					<div class="service-icon">{{ item.icon }}</div>
+					<h3>{{ item.label }}</h3>
+					<p class="service-description">{{ item.description }}</p>
+				</button>
+			</ButtonFX>
 		</div>
 	</div>
 </template>

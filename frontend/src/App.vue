@@ -82,25 +82,15 @@ export default {
 			if ( newVal ) {
 				this.hideInitialLoader()
 			}
-		}
-	},
-	methods: {
-		hideInitialLoader() {
-			const loader = document.getElementById( 'initial-loader' )
-			if ( loader ) {
-				// Simple fade out and remove
-				loader.style.transition = 'opacity 0.4s ease'
-				loader.style.opacity = '0'
-				setTimeout( () => {
-					loader.remove()
-				}, 400 )
-			}
+		},
+		'$route'() {
+			window.scrollTo( 0, 0 )
 		}
 	},
 	async mounted() {
 		// Initialize auth from localStorage first
 		initAuth()
-		
+
 		// Detect language: saved preference > browser detection > default
 		const savedLang = localStorage.getItem( 'kagi_language' )
 		const detectedLang = detectLang( ['en', 'fr', 'ja'] )
@@ -114,6 +104,19 @@ export default {
 		setTimeout( () => {
 			this.hideInitialLoader()
 		}, 500 )
+	},
+	methods: {
+		hideInitialLoader() {
+			const loader = document.getElementById( 'initial-loader' )
+			if ( loader ) {
+				// Simple fade out and remove
+				loader.style.transition = 'opacity 0.4s ease'
+				loader.style.opacity = '0'
+				setTimeout( () => {
+					loader.remove()
+				}, 400 )
+			}
+		}
 	},
 	components: {
 		TinyRouter
@@ -140,9 +143,7 @@ body, html, #app
 	font-family -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif
 	margin 0
 	padding 0
-	scroll-behavior smooth
-	@media screen and (prefers-reduced-motion: reduce)
-		scroll-behavior: auto
+	scroll-behavior auto
 
 html
 	-webkit-font-smoothing antialiased
