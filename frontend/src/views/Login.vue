@@ -224,12 +224,13 @@ export default {
 	justify-content center
 	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 	padding 2rem
+	padding-top calc(2rem + var(--sait, 0px))
 	position relative
 
 .language-switcher-container
 	position absolute
-	top 2rem
-	right 2rem
+	top calc(2rem + var(--sait, 0px))
+	right calc(2rem + var(--sair, 0px))
 	z-index 100
 
 .login-container

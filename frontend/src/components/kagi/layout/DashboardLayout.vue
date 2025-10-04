@@ -137,6 +137,7 @@ export default {
 	position sticky
 	top 0
 	z-index $z-sticky
+	padding-top var(--sait, 0px)
 .header-content
 	display flex
 	justify-content space-between
@@ -377,9 +378,13 @@ export default {
 	box-shadow $shadow-sm
 	@media (max-width: $breakpoint-md)
 		padding $spacing-lg
+		padding-top calc($spacing-lg + 1rem)
+		padding-bottom calc($spacing-lg + 1rem)
 		margin-bottom 80px // Space for mobile nav
 	@media (max-width: 768px)
 		padding 0
+		padding-top 1.5rem
+		padding-bottom 1.5rem
 		border-radius 0
 // Transitions
 .slide-enter-active, .slide-leave-active
