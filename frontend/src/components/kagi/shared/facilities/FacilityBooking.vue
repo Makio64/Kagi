@@ -387,7 +387,7 @@
 	</div>
 </template>
 <script>
-import { addToCalendar } from '../../../utils/calendarUtils'
+import { addToCalendar } from '../../../../utils/calendarUtils'
 
 export default {
 	name: 'FacilityBooking',
