@@ -8,14 +8,14 @@
 			<!-- Chat Container -->
 			<div class="chat-container">
 				<!-- Input Area at Top -->
-				<form @submit.prevent="sendMessage" class="chat-input-form">
+				<form class="chat-input-form" @submit.prevent="sendMessage">
 					<input
 						v-model="messageInput"
 						type="text"
 						placeholder="Ask your question..."
 						class="chat-input"
 						required
-					/>
+					>
 					<button type="submit" class="send-button">
 						<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
 							<path d="M2 10L18 2L10 18L9 11L2 10Z" fill="currentColor" />
@@ -196,26 +196,26 @@ export default {
 	},
 	methods: {
 		sendMessage() {
-			if (!this.messageInput.trim()) return
+			if ( !this.messageInput.trim() ) return
 
 			// Create new conversation from the question
 			const newConversation = {
 				id: Date.now(),
-				title: this.messageInput.substring(0, 50) + (this.messageInput.length > 50 ? '...' : ''),
+				title: this.messageInput.substring( 0, 50 ) + ( this.messageInput.length > 50 ? '...' : '' ),
 				lastMessage: this.messageInput,
-				date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+				date: new Date().toLocaleDateString( 'en-US', { month: 'short', day: 'numeric', year: 'numeric' } ),
 				messages: [
 					{
 						id: Date.now(),
 						sender: 'user',
 						text: this.messageInput,
-						time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+						time: new Date().toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit' } )
 					}
 				]
 			}
 
 			// Add to conversations list
-			this.conversations.unshift(newConversation)
+			this.conversations.unshift( newConversation )
 
 			// Open the new conversation
 			this.activeConversation = newConversation
@@ -224,18 +224,18 @@ export default {
 			this.messageInput = ''
 
 			// Mock management response after 1 second
-			setTimeout(() => {
+			setTimeout( () => {
 				const managementMessage = {
 					id: Date.now(),
 					sender: 'management',
 					text: 'Thank you for your message. We will get back to you shortly.',
-					time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+					time: new Date().toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit' } )
 				}
-				this.activeConversation.messages.push(managementMessage)
-			}, 1000)
+				this.activeConversation.messages.push( managementMessage )
+			}, 1000 )
 		},
-		openConversation(id) {
-			this.activeConversation = this.conversations.find(c => c.id === id)
+		openConversation( id ) {
+			this.activeConversation = this.conversations.find( c => c.id === id )
 		},
 		closeConversation() {
 			this.activeConversation = null

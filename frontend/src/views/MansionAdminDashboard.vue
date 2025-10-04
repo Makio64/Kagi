@@ -7,6 +7,7 @@
 		:active-section="activeSection"
 		@navigate="navigateToSection"
 		@logout="handleLogout"
+		@logo-click="navigateToSection('overview')"
 	>
 		<ResidentsSection v-if="activeSection === 'residents'" />
 		<MaintenanceRequestsSection v-else-if="activeSection === 'maintenance'" />
@@ -37,7 +38,7 @@ const MENU_ITEMS = [
 export default {
 	name: 'MansionAdminDashboard',
 	props: {
-		routeParams: { type: Object, default: () => ({}) }
+		routeParams: { type: Object, default: () => ( {} ) }
 	},
 	data() {
 		return {
@@ -52,19 +53,29 @@ export default {
 			return this.routeParams?.section || 'overview'
 		},
 		menuItemsWithLabels() {
-			return MENU_ITEMS.map(item => ({
+			return MENU_ITEMS.map( item => ( {
 				...item,
-				label: this.$t(`mansion.menu.${item.id}`)
-			}))
+				label: this.$t( `mansion.menu.${item.id}` )
+			} ) )
 		}
 	},
+	watch: {
+		activeSection() {
+			this.$nextTick( () => {
+				document.querySelector( '#app' )?.scrollTo( 0, 0 )
+			} )
+		}
+	},
+	mounted() {
+		document.querySelector( '#app' )?.scrollTo( 0, 0 )
+	},
 	methods: {
-		navigateToSection(section) {
-			this.$router.push(`/mansion-admin/${section}`)
+		navigateToSection( section ) {
+			this.$router.push( `/mansion-admin/${section}` )
 		},
 		handleLogout() {
 			store.logout()
-			this.$router.push('/login')
+			this.$router.push( '/login' )
 		}
 	}
 }

@@ -387,6 +387,8 @@
 	</div>
 </template>
 <script>
+import { addToCalendar } from '../../../utils/calendarUtils'
+
 export default {
 	name: 'FacilityBooking',
 	emits: ['close', 'booking-confirmed'],
@@ -717,7 +719,20 @@ For questions or concerns, please contact building management at **info@kagi-bui
 			this.confirmedBooking = null
 		},
 		addToCalendar() {
-			alert( 'Calendar integration coming soon!' )
+			if ( !this.confirmedBooking ) return
+
+			const eventData = {
+				title: `${this.facility.name} Booking`,
+				description: `Booking reference: ${this.bookingReference}\n\nFacility: ${this.facility.name}\n${this.facility.description}`,
+				location: 'Kagi Building - ' + this.facility.name,
+				startDate: this.confirmedBooking.startDate,
+				endDate: this.confirmedBooking.endDate,
+				time: this.confirmedBooking.time,
+				bookingType: this.facility.bookingType,
+				reference: this.bookingReference
+			}
+
+			addToCalendar( eventData )
 		},
 		handleClickOutside( event ) {
 			const isDateButton = event.target.closest( '.picker-button' )

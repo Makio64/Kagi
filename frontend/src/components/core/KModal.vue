@@ -26,19 +26,19 @@ export default {
 	emits: ['update:modelValue'],
 	methods: {
 		close() {
-			this.$emit('update:modelValue', false)
+			this.$emit( 'update:modelValue', false )
 		},
-		handleEscape(e) {
-			if (e.key === 'Escape' && this.modelValue) {
+		handleEscape( e ) {
+			if ( e.key === 'Escape' && this.modelValue ) {
 				this.close()
 			}
 		}
 	},
 	mounted() {
-		document.addEventListener('keydown', this.handleEscape)
+		document.addEventListener( 'keydown', this.handleEscape )
 	},
 	beforeUnmount() {
-		document.removeEventListener('keydown', this.handleEscape)
+		document.removeEventListener( 'keydown', this.handleEscape )
 	}
 }
 </script>

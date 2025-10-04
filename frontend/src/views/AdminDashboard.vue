@@ -427,6 +427,16 @@ export default {
 			} ) )
 		}
 	},
+	watch: {
+		activeSection() {
+			this.$nextTick( () => {
+				document.querySelector( '#app' )?.scrollTo( 0, 0 )
+			} )
+		}
+	},
+	mounted() {
+		document.querySelector( '#app' )?.scrollTo( 0, 0 )
+	},
 	methods: {
 		navigateToSection( section ) {
 			this.activeSection = section

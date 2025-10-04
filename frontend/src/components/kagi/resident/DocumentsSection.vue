@@ -185,8 +185,8 @@ For parking permits or questions, contact management office.`
 		}
 	},
 	methods: {
-		viewDocument(docId) {
-			this.selectedDocument = this.mockDocuments.find(doc => doc.id === docId)
+		viewDocument( docId ) {
+			this.selectedDocument = this.mockDocuments.find( doc => doc.id === docId )
 		}
 	}
 }

@@ -109,13 +109,13 @@ export default {
 		mobileMenuItems() {
 			// Filter out documents, bills, and maintenance from mobile menu
 			const hiddenOnMobile = ['documents', 'bills', 'maintenance']
-			return this.menuItems.filter(item => !hiddenOnMobile.includes(item.id))
+			return this.menuItems.filter( item => !hiddenOnMobile.includes( item.id ) )
 		}
 	},
 	methods: {
 		handleNavigation( sectionId ) {
 			// Scroll #app to top instantly
-			document.querySelector('#app').scrollTop = 0
+			document.querySelector( '#app' ).scrollTop = 0
 			this.$emit( 'navigate', sectionId )
 			this.showMobileMenu = false
 		},
@@ -216,6 +216,7 @@ export default {
 	justify-content space-between
 	align-items center
 	padding $spacing-lg
+	padding-top "calc(%s + %s)" % ($spacing-lg var(--sait, 0px))
 	background $gradient-light
 	h3
 		margin 0

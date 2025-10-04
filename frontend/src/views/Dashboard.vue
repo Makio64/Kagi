@@ -7,6 +7,7 @@
 		:active-section="activeSection"
 		@navigate="navigateToSection"
 		@logout="logout"
+		@logo-click="navigateToSection('home')"
 	>
 		<HomeSection v-if="activeSection === 'home'" :menu-items="menuItemsWithLabels" @navigate="navigateToSection" />
 		<EventsSection v-else-if="activeSection === 'events'" />
@@ -24,19 +25,19 @@ import * as store from '../store'
 
 const MENU_ITEMS = [
 	{ id: 'home', icon: '🏠' },
-	{ id: 'documents', icon: '📄' },
 	{ id: 'events', icon: '📢' },
 	{ id: 'services', icon: '🛎️' },
 	{ id: 'booking', icon: '📅' },
-	{ id: 'maintenance', icon: '🔧' },
 	{ id: 'contact', icon: '📱' },
-	{ id: 'bills', icon: '💳' }
+	{ id: 'documents', icon: '📄' },
+	{ id: 'bills', icon: '💳' },
+	{ id: 'maintenance', icon: '🔧' }
 ]
 
 export default {
 	name: 'Dashboard',
 	props: {
-		routeParams: { type: Object, default: () => ({}) }
+		routeParams: { type: Object, default: () => ( {} ) }
 	},
 	computed: {
 		user() {
@@ -46,20 +47,30 @@ export default {
 			return this.routeParams?.section || 'home'
 		},
 		menuItemsWithLabels() {
-			return MENU_ITEMS.map(item => ({
+			return MENU_ITEMS.map( item => ( {
 				...item,
-				label: this.$t(`dashboard.menu.${item.id}`),
-				description: this.$t(`dashboard.menu.${item.id}.description`)
-			}))
+				label: this.$t( `dashboard.menu.${item.id}` ),
+				description: this.$t( `dashboard.menu.${item.id}.description` )
+			} ) )
 		}
 	},
+	watch: {
+		activeSection() {
+			this.$nextTick( () => {
+				document.querySelector( '#app' )?.scrollTo( 0, 0 )
+			} )
+		}
+	},
+	mounted() {
+		document.querySelector( '#app' )?.scrollTo( 0, 0 )
+	},
 	methods: {
-		navigateToSection(section) {
-			this.$router.push(`/dashboard/${section}`)
+		navigateToSection( section ) {
+			this.$router.push( `/dashboard/${section}` )
 		},
 		logout() {
 			store.logout()
-			this.$router.push('/login')
+			this.$router.push( '/login' )
 		}
 	}
 }

@@ -178,31 +178,40 @@ export default {
 	},
 	computed: {
 		filteredBookings() {
-			return filterBookings(this.userBookings, this.activeFilter)
+			return filterBookings( this.userBookings, this.activeFilter )
 		},
 		emptyTitle() {
 			return this.activeFilter === 'upcoming'
-				? this.$t('booking.noUpcomingBookings')
-				: this.$t('booking.noPastBookings')
+				? this.$t( 'booking.noUpcomingBookings' )
+				: this.$t( 'booking.noPastBookings' )
 		},
 		emptyDescription() {
 			return this.activeFilter === 'upcoming'
-				? this.$t('booking.noUpcomingBookingsDesc')
-				: this.$t('booking.noPastBookingsDesc')
+				? this.$t( 'booking.noUpcomingBookingsDesc' )
+				: this.$t( 'booking.noPastBookingsDesc' )
+		}
+	},
+	watch: {
+		selectedFacility( newVal ) {
+			if ( newVal ) {
+				this.$nextTick( () => {
+					document.querySelector( '#app' )?.scrollTo( 0, 0 )
+				} )
+			}
 		}
 	},
 	methods: {
 		getBookingCountdown,
-		selectFacility(facilityId) {
+		selectFacility( facilityId ) {
 			this.selectedFacility = FACILITIES[facilityId]
 		},
-		cancelBooking(bookingId) {
-			this.userBookings = this.userBookings.filter(b => b.id !== bookingId)
+		cancelBooking( bookingId ) {
+			this.userBookings = this.userBookings.filter( b => b.id !== bookingId )
 		},
-		rebookFacility(booking) {
-			const facilityId = booking.facility.toLowerCase().includes('party') ? 'party'
-				: booking.facility.toLowerCase().includes('guest') ? 'guest' : 'gym'
-			this.selectFacility(facilityId)
+		rebookFacility( booking ) {
+			const facilityId = booking.facility.toLowerCase().includes( 'party' ) ? 'party'
+				: booking.facility.toLowerCase().includes( 'guest' ) ? 'guest' : 'gym'
+			this.selectFacility( facilityId )
 		}
 	}
 }
