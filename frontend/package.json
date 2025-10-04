@@ -6,7 +6,7 @@
 	"target": "esnext",
 	"scripts": {
 		"dev": "vite --host",
-		"build": "vite build",
+		"build": "node nodejs-tools/incrementIOSBuild.js && vite build",
 		"preview": "vite preview --host",
 		"lint": "eslint src --fix",
 		"optimizeImg": "node nodejs-tools/optimizeImg.js",

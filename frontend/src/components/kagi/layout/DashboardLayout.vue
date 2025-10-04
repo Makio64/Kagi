@@ -378,8 +378,8 @@ export default {
 	box-shadow $shadow-sm
 	@media (max-width: $breakpoint-md)
 		padding $spacing-lg
-		padding-top calc($spacing-lg + 1rem)
-		padding-bottom calc($spacing-lg + 1rem)
+		padding-top "calc(%s + 1rem)" % $spacing-lg
+		padding-bottom "calc(%s + 1rem)" % $spacing-lg
 		margin-bottom 80px // Space for mobile nav
 	@media (max-width: 768px)
 		padding 0
