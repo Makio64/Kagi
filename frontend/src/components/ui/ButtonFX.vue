@@ -15,18 +15,9 @@ export default {
 		}
 	},
 	props: {
-		anim: {
-			type: String,
-			default: '',
-		},
-		power: {
-			type: String,
-			default: 'normal',
-		},
-		enabled: {
-			type: Boolean,
-			default: true,
-		},
+		anim: { type: String, default: '' },
+		power: { type: String, default: 'strong' },
+		enabled: { type: Boolean, default: true },
 	},
 	mounted() {},
 	methods: {

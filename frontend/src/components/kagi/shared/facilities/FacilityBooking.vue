@@ -296,15 +296,6 @@
 						</div>
 					</transition>
 				</div>
-				<!-- Special Notes -->
-				<div class="form-group">
-					<label>{{ $t('booking.specialNotes') }} <span class="optional">({{ $t('common.optional') }})</span></label>
-					<textarea
-						v-model="specialNotes"
-						:placeholder="$t('booking.notesPlaceholder')"
-						rows="3"
-					/>
-				</div>
 				<!-- Terms Agreement -->
 				<div class="terms-agreement">
 					<label class="checkbox-label">
@@ -324,19 +315,25 @@
 					<span class="cost-value">{{ calculateCost }}</span>
 				</div>
 				<!-- Book Button -->
-				<button
-					class="book-button"
-					:disabled="!canBook"
-					@click="confirmBooking"
+				<GradientButton
+					color="yellow"
+					:is-full="true"
+					:class="['book-button-wrapper', { 'disabled': !canBook }]"
 				>
-					<span v-if="processingBooking" class="btn-content">
-						<div class="spinner" />
-						{{ $t('booking.processing') }}
-					</span>
-					<span v-else class="btn-content">
-						{{ $t(`booking.book${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) }}
-					</span>
-				</button>
+					<button
+						class="book-button"
+						:disabled="!canBook"
+						@click="confirmBooking"
+					>
+						<span v-if="processingBooking" class="btn-content">
+							<div class="spinner" />
+							{{ $t('booking.processing') }}
+						</span>
+						<span v-else class="btn-content">
+							{{ $t(`booking.book${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) }}
+						</span>
+					</button>
+				</GradientButton>
 			</div>
 			<!-- Right: Facility Card -->
 			<div class="facility-info-card">
@@ -845,6 +842,8 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		font-size 1.25rem
 		color #1a1a1a
 		font-weight 600
+		@media (max-width: 900px)
+			display none
 .form-group
 	margin-bottom 1.5rem
 	position relative
@@ -854,6 +853,8 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		color #374151
 		font-weight 500
 		font-size 0.9rem
+		@media (max-width: 900px)
+			display none
 		.optional
 			color #9ca3af
 			font-weight 400
@@ -1094,26 +1095,26 @@ textarea
 		font-size 1.25rem
 		font-weight 700
 		color #1a1a1a
+.book-button-wrapper
+	width 100%
+	transition opacity 0.2s ease
+	&.disabled
+		opacity 0.5
+		cursor not-allowed
+
 .book-button
 	width 100%
-	padding 1rem
-	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
-	color #333
+	padding 0.5rem
+	background transparent
+	color inherit
 	border none
-	border-radius 8px
 	font-size 1rem
 	font-weight 600
 	cursor pointer
 	transition all 0.2s ease
-	box-shadow 0 4px 12px rgba(255, 193, 7, 0.3)
-	&:hover:not(:disabled)
-		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
-		transform translateY(-1px)
-		box-shadow 0 6px 16px rgba(255, 193, 7, 0.4)
 	&:disabled
 		opacity 0.5
 		cursor not-allowed
-		transform none
 	.btn-content
 		display flex
 		align-items center
