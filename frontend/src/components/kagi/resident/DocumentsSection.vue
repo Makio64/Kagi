@@ -275,5 +275,5 @@ For parking permits or questions, contact management office.`
 .document-viewer-wrapper
 	position relative
 	min-height 600px
-	padding 1.5rem
+	padding 0
 </style>
