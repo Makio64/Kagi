@@ -10,7 +10,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     AdminOverviewSection: typeof import('./src/components/kagi/admin/AdminOverviewSection.vue')['default']
     BillDetails: typeof import('./src/components/kagi/shared/bills/BillDetails.vue')['default']
-    BillsSection: typeof import('./src/components/kagi/resident/BillsSection.vue')['default']
     BookingsSection: typeof import('./src/components/kagi/resident/BookingsSection.vue')['default']
     BurgerButton: typeof import('./src/components/ui/BurgerButton.vue')['default']
     ButtonFX: typeof import('./src/components/ui/ButtonFX.vue')['default']
@@ -47,6 +46,7 @@ declare module 'vue' {
     MobileSettingsMenu: typeof import('./src/components/kagi/dashboard/MobileSettingsMenu.vue')['default']
     ProfileSection: typeof import('./src/components/kagi/resident/ProfileSection.vue')['default']
     ProgressBar: typeof import('./src/components/ui/ProgressBar.vue')['default']
+    ReceiptsSection: typeof import('./src/components/kagi/resident/ReceiptsSection.vue')['default']
     ResidentsSection: typeof import('./src/components/kagi/mansion/ResidentsSection.vue')['default']
     SectionHeader: typeof import('./src/components/kagi/dashboard/SectionHeader.vue')['default']
     ServicesSection: typeof import('./src/components/kagi/resident/ServicesSection.vue')['default']

@@ -755,7 +755,7 @@ For questions or concerns, please contact building management at **info@kagi-bui
 	max-height 90vh
 	display flex
 	flex-direction column
-	overflow hidden
+	overflow-y auto
 .booking-header
 	display flex
 	align-items center
@@ -844,7 +844,6 @@ For questions or concerns, please contact building management at **info@kagi-bui
 	grid-template-columns 1fr 380px
 	gap 2rem
 	padding 2rem
-	overflow-y auto
 	flex 1
 	@media (max-width: 900px)
 		grid-template-columns 1fr
@@ -1152,6 +1151,7 @@ textarea
 	top 0
 	@media (max-width: 900px)
 		position static
+		margin-bottom "calc(%s + %s)" % (80px var(--saib, 0px))
 	.facility-image
 		width 100%
 		height 180px

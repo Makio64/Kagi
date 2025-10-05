@@ -107,6 +107,15 @@ export default {
 .document-header
 	padding 0.75rem 1.5rem
 	border-bottom none
+	position fixed
+	top 0
+	left 0
+	right 0
+	z-index 100
+	background white
+	border-radius 20px 20px 0 0
+	@media (max-width: 768px)
+		padding-top "calc(%s + %s)" % (0.75rem var(--sait, 0px))
 
 .back-btn
 	padding 0.5rem 1rem
@@ -160,7 +169,7 @@ export default {
 	flex 1
 	overflow-y auto
 	padding 0
-	padding-top 0
+	padding-top 60px
 .markdown-body
 	color #333
 	line-height 1.8

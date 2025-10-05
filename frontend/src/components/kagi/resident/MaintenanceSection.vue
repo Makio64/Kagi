@@ -48,9 +48,6 @@
 					/>
 				</div>
 				<div class="form-actions">
-					<button type="button" class="cancel-btn" @click="cancelRequest">
-						{{ $t('common.cancel') }}
-					</button>
 					<button type="submit" class="submit-btn">
 						{{ $t('dashboard.maintenance.submit') }}
 					</button>
@@ -232,7 +229,6 @@ export default {
 	justify-content flex-end
 	@media (max-width: 480px)
 		flex-direction column-reverse
-.cancel-btn,
 .submit-btn
 	padding 0.875rem 2rem
 	border none
@@ -241,14 +237,7 @@ export default {
 	font-weight 600
 	cursor pointer
 	transition all 0.2s ease
-	@media (max-width: 480px)
-		width 100%
-.cancel-btn
-	background #f5f5f5
-	color #666
-	&:hover
-		background #e0e0e0
-.submit-btn
+	width 100%
 	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 	color #333
 	&:hover

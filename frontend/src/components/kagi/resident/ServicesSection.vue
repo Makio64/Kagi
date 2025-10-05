@@ -20,14 +20,6 @@
 							<span class="detail-label">💴 Price:</span>
 							<span class="detail-value">{{ service.price }}</span>
 						</div>
-						<div class="detail-item">
-							<span class="detail-label">⏱️ Availability:</span>
-							<span class="detail-value">{{ service.availability }}</span>
-						</div>
-						<div v-if="service.contact" class="detail-item">
-							<span class="detail-label">📞 Contact:</span>
-							<span class="detail-value">{{ service.contact }}</span>
-						</div>
 					</div>
 
 					<button class="book-service-btn">

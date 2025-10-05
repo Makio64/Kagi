@@ -14,7 +14,7 @@
 		<ServicesSection v-else-if="activeSection === 'services'" />
 		<BookingsSection v-else-if="activeSection === 'booking'" />
 		<MaintenanceSection v-else-if="activeSection === 'maintenance'" />
-		<BillsSection v-else-if="activeSection === 'bills'" />
+		<ReceiptsSection v-else-if="activeSection === 'receipts'" />
 		<ContactSection v-else-if="activeSection === 'contact'" />
 		<DocumentsSection v-else-if="activeSection === 'documents'" />
 		<ProfileSection v-else-if="activeSection === 'profile'" />
@@ -30,7 +30,7 @@ const MENU_ITEMS = [
 	{ id: 'booking', icon: '📅' },
 	{ id: 'contact', icon: '📱' },
 	{ id: 'documents', icon: '📄' },
-	{ id: 'bills', icon: '💳' },
+	{ id: 'receipts', icon: '🧾' },
 	{ id: 'maintenance', icon: '🔧' }
 ]
 
