@@ -7,13 +7,13 @@
 		class="kagi-logo"
 	>
 		<!-- Key handle (circular part) -->
-		<circle cx="35" cy="35" r="18" fill="none" :stroke="color" stroke-width="6" />
+		<circle cx="35" cy="50" r="18" fill="none" :stroke="color" stroke-width="6" />
 		<!-- Key shaft -->
-		<rect x="55" y="32" :width="45" height="6" :fill="color" />
+		<rect x="55" y="47" :width="45" height="6" :fill="color" />
 		<!-- Key teeth -->
-		<rect x="83" y="36" width="4" height="10" :fill="color" />
-		<rect x="88" y="36" width="4" height="8" :fill="color" />
-		<rect x="93" y="36" width="4" height="10" :fill="color" />
+		<rect x="83" y="51" width="4" height="10" :fill="color" />
+		<rect x="88" y="51" width="4" height="8" :fill="color" />
+		<rect x="93" y="51" width="4" height="10" :fill="color" />
 	</svg>
 </template>
 <script>

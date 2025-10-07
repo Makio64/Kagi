@@ -1,6 +1,7 @@
 <template>
 	<DashboardLayout
 		:title="$t('dashboard.residentPortal')"
+		residence-name="Dresser Tower"
 		:user-email="user?.email || 'Resident'"
 		user-role="Resident"
 		:menu-items="menuItemsWithLabels"

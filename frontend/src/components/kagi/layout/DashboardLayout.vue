@@ -4,13 +4,15 @@
 		<header class="dashboard-header">
 			<div class="header-content">
 				<div class="header-left" @click="handleLogoClick">
-					<KagiLogo :size="40" />
-					<h1>{{ title }}</h1>
+					<KagiLogo :size="48" :class="['logo']" color="#333333" />
+					<h1 v-if="residenceName" class="residence-name">{{ residenceName }}</h1>
+					<h1 v-else>{{ title }}</h1>
 				</div>
 				<div class="header-right">
 					<span v-if="userRole" class="user-badge">{{ userRole }}</span>
 					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
-						<span class="user-email">{{ userEmail }}</span>
+						<span class="user-email desktop-only">{{ userEmail }}</span>
+						<span class="user-email mobile-only">{{ $t('common.profile') }}</span>
 						<span class="menu-arrow">▼</span>
 					</button>
 				</div>
@@ -87,6 +89,10 @@ export default {
 			type: String,
 			default: 'Kagi'
 		},
+		residenceName: {
+			type: String,
+			default: null
+		},
 		userEmail: String,
 		userRole: String,
 		// Navigation
@@ -157,13 +163,25 @@ export default {
 	align-items center
 	gap $spacing-md
 	cursor pointer
+	.logo
+		@media (max-width: $breakpoint-sm)
+			width 43px
+			height 43px
 	h1
 		margin 0
 		font-size $font-xl
 		font-weight $font-semibold
 		color $color-text
+		&:not(.residence-name)
+			@media (max-width: $breakpoint-sm)
+				display none
+	.residence-name
+		margin 0
+		font-size $font-xl
+		font-weight $font-semibold
+		color $color-text
 		@media (max-width: $breakpoint-sm)
-			display none
+			font-size $font-lg
 .header-right
 	display flex
 	align-items center
@@ -193,8 +211,13 @@ export default {
 	.user-email
 		font-size $font-sm
 		color $color-text
+	.desktop-only
 		@media (max-width: $breakpoint-sm)
 			display none
+	.mobile-only
+		display none
+		@media (max-width: $breakpoint-sm)
+			display inline
 	.menu-arrow
 		color $color-text-secondary
 		font-size $font-xs

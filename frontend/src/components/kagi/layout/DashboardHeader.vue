@@ -4,14 +4,16 @@
 		<header class="header">
 			<div class="header-content">
 				<div class="header-left" :style="onLogoClick ? 'cursor: pointer;' : ''" @click="handleLogoClick">
-					<KagiLogo :size="40" />
-					<h1>{{ title }}</h1>
+					<KagiLogo :size="48" color="#333333" />
+					<h1 v-if="residenceName" class="residence-name">{{ residenceName }}</h1>
+					<h1 v-else>{{ title }}</h1>
 				</div>
 				<div class="header-right">
 					<span v-if="userBadge" class="user-badge">{{ userBadge }}</span>
 					<LanguageSwitcher v-if="showLanguageSwitcher" />
 					<button class="user-menu-btn" :class="{ active: showMobileMenu }" @click="showMobileMenu = !showMobileMenu">
-						<span class="user-email">{{ userEmail }}</span>
+						<span class="user-email desktop-only">{{ userEmail }}</span>
+						<span class="user-email mobile-only">{{ $t('common.profile') }}</span>
 						<span class="menu-arrow">▼</span>
 					</button>
 				</div>
@@ -47,6 +49,10 @@ export default {
 		title: {
 			type: String,
 			required: true
+		},
+		residenceName: {
+			type: String,
+			default: null
 		},
 		userBadge: {
 			type: String,
@@ -112,6 +118,12 @@ export default {
 		font-size 1.5rem
 		color #333
 		margin 0
+		font-weight 600
+	.residence-name
+		font-size 1.5rem
+		color #333
+		margin 0
+		font-weight 600
 .header-right
 	display flex
 	align-items center
@@ -142,9 +154,13 @@ export default {
 		overflow hidden
 		text-overflow ellipsis
 		white-space nowrap
-		@media (max-width: 480px)
-			max-width 120px
-			font-size 0.9rem
+	.desktop-only
+		@media (max-width: 768px)
+			display none
+	.mobile-only
+		display none
+		@media (max-width: 768px)
+			display inline
 	.menu-arrow
 		font-size 0.7rem
 		transition transform 0.3s ease
