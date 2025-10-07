@@ -598,7 +598,7 @@ class Backend {
 							expiresIn: 86400
 						} )
 					}
-				} catch ( e ) {
+				} catch {
 					// Invalid token format
 				}
 
@@ -778,7 +778,6 @@ class Backend {
 			throw this.createError( `${resource} not found`, 404 )
 		}
 
-		const deleted = data[index]
 		data.splice( index, 1 )
 		this.setStoredData( resource, data )
 
@@ -1151,7 +1150,7 @@ class Backend {
 	}
 
 	// Mark notification as read
-	async markNotificationRead( notificationId ) {
+	async markNotificationRead() {
 		await this.delay()
 		// In a real implementation, this would update the notification
 		return this.createResponse( { success: true } )

@@ -46,34 +46,13 @@
 export default {
 	name: 'DashboardHeader',
 	props: {
-		title: {
-			type: String,
-			required: true
-		},
-		residenceName: {
-			type: String,
-			default: null
-		},
-		userBadge: {
-			type: String,
-			default: null
-		},
-		userEmail: {
-			type: String,
-			required: true
-		},
-		userRole: {
-			type: String,
-			required: true
-		},
-		showLanguageSwitcher: {
-			type: Boolean,
-			default: false
-		},
-		onLogoClick: {
-			type: Function,
-			default: null
-		}
+		title: { type: String, required: true },
+		residenceName: { type: String, default: null },
+		userBadge: { type: String, default: null },
+		userEmail: { type: String, required: true },
+		userRole: { type: String, required: true },
+		showLanguageSwitcher: { type: Boolean, default: false },
+		onLogoClick: { type: Function, default: null }
 	},
 	emits: ['logout', 'logo-click'],
 	data() {

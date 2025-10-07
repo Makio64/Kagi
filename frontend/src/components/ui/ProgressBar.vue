@@ -32,7 +32,7 @@ export default {
 		this.setPercent( this.percent )
 	},
 	watch: {
-		percent( newVal, oldVal ) {
+		percent( newVal ) {
 			this.setPercent( newVal )
 		},
 	},

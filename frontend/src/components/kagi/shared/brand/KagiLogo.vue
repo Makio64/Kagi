@@ -20,14 +20,8 @@
 export default {
 	name: 'KagiLogo',
 	props: {
-		size: {
-			type: [Number, String],
-			default: 80
-		},
-		color: {
-			type: String,
-			default: '#FFC107'
-		}
+		size: { type: [Number, String], default: 80 },
+		color: { type: String, default: '#FFC107' }
 	}
 }
 </script>

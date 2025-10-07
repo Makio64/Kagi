@@ -85,26 +85,13 @@ export default {
 	emits: ['navigate', 'logout', 'logo-click'],
 	props: {
 		// Layout config
-		title: {
-			type: String,
-			default: 'Kagi'
-		},
-		residenceName: {
-			type: String,
-			default: null
-		},
+		title: { type: String, default: 'Kagi' },
+		residenceName: { type: String, default: null },
 		userEmail: String,
 		userRole: String,
 		// Navigation
-		menuItems: {
-			type: Array,
-			required: true
-			// Expected format: [{ id: string, icon: string, label: string }]
-		},
-		activeSection: {
-			type: String,
-			required: true
-		}
+		menuItems: { type: Array, required: true }, // Expected format: [{ id: string, icon: string, label: string }]
+		activeSection: { type: String, required: true }
 	},
 	data() {
 		return {

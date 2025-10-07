@@ -37,9 +37,7 @@ const MENU_ITEMS = [
 
 export default {
 	name: 'Dashboard',
-	props: {
-		routeParams: { type: Object, default: () => ( {} ) }
-	},
+	props: { routeParams: { type: Object, default: () => ( {} ) } },
 	computed: {
 		user() {
 			return store.user.value

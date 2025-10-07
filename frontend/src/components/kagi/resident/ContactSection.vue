@@ -8,7 +8,7 @@
 			<!-- Chat Container -->
 			<div class="chat-container">
 				<!-- Chat Messages (Messenger Style - scroll from bottom) -->
-				<div class="chat-messages" ref="chatMessages">
+				<div ref="chatMessages" class="chat-messages">
 					<div
 						v-for="msg in currentMessages"
 						:key="msg.id"

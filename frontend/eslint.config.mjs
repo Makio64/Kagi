@@ -1,6 +1,5 @@
 import { FlatCompat } from "@eslint/eslintrc"
 import stylistic from '@stylistic/eslint-plugin'
-import stylisticJs from '@stylistic/eslint-plugin-js'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import unusedImports from 'eslint-plugin-unused-imports'
 import pluginVue from 'eslint-plugin-vue'
@@ -27,7 +26,6 @@ export default [
 		},
 		plugins: {
 			'@stylistic': stylistic,
-			'@stylistic/js': stylisticJs,
 			'unused-imports': unusedImports,
 			'simple-import-sort': simpleImportSort
 		},
@@ -57,14 +55,16 @@ export default [
 			'vue/no-v-html': 'off',
 			'vue/first-attribute-linebreak': 'off',
 			'vue/multiline-html-element-content-newline': 'off',
+			'vue/object-curly-newline': ['error', { consistent: true }],
+			'vue/object-property-newline': ['error', { allowAllPropertiesOnSameLine: true }],
 
 			'@stylistic/indent': ['error', 'tab'],
 			'max-len': 'off',
-			'@stylistic/js/semi': ['error', 'never'],
-			'@stylistic/js/key-spacing': ['error', { "beforeColon": false, "afterColon": true }],
-			'@stylistic/js/space-infix-ops': ['error', { "int32Hint": false }],
-			'@stylistic/js/comma-spacing': ["error", { "before": false, "after": true }],
-			'@stylistic/js/array-bracket-spacing': ["error", "never"],
+			'@stylistic/semi': ['error', 'never'],
+			'@stylistic/key-spacing': ['error', { "beforeColon": false, "afterColon": true }],
+			'@stylistic/space-infix-ops': ['error', { "int32Hint": false }],
+			'@stylistic/comma-spacing': ["error", { "before": false, "after": true }],
+			'@stylistic/array-bracket-spacing': ["error", "never"],
 			'@stylistic/space-before-blocks': ["error", "always"],
 			'@stylistic/object-curly-spacing': ["error", "always"],
 			'@stylistic/space-in-parens': ["error", "always"],
