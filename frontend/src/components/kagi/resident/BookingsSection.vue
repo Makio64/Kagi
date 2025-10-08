@@ -19,7 +19,7 @@
 					<h3>{{ $t('booking.availableFacilities') }}</h3>
 					<div class="facilities-list">
 						<div class="facility-card" @click="selectFacility('party')">
-							<div class="facility-badge party">🎉</div>
+							<div class="facility-badge party" :style="{ backgroundImage: 'url(/img/facilities/party-room.png)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.partyRoom') }}</h4>
 								<p>Perfect for celebrations and gatherings</p>
@@ -32,7 +32,7 @@
 						</div>
 
 						<div class="facility-card" @click="selectFacility('guest')">
-							<div class="facility-badge guest">🛏️</div>
+							<div class="facility-badge guest" :style="{ backgroundImage: 'url(/img/facilities/guest-room-tatami.png)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.guestRoom') }}</h4>
 								<p>Comfortable accommodation for visitors</p>
@@ -45,13 +45,26 @@
 						</div>
 
 						<div class="facility-card" @click="selectFacility('gym')">
-							<div class="facility-badge gym">💪</div>
+							<div class="facility-badge gym" :style="{ backgroundImage: 'url(/img/facilities/gym.jpg)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.gym') }}</h4>
 								<p>Stay fit with modern equipment</p>
 								<div class="facility-meta">
 									<span>👥 10 people max</span>
 									<span>✨ Free for residents</span>
+								</div>
+							</div>
+							<button class="book-btn">{{ $t('booking.bookNow') }} →</button>
+						</div>
+
+						<div class="facility-card" @click="selectFacility('parking')">
+							<div class="facility-badge parking" :style="{ backgroundImage: 'url(/img/facilities/parking.jpg)' }" />
+							<div class="facility-info">
+								<h4>{{ $t('dashboard.booking.guestParking') }}</h4>
+								<p>Convenient parking for your visitors</p>
+								<div class="facility-meta">
+									<span>🚗 1 vehicle</span>
+									<span>💴 ¥1,000/day</span>
 								</div>
 							</div>
 							<button class="book-btn">{{ $t('booking.bookNow') }} →</button>
@@ -133,6 +146,7 @@ const FACILITIES = {
 		id: 'party',
 		name: 'Party Room',
 		icon: '🎉',
+		image: '/img/facilities/party-room.png',
 		description: 'Perfect for celebrations and gatherings',
 		capacity: 'Up to 20 people',
 		maxCapacity: 20,
@@ -145,6 +159,7 @@ const FACILITIES = {
 		id: 'guest',
 		name: 'Guest Room',
 		icon: '🛏️',
+		image: '/img/facilities/guest-room-tatami.png',
 		description: 'Comfortable accommodation for visitors',
 		capacity: 'Up to 2 guests',
 		maxCapacity: 2,
@@ -157,6 +172,7 @@ const FACILITIES = {
 		id: 'gym',
 		name: 'Gym',
 		icon: '💪',
+		image: '/img/facilities/gym.jpg',
 		description: 'Stay fit with modern equipment',
 		capacity: '10 people max',
 		maxCapacity: 10,
@@ -164,6 +180,19 @@ const FACILITIES = {
 		priceValue: 0,
 		amenities: 'Treadmills, Weights, Yoga mats',
 		bookingType: 'hourly'
+	},
+	parking: {
+		id: 'parking',
+		name: 'Guest Parking',
+		icon: '🅿️',
+		image: '/img/facilities/parking.jpg',
+		description: 'Convenient parking for your visitors',
+		capacity: '1 vehicle',
+		maxCapacity: 1,
+		price: '¥1,000/day',
+		priceValue: 1000,
+		amenities: 'Covered parking, Security cameras',
+		bookingType: 'full-day'
 	}
 }
 
@@ -210,7 +239,9 @@ export default {
 		},
 		rebookFacility( booking ) {
 			const facilityId = booking.facility.toLowerCase().includes( 'party' ) ? 'party'
-				: booking.facility.toLowerCase().includes( 'guest' ) ? 'guest' : 'gym'
+				: booking.facility.toLowerCase().includes( 'guest' ) && booking.facility.toLowerCase().includes( 'room' ) ? 'guest'
+					: booking.facility.toLowerCase().includes( 'parking' ) ? 'parking'
+						: 'gym'
 			this.selectFacility( facilityId )
 		}
 	}
@@ -278,18 +309,18 @@ export default {
 
 .facility-badge
 	width 100%
-	height 140px
+	height 250px
 	display flex
 	align-items center
 	justify-content center
 	font-size 4rem
 	transition transform 0.3s ease
-	&.party
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-	&.guest
-		background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
-	&.gym
-		background linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)
+	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+
+	background-size cover
+	background-position center
+	background-repeat no-repeat
+	position relative
 
 .facility-info
 	flex 1

@@ -337,8 +337,8 @@
 			</div>
 			<!-- Right: Facility Card -->
 			<div class="facility-info-card">
-				<div class="facility-image">
-					<div class="facility-icon-large">{{ facility.icon }}</div>
+				<div class="facility-image" :style="facility.image ? { backgroundImage: `url(${facility.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}">
+					<div v-if="!facility.image" class="facility-icon-large">{{ facility.icon }}</div>
 				</div>
 				<div class="facility-details">
 					<h3>{{ facility.name }}</h3>
@@ -1156,6 +1156,9 @@ textarea
 		width 100%
 		height 180px
 		background linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)
+		background-size cover
+		background-position center
+		background-repeat no-repeat
 		border-radius 8px
 		display flex
 		align-items center
