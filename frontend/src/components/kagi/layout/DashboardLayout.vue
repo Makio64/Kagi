@@ -5,13 +5,13 @@
 			<div class="header-content">
 				<div class="header-left" @click="handleLogoClick">
 					<KagiLogo :size="48" :class="['logo']" color="#333333" />
-					<h1 v-if="residenceName" class="residence-name">{{ residenceName }}</h1>
+					<h1 v-if="userProfile.residenceName" class="residence-name">{{ userProfile.residenceName }}</h1>
 					<h1 v-else>{{ title }}</h1>
 				</div>
 				<div class="header-right">
 					<span v-if="userRole" class="user-badge">{{ userRole }}</span>
 					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
-						<span class="user-email desktop-only">{{ userEmail }}</span>
+						<span class="user-email desktop-only">{{ userProfile.userEmail }}</span>
 						<span class="user-email mobile-only">{{ $t('common.profile') }}</span>
 						<span class="menu-arrow">▼</span>
 					</button>
@@ -27,8 +27,20 @@
 				</div>
 				<div class="mobile-menu-content">
 					<div class="mobile-user-info">
-						<div class="user-email">{{ userEmail }}</div>
-						<div class="user-role">{{ userRole }}</div>
+						<div v-if="userProfile.residenceName" class="user-info-item mansion-name">{{ userProfile.residenceName }}</div>
+						<div v-if="userProfile.userName" class="user-info-item user-name">{{ userProfile.userName }}</div>
+						<div v-if="userProfile.roomNumber" class="user-info-item">
+							<span class="label">{{ $t('dashboard.profile.apartment') }}:</span> {{ userProfile.roomNumber }}
+						</div>
+						<div v-if="userProfile.userPhone" class="user-info-item">
+							{{ userProfile.userPhone }}
+						</div>
+						<div class="user-info-item">
+							{{ userProfile.userEmail }}
+						</div>
+						<button class="edit-profile-btn" @click="handleEditProfile">
+							{{ $t('common.edit') }}
+						</button>
 					</div>
 					<div class="mobile-lang-section">
 						<LanguageSwitcher />
@@ -80,15 +92,14 @@
 	</div>
 </template>
 <script>
+import * as store from '../../../store'
+
 export default {
 	name: 'DashboardLayout',
-	emits: ['navigate', 'logout', 'logo-click'],
+	emits: ['navigate', 'logout', 'logo-click', 'edit-profile'],
 	props: {
 		// Layout config
 		title: { type: String, default: 'Kagi' },
-		residenceName: { type: String, default: null },
-		userEmail: String,
-		userRole: String,
 		// Navigation
 		menuItems: { type: Array, required: true }, // Expected format: [{ id: string, icon: string, label: string }]
 		activeSection: { type: String, required: true }
@@ -99,6 +110,12 @@ export default {
 		}
 	},
 	computed: {
+		userProfile() {
+			return store.userProfile.value
+		},
+		userRole() {
+			return store.userRole.value
+		},
 		mobileMenuItems() {
 			// Filter out documents, bills, and maintenance from mobile menu
 			const hiddenOnMobile = ['documents', 'bills', 'maintenance']
@@ -117,6 +134,10 @@ export default {
 		},
 		handleLogoClick() {
 			this.$emit( 'logo-click' )
+		},
+		handleEditProfile() {
+			this.showMobileMenu = false
+			this.$emit( 'edit-profile' )
 		}
 	}
 }
@@ -256,14 +277,36 @@ export default {
 	background $color-background-light
 	border-radius $radius-md
 	margin-bottom $spacing-lg
-	.user-email
-		font-size $font-base
-		color $color-text
-		font-weight $font-medium
-	.user-role
+	display flex
+	flex-direction column
+	gap $spacing-sm
+	.user-info-item
 		font-size $font-sm
-		color $color-text-secondary
-		margin-top $spacing-xs
+		color $color-text
+		line-height 1.5
+		&.mansion-name
+			font-size $font-base
+			font-weight $font-semibold
+			color $color-primary
+		&.user-name
+			font-size $font-base
+			font-weight $font-medium
+		.label
+			color $color-text-secondary
+			font-weight $font-normal
+	.edit-profile-btn
+		margin-top $spacing-sm
+		padding $spacing-sm $spacing-md
+		background $color-primary
+		color white
+		border none
+		border-radius $radius-md
+		font-size $font-sm
+		font-weight $font-medium
+		cursor pointer
+		transition $transition-base
+		&:hover
+			background darken($color-primary, 10%)
 .mobile-lang-section
 	padding $spacing-md 0
 	border-top 1px solid $color-border

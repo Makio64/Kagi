@@ -1,14 +1,12 @@
 <template>
 	<DashboardLayout
 		:title="$t('dashboard.residentPortal')"
-		residence-name="Dresser Tower"
-		:user-email="user?.email || 'Resident'"
-		user-role="Resident"
 		:menu-items="menuItemsWithLabels"
 		:active-section="activeSection"
 		@navigate="navigateToSection"
 		@logout="logout"
 		@logo-click="navigateToSection('home')"
+		@edit-profile="navigateToSection('profile')"
 	>
 		<HomeSection v-if="activeSection === 'home'" :menu-items="menuItemsWithLabels" @navigate="navigateToSection" />
 		<EventsSection v-else-if="activeSection === 'events'" />
@@ -39,9 +37,6 @@ export default {
 	name: 'Dashboard',
 	props: { routeParams: { type: Object, default: () => ( {} ) } },
 	computed: {
-		user() {
-			return store.user.value
-		},
 		activeSection() {
 			return this.routeParams?.section || 'home'
 		},

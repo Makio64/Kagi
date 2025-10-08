@@ -24,6 +24,15 @@ export const isResident = computed( () => user.value?.role === 'resident' )
 export const isLandlord = computed( () => user.value?.role === 'landlord' )
 export const mansionId = computed( () => user.value?.mansionId || null )
 
+// User profile information (flat structure - KISS principle)
+export const userProfile = computed( () => ( {
+	residenceName: user.value?.mansionName || 'Dresser Tower',
+	userName: user.value?.name || 'Makio Kitano',
+	roomNumber: user.value?.unit || '2704',
+	userPhone: user.value?.phone || '+81-90-6543-6543',
+	userEmail: user.value?.email || null
+} ) )
+
 // Initialize auth from localStorage on app start
 export const initAuth = () => {
 	const storedToken = localStorage.getItem( 'kagi_token' )

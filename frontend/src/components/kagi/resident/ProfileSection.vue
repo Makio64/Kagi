@@ -13,18 +13,18 @@
 				<form @submit.prevent="saveProfile">
 					<div class="form-group">
 						<label>{{ $t('dashboard.profile.name') }}</label>
-						<input v-model="profileForm.name" type="text" required>
+						<input v-model="profileForm.name" type="text" disabled>
 					</div>
 					<div class="form-group">
 						<label>{{ $t('dashboard.profile.email') }}</label>
-						<input v-model="profileForm.email" type="email" disabled>
+						<input v-model="profileForm.email" type="email">
 					</div>
 					<div class="form-group">
 						<label>{{ $t('dashboard.profile.phone') }}</label>
 						<input v-model="profileForm.phone" type="tel">
 					</div>
 					<div class="form-group">
-						<label>{{ $t('dashboard.profile.unit') }}</label>
+						<label>{{ $t('dashboard.profile.apartment') }}</label>
 						<input v-model="profileForm.unit" type="text" disabled>
 					</div>
 					<button type="submit" class="save-btn">
@@ -84,10 +84,10 @@ export default {
 	data() {
 		return {
 			profileForm: {
-				name: store.user.value?.profile?.name || '',
+				name: store.user.value?.name || '',
 				email: store.user.value?.email || '',
-				phone: store.user.value?.profile?.phone || '',
-				unit: store.user.value?.profile?.unit || ''
+				phone: store.user.value?.phone || '',
+				unit: store.user.value?.unit || ''
 			},
 			emergencyForm: {
 				name: '',

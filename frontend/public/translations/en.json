@@ -124,6 +124,8 @@
   "dashboard.profile.email": "Email",
   "dashboard.profile.phone": "Phone Number",
   "dashboard.profile.unit": "Unit Number",
+  "dashboard.profile.apartment": "Apartment n°",
+  "dashboard.profile.notificationPreferences": "Notification Preferences",
   "dashboard.profile.emergencyContact": "Emergency Contact",
   "dashboard.profile.emergencyName": "Contact Name",
   "dashboard.profile.emergencyPhone": "Contact Phone",

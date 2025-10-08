@@ -166,6 +166,8 @@
   "dashboard.profile.email": "Email",
   "dashboard.profile.phone": "Numéro de téléphone",
   "dashboard.profile.unit": "Numéro d'unité",
+  "dashboard.profile.apartment": "Appartement n°",
+  "dashboard.profile.notificationPreferences": "Préférences de notification",
   "dashboard.profile.emergencyContact": "Contact d'urgence",
   "dashboard.profile.emergencyName": "Nom du contact",
   "dashboard.profile.emergencyPhone": "Téléphone du contact",

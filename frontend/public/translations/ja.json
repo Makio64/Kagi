@@ -166,6 +166,8 @@
   "dashboard.profile.email": "メールアドレス",
   "dashboard.profile.phone": "電話番号",
   "dashboard.profile.unit": "部屋番号",
+  "dashboard.profile.apartment": "アパート番号",
+  "dashboard.profile.notificationPreferences": "通知設定",
   "dashboard.profile.emergencyContact": "緊急連絡先",
   "dashboard.profile.emergencyName": "連絡先氏名",
   "dashboard.profile.emergencyPhone": "連絡先電話番号",

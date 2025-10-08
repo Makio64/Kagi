@@ -72,12 +72,11 @@ class Backend {
 			{
 				id: 'usr_resident_001',
 				email: 'john.doe@example.com',
-				profile: {
-					name: 'John Doe',
-					avatar: 'https://i.pravatar.cc/150?u=john',
-					phone: '+81-90-1234-5678',
-					unit: 'A-501'
-				},
+				name: 'Makio Kitano',
+				phone: '+81-90-6543-6543',
+				unit: '2704',
+				mansionName: 'Dresser Tower',
+				avatar: 'https://i.pravatar.cc/150?u=john',
 				role: 'resident',
 				permissions: ['view_bills', 'book_facilities', 'submit_maintenance'],
 				settings: { theme: 'light', language: 'en', notifications: true },
@@ -86,12 +85,11 @@ class Backend {
 			{
 				id: 'usr_resident_002',
 				email: 'yuki.tanaka@example.jp',
-				profile: {
-					name: '田中 由紀',
-					avatar: 'https://i.pravatar.cc/150?u=yuki',
-					phone: '+81-80-9876-5432',
-					unit: 'B-302'
-				},
+				name: '田中 由紀',
+				phone: '+81-80-9876-5432',
+				unit: 'B-302',
+				mansionName: 'Dresser Tower',
+				avatar: 'https://i.pravatar.cc/150?u=yuki',
 				role: 'resident',
 				permissions: ['view_bills', 'book_facilities', 'submit_maintenance'],
 				settings: { theme: 'auto', language: 'ja', notifications: false },
@@ -489,12 +487,11 @@ class Backend {
 					user = {
 						id: `usr_${Date.now()}`,
 						email: email,
-						profile: {
-							name: email.split( '@' )[0].replace( /[._-]/g, ' ' ),
-							avatar: `https://i.pravatar.cc/150?u=${email}`,
-							phone: '+81-90-0000-0000',
-							unit: role === 'resident' ? `${String.fromCharCode( 65 + Math.floor( Math.random() * 5 ) )}-${Math.floor( Math.random() * 900 ) + 100}` : 'Office'
-						},
+						name: 'Makio Kitano',
+						phone: '+81-90-6543-6543',
+						unit: role === 'resident' ? '2704' : 'Office',
+						mansionName: 'Dresser Tower',
+						avatar: `https://i.pravatar.cc/150?u=${email}`,
 						role: role,
 						permissions: role === 'admin' ? ['*'] :
 							role === 'manager' ? ['manage_residents', 'manage_facilities', 'view_analytics'] :
