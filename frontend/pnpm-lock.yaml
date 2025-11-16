@@ -76,9 +76,6 @@ importers:
       '@stylistic/eslint-plugin':
         specifier: ^5.4.0
         version: 5.4.0(eslint@9.36.0)
-      '@stylistic/eslint-plugin-js':
-        specifier: ^4.4.1
-        version: 4.4.1(eslint@9.36.0)
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.1(vite@7.1.9(@types/node@14.18.63)(stylus@0.64.0)(terser@5.44.0))(vue@3.5.22(typescript@5.9.2))
@@ -814,12 +811,6 @@ packages:
     resolution: {integrity: sha512-fi3cPxCnu3ZeM3EwKZPgXbWoGzm2XHgB/WShKI81uj8wG0+laobmqy5wbgEwzstlbLu4MyO8C19FyhhWseYKNQ==}
     cpu: [x64]
     os: [win32]
-
-  '@stylistic/eslint-plugin-js@4.4.1':
-    resolution: {integrity: sha512-eLisyHvx7Sel8vcFZOEwDEBGmYsYM1SqDn81BWgmbqEXfXRf8oe6Rwp+ryM/8odNjlxtaaxp0Ihmt86CnLAxKg==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-    peerDependencies:
-      eslint: '>=9.0.0'
 
   '@stylistic/eslint-plugin@5.4.0':
     resolution: {integrity: sha512-UG8hdElzuBDzIbjG1QDwnYH0MQ73YLXDFHgZzB4Zh/YJfnw8XNsloVtytqzx0I2Qky9THSdpTmi8Vjn/pf/Lew==}
@@ -4097,12 +4088,6 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.46.3':
     optional: true
-
-  '@stylistic/eslint-plugin-js@4.4.1(eslint@9.36.0)':
-    dependencies:
-      eslint: 9.36.0
-      eslint-visitor-keys: 4.2.0
-      espree: 10.3.0
 
   '@stylistic/eslint-plugin@5.4.0(eslint@9.36.0)':
     dependencies:
