@@ -1,3 +1,5 @@
+import './styles/global-modern.styl'
+
 import { createApp } from 'vue'
 import { TinyRouterInstall } from 'vue-tiny-router'
 import TranslatePlugin, { loadTranslations } from 'vue-tiny-translation'

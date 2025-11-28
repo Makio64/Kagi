@@ -400,6 +400,7 @@ export default {
 	display flex
 	flex-direction column
 	gap 1rem
+	min-height 100px
 	max-height 400px
 .message
 	display flex

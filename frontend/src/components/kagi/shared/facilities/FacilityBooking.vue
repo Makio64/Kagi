@@ -752,10 +752,8 @@ For questions or concerns, please contact building management at **info@kagi-bui
 	background white
 	border-radius 16px
 	height 100%
-	max-height 90vh
 	display flex
 	flex-direction column
-	overflow-y auto
 .booking-header
 	display flex
 	align-items center

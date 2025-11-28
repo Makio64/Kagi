@@ -294,7 +294,7 @@ export default {
 	grid-template-columns 1fr 350px
 	gap 2rem
 	padding 0 2rem 2rem 2rem
-	height calc(100vh - 200px)
+	height auto
 
 	@media (max-width: 900px)
 		grid-template-columns 1fr

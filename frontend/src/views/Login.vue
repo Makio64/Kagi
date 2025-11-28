@@ -138,7 +138,7 @@ export default {
 	data() {
 		return {
 			activeTab: 'resident',
-			residentEmail: '',
+			residentEmail: 'resident@kagi.com',
 			adminEmail: '',
 			adminPassword: '',
 			loading: false,

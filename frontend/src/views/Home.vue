@@ -3,10 +3,16 @@
 		<div class="language-switcher-container">
 			<LanguageSwitcher />
 		</div>
+		
 		<header class="hero">
-			<div class="hero-content">
+			<div class="hero-background">
+				<div class="blob blob-1" />
+				<div class="blob blob-2" />
+			</div>
+			
+			<div class="hero-content container">
 				<div class="logo-container">
-					<KagiLogo :size="120" />
+					<KagiLogo :size="160" />
 				</div>
 				<h1 class="title">{{ $t('app.name') }}</h1>
 				<p class="subtitle">{{ $t('home.hero.subtitle') }}</p>
@@ -14,6 +20,7 @@
 				<div class="cta-buttons">
 					<button class="btn btn-primary" @click="$router.push('/login')">
 						{{ $t('home.hero.getStarted') }}
+						<Icon name="arrow_right" :size="20" class="btn-icon" />
 					</button>
 					<button class="btn btn-secondary" @click="scrollToFeatures">
 						{{ $t('home.hero.learnMore') }}
@@ -22,89 +29,66 @@
 			</div>
 		</header>
 
-		<section ref="featuresSection" class="features">
+		<section ref="featuresSection" class="section-why">
 			<div class="container">
-				<h2 class="section-title">{{ $t('home.features.title') }}</h2>
-				<div class="features-grid">
-					<div class="feature-card">
-						<div class="feature-icon">📱</div>
-						<h3>{{ $t('home.features.communication.title') }}</h3>
-						<p>{{ $t('home.features.communication.description') }}</p>
+				<h2 class="section-title">{{ $t('home.resident.why.title') }}</h2>
+				<div class="why-grid">
+					<div class="why-card">
+						<div class="icon-box">
+							<Icon name="communication" :size="40" />
+						</div>
+						<h3>{{ $t('home.resident.why.convenience.title') }}</h3>
+						<p>{{ $t('home.resident.why.convenience.desc') }}</p>
 					</div>
-					<div class="feature-card">
-						<div class="feature-icon">📄</div>
-						<h3>{{ $t('home.features.documents.title') }}</h3>
-						<p>{{ $t('home.features.documents.description') }}</p>
+					<div class="why-card">
+						<div class="icon-box">
+							<Icon name="event" :size="40" />
+						</div>
+						<h3>{{ $t('home.resident.why.community.title') }}</h3>
+						<p>{{ $t('home.resident.why.community.desc') }}</p>
 					</div>
-					<div class="feature-card">
-						<div class="feature-icon">📅</div>
-						<h3>{{ $t('home.features.booking.title') }}</h3>
-						<p>{{ $t('home.features.booking.description') }}</p>
-					</div>
-					<div class="feature-card">
-						<div class="feature-icon">🔧</div>
-						<h3>{{ $t('home.features.maintenance.title') }}</h3>
-						<p>{{ $t('home.features.maintenance.description') }}</p>
-					</div>
-					<div class="feature-card">
-						<div class="feature-icon">📢</div>
-						<h3>{{ $t('home.features.events.title') }}</h3>
-						<p>{{ $t('home.features.events.description') }}</p>
-					</div>
-					<div class="feature-card">
-						<div class="feature-icon">💳</div>
-						<h3>{{ $t('home.features.bills.title') }}</h3>
-						<p>{{ $t('home.features.bills.description') }}</p>
+					<div class="why-card">
+						<div class="icon-box">
+							<Icon name="maintenance" :size="40" />
+						</div>
+						<h3>{{ $t('home.resident.why.support.title') }}</h3>
+						<p>{{ $t('home.resident.why.support.desc') }}</p>
 					</div>
 				</div>
 			</div>
 		</section>
 
-		<section class="how-it-works">
+		<section class="section-how">
 			<div class="container">
-				<h2 class="section-title">{{ $t('home.howItWorks.title') }}</h2>
-				<div class="steps">
-					<div class="step">
-						<div class="step-number">1</div>
-						<h3>{{ $t('home.howItWorks.step1.title') }}</h3>
-						<p>{{ $t('home.howItWorks.step1.description') }}</p>
+				<h2 class="section-title">{{ $t('home.resident.how.title') }}</h2>
+				<div class="steps-modern">
+					<div class="step-modern">
+						<div class="step-number">01</div>
+						<h3>{{ $t('home.resident.how.step1.title') }}</h3>
+						<p>{{ $t('home.resident.how.step1.desc') }}</p>
 					</div>
-					<div class="step">
-						<div class="step-number">2</div>
-						<h3>{{ $t('home.howItWorks.step2.title') }}</h3>
-						<p>{{ $t('home.howItWorks.step2.description') }}</p>
+					<div class="step-modern">
+						<div class="step-number">02</div>
+						<h3>{{ $t('home.resident.how.step2.title') }}</h3>
+						<p>{{ $t('home.resident.how.step2.desc') }}</p>
 					</div>
-					<div class="step">
-						<div class="step-number">3</div>
-						<h3>{{ $t('home.howItWorks.step3.title') }}</h3>
-						<p>{{ $t('home.howItWorks.step3.description') }}</p>
+					<div class="step-modern">
+						<div class="step-number">03</div>
+						<h3>{{ $t('home.resident.how.step3.title') }}</h3>
+						<p>{{ $t('home.resident.how.step3.desc') }}</p>
 					</div>
 				</div>
 			</div>
 		</section>
 
-		<section class="benefits">
+		<section class="section-cta">
 			<div class="container">
-				<h2 class="section-title">{{ $t('home.benefits.title') }}</h2>
-				<div class="benefits-grid">
-					<div class="benefit">
-						<h3>{{ $t('home.benefits.forManagement.title') }}</h3>
-						<ul>
-							<li>{{ $t('home.benefits.forManagement.item1') }}</li>
-							<li>{{ $t('home.benefits.forManagement.item2') }}</li>
-							<li>{{ $t('home.benefits.forManagement.item3') }}</li>
-							<li>{{ $t('home.benefits.forManagement.item4') }}</li>
-						</ul>
-					</div>
-					<div class="benefit">
-						<h3>{{ $t('home.benefits.forResidents.title') }}</h3>
-						<ul>
-							<li>{{ $t('home.benefits.forResidents.item1') }}</li>
-							<li>{{ $t('home.benefits.forResidents.item2') }}</li>
-							<li>{{ $t('home.benefits.forResidents.item3') }}</li>
-							<li>{{ $t('home.benefits.forResidents.item4') }}</li>
-						</ul>
-					</div>
+				<div class="cta-box glass-card">
+					<h2>{{ $t('home.resident.cta.title') }}</h2>
+					<p>{{ $t('home.resident.cta.subtitle') }}</p>
+					<button class="btn btn-primary btn-large">
+						{{ $t('home.resident.cta.button') }}
+					</button>
 				</div>
 			</div>
 		</section>
@@ -124,8 +108,13 @@
 </template>
 
 <script>
+import Icon from '@/components/Icon.vue'
+
 export default {
 	name: 'Home',
+	components: {
+		Icon
+	},
 	methods: {
 		scrollToFeatures() {
 			this.$refs.featuresSection?.scrollIntoView( { behavior: 'smooth' } )
@@ -137,247 +126,277 @@ export default {
 <style lang="stylus" scoped>
 .home
 	min-height 100vh
-	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+	background var(--color-primary-50)
 	position relative
+	overflow-x hidden
 
 .language-switcher-container
 	position fixed
 	top calc(20px + var(--sait, 0px))
 	right calc(20px + var(--sair, 0px))
-	z-index 100
+	z-index var(--z-fixed)
 
 .hero
 	min-height 100vh
 	display flex
 	align-items center
 	justify-content center
-	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
+	position relative
 	padding 2rem
 	padding-top calc(2rem + var(--sait, 0px))
+	overflow hidden
+
+.hero-background
+	position absolute
+	top 0
+	left 0
+	width 100%
+	height 100%
+	z-index 0
+	pointer-events none
+	
+	.blob
+		position absolute
+		border-radius 50%
+		filter blur(60px)
+		opacity 0.6
+		
+	.blob-1
+		top -10%
+		right -10%
+		width 600px
+		height 600px
+		background var(--color-primary-200)
+		animation float 8s ease-in-out infinite
+		
+	.blob-2
+		bottom -10%
+		left -10%
+		width 500px
+		height 500px
+		background var(--color-primary-300)
+		animation float 10s ease-in-out infinite reverse
 
 .hero-content
 	text-align center
 	max-width 800px
+	position relative
+	z-index 1
 
 .logo-container
-	animation float 3s ease-in-out infinite
-	margin-bottom 2rem
+	animation float 6s ease-in-out infinite
+	margin-bottom var(--space-8)
 
 @keyframes float
 	0%, 100%
 		transform translateY(0)
 	50%
-		transform translateY(-10px)
+		transform translateY(-20px)
 
 .title
-	font-size 4rem
-	font-weight bold
-	color #333
-	margin 1rem 0
-	letter-spacing 0.05em
+	font-size var(--text-display)
+	font-weight var(--font-bold)
+	color var(--color-gray-900)
+	margin var(--space-4) 0
+	letter-spacing -0.02em
+	line-height var(--leading-tight)
 
 .subtitle
-	font-size 1.5rem
-	color #666
-	margin 0.5rem 0
+	font-size var(--text-xl)
+	color var(--color-gray-700)
+	margin var(--space-2) 0
+	font-weight var(--font-medium)
 
 .description
-	font-size 1.2rem
-	color #777
-	margin 1rem 0 2rem
+	font-size var(--text-lg)
+	color var(--color-gray-600)
+	margin var(--space-4) 0 var(--space-8)
+	max-width 600px
+	margin-left auto
+	margin-right auto
 
 .cta-buttons
 	display flex
-	gap 1rem
+	gap var(--space-4)
 	justify-content center
 	flex-wrap wrap
 
 .btn
-	padding 1rem 2rem
-	font-size 1.1rem
+	padding var(--space-3) var(--space-6)
+	font-size var(--text-lg)
 	border none
-	border-radius 50px
+	border-radius var(--radius-full)
 	cursor pointer
-	transition all 0.3s ease
-	font-weight 500
+	transition all var(--transition-base)
+	font-weight var(--font-semibold)
+	display inline-flex
+	align-items center
+	gap var(--space-2)
 
 .btn-primary
-	background #FFC107
-	color #333
-	box-shadow 0 4px 15px rgba(255, 193, 7, 0.3)
+	background var(--color-primary-500)
+	color var(--color-gray-900)
+	box-shadow var(--shadow-primary)
 
 	&:hover
-		background #FFB300
+		background var(--color-primary-400)
 		transform translateY(-2px)
-		box-shadow 0 6px 20px rgba(255, 193, 7, 0.4)
+		box-shadow var(--shadow-primary-lg)
 
 .btn-secondary
-	background white
-	color #333
-	border 2px solid #FFC107
+	background rgba(255, 255, 255, 0.5)
+	color var(--color-gray-900)
+	border 2px solid var(--color-primary-500)
+	backdrop-filter blur(10px)
 
 	&:hover
-		background #FFC107
-		color #333
+		background var(--color-primary-500)
 		transform translateY(-2px)
 
 .container
-	max-width 1200px
+	max-width var(--container-7xl)
 	margin 0 auto
-	padding 0 2rem
+	padding 0 var(--space-4)
 
 .section-title
-	font-size 2.5rem
+	font-size var(--text-3xl)
 	text-align center
-	margin 3rem 0
-	color #333
+	margin-bottom var(--space-12)
+	color var(--color-gray-900)
+	font-weight var(--font-bold)
 
-.features
-	padding 5rem 0
+// --- New Sections Styles ---
+
+.section-why
+	padding var(--space-20) 0
 	background white
+	position relative
+	z-index 1
 
-.features-grid
+.why-grid
 	display grid
 	grid-template-columns repeat(auto-fit, minmax(300px, 1fr))
-	gap 2rem
-	margin-top 3rem
+	gap var(--space-8)
 
-.feature-card
-	background #fff
-	padding 2rem
-	border-radius 15px
-	box-shadow 0 5px 15px rgba(0,0,0,0.08)
-	transition all 0.3s ease
-	text-align center
-
+.why-card
+	padding var(--space-8)
+	border-radius var(--radius-2xl)
+	background var(--color-gray-50)
+	transition all var(--transition-base)
+	text-align left
+	
 	&:hover
 		transform translateY(-5px)
-		box-shadow 0 10px 25px rgba(0,0,0,0.15)
+		background white
+		box-shadow var(--shadow-lg)
 
-.feature-icon
-	font-size 3rem
-	margin-bottom 1rem
-
-.feature-card h3
-	font-size 1.3rem
-	margin 1rem 0
-	color #333
-
-.feature-card p
-	color #666
-	line-height 1.6
-
-.how-it-works
-	padding 5rem 0
-	background #FFFDE7
-
-.steps
-	display flex
-	justify-content space-around
-	flex-wrap wrap
-	gap 2rem
-	margin-top 3rem
-
-.step
-	text-align center
-	flex 1
-	min-width 250px
-
-.step-number
+.icon-box
 	width 60px
 	height 60px
-	background #FFC107
-	color #333
-	border-radius 50%
+	background var(--color-primary-100)
+	color var(--color-primary-600)
+	border-radius var(--radius-xl)
 	display flex
 	align-items center
 	justify-content center
-	font-size 1.5rem
-	font-weight bold
-	margin 0 auto 1rem
+	margin-bottom var(--space-6)
 
-.step h3
-	font-size 1.3rem
-	margin 1rem 0
-	color #333
+.why-card h3
+	font-size var(--text-xl)
+	font-weight var(--font-bold)
+	margin-bottom var(--space-3)
+	color var(--color-gray-900)
 
-.step p
-	color #666
+.why-card p
+	color var(--color-gray-600)
+	line-height var(--leading-relaxed)
+	font-size var(--text-lg)
 
-.benefits
-	padding 5rem 0
-	background white
+.section-how
+	padding var(--space-20) 0
+	background var(--color-primary-50)
 
-.benefits-grid
+.steps-modern
 	display grid
-	grid-template-columns repeat(auto-fit, minmax(400px, 1fr))
-	gap 3rem
-	margin-top 3rem
+	grid-template-columns repeat(auto-fit, minmax(250px, 1fr))
+	gap var(--space-8)
+	counter-reset step
 
-.benefit
-	background #f9f9f9
-	padding 2.5rem
-	border-radius 15px
-	box-shadow 0 5px 15px rgba(0,0,0,0.08)
-
-.benefit h3
-	font-size 1.5rem
-	margin-bottom 1.5rem
-	color #333
-	border-bottom 3px solid #FFC107
-	padding-bottom 0.5rem
-
-.benefit ul
-	list-style none
-	padding 0
-
-.benefit li
-	padding 0.75rem 0
-	color #666
+.step-modern
 	position relative
-	padding-left 2rem
+	padding-left var(--space-4)
+	border-left 2px solid var(--color-primary-200)
 
-	&:before
-		content "✓"
-		position absolute
-		left 0
-		color #FFC107
-		font-weight bold
-		font-size 1.2rem
+.step-number
+	font-size var(--text-3xl)
+	font-weight var(--font-bold)
+	color var(--color-primary-500)
+	opacity 0.5
+	margin-bottom var(--space-2)
+	font-family monospace
+
+.step-modern h3
+	font-size var(--text-xl)
+	font-weight var(--font-bold)
+	margin-bottom var(--space-2)
+
+.step-modern p
+	color var(--color-gray-600)
+	line-height var(--leading-relaxed)
+
+.section-cta
+	padding var(--space-20) 0
+	text-align center
+
+.cta-box
+	padding var(--space-12)
+	max-width 800px
+	margin 0 auto
+	
+	h2
+		font-size var(--text-3xl)
+		margin-bottom var(--space-4)
+	
+	p
+		font-size var(--text-xl)
+		color var(--color-gray-700)
+		margin-bottom var(--space-8)
+
+.btn-large
+	padding var(--space-4) var(--space-8)
+	font-size var(--text-xl)
+
+.glass-card
+	background rgba(255, 255, 255, 0.7)
+	backdrop-filter blur(20px)
+	-webkit-backdrop-filter blur(20px)
+	border 1px solid rgba(255, 255, 255, 0.5)
+	border-radius var(--radius-xl)
+	box-shadow var(--shadow-lg)
 
 .footer
-	background #333
+	background var(--color-gray-900)
 	color white
-	padding 3rem 0
+	padding var(--space-12) 0
 	text-align center
 
 .footer-content
 	display flex
 	flex-direction column
 	align-items center
-	gap 1rem
+	gap var(--space-4)
 
 .footer-logo
 	display flex
 	align-items center
-	gap 0.5rem
-	font-size 1.5rem
-	font-weight bold
-
-.key-logo-small
-	width 40px
-	height 40px
+	gap var(--space-2)
+	font-size var(--text-xl)
+	font-weight var(--font-bold)
 
 @media (max-width: 768px)
 	.title
 		font-size 2.5rem
 	
-	.subtitle
-		font-size 1.2rem
-	
-	.features-grid
-		grid-template-columns 1fr
-	
-	.benefits-grid
-		grid-template-columns 1fr
+	.section-why, .section-how, .section-cta
+		padding var(--space-12) 0
 </style>
