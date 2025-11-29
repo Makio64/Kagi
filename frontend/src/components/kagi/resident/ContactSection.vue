@@ -16,7 +16,7 @@
 					>
 						<div class="message-content">
 							<div class="message-header">
-								<span class="sender-name">{{ msg.sender === 'user' ? 'You' : 'Management' }}</span>
+								<span class="sender-name">{{ msg.sender === 'user' ? $t('common.you') : $t('emergency.buildingManager') }}</span>
 								<span class="message-time">{{ msg.time }}</span>
 							</div>
 							<p>{{ msg.text }}</p>
@@ -31,7 +31,7 @@
 						<input
 							v-model="messageInput"
 							type="text"
-							placeholder="Ask your question..."
+							:placeholder="$t('ai.inputPlaceholder')"
 							class="chat-input"
 							required
 						>
@@ -48,7 +48,7 @@
 						class="previous-conversations-btn"
 						@click="showConversations = true"
 					>
-						Previous Conversations ({{ conversations.length }})
+						{{ $t('contact.history') }} ({{ conversations.length }})
 					</button>
 				</div>
 
@@ -57,7 +57,7 @@
 					<div v-if="showConversations" class="conversations-modal-overlay" @click="showConversations = false">
 						<div class="conversations-modal" @click.stop>
 							<div class="modal-header">
-								<h3>Previous Conversations</h3>
+								<h3>{{ $t('contact.history') }}</h3>
 								<button class="close-btn" @click="showConversations = false">✕</button>
 							</div>
 							<div class="conversations-list">
@@ -81,12 +81,12 @@
 
 			<!-- Contact Information (desktop: right side, mobile: below chat) -->
 			<div class="contact-info-container">
-				<h3>Contact Information</h3>
+				<h3>{{ $t('dashboard.contact.title') }}</h3>
 
 				<div class="contact-card">
 					<div class="contact-icon">📞</div>
 					<div class="contact-details">
-						<h4>Phone</h4>
+						<h4>{{ $t('dashboard.profile.phone') }}</h4>
 						<p class="contact-value">03-1234-5678</p>
 						<p class="contact-note">Mon-Fri: 9:00 AM - 6:00 PM</p>
 					</div>
@@ -95,7 +95,7 @@
 				<div class="contact-card">
 					<div class="contact-icon">📧</div>
 					<div class="contact-details">
-						<h4>Email</h4>
+						<h4>{{ $t('dashboard.profile.email') }}</h4>
 						<p class="contact-value">management@building.com</p>
 						<p class="contact-note">Response within 24 hours</p>
 					</div>
@@ -104,7 +104,7 @@
 				<div class="contact-card">
 					<div class="contact-icon">🏢</div>
 					<div class="contact-details">
-						<h4>Office Hours</h4>
+						<h4>{{ $t('contact.officeHours') }}</h4>
 						<p class="contact-value">Monday - Friday</p>
 						<p class="contact-note">9:00 AM - 6:00 PM</p>
 						<p class="contact-note">Closed on weekends & holidays</p>
@@ -114,7 +114,7 @@
 				<div class="contact-card emergency">
 					<div class="contact-icon">🚨</div>
 					<div class="contact-details">
-						<h4>Emergency Contact</h4>
+						<h4>{{ $t('dashboard.profile.emergencyContact') }}</h4>
 						<p class="contact-value">080-9999-9999</p>
 						<p class="contact-note">24/7 Emergency Line</p>
 					</div>

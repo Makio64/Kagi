@@ -14,7 +14,7 @@
 					@click="selectCategory(category.id)"
 				>
 					<span class="category-icon">{{ category.icon }}</span>
-					<h4>{{ category.title }}</h4>
+					<h4>{{ $t(`dashboard.maintenance.${category.id}`) }}</h4>
 					<p>{{ category.description }}</p>
 				</button>
 			</div>
@@ -26,7 +26,7 @@
 			</button>
 			<div class="selected-category">
 				<span class="category-icon">{{ getCategoryIcon(selectedCategory) }}</span>
-				<h3>{{ getCategoryName(selectedCategory) }}</h3>
+				<h3>{{ $t(`dashboard.maintenance.${selectedCategory}`) }}</h3>
 			</div>
 			<form @submit.prevent="submitRequest">
 				<div class="form-group">

@@ -17,7 +17,7 @@
 
 					<div class="service-details">
 						<div class="detail-item">
-							<span class="detail-label">💴 Price:</span>
+							<span class="detail-label">{{ $t('dashboard.services.price') }}:</span>
 							<span class="detail-value">{{ service.price }}</span>
 						</div>
 					</div>
@@ -41,8 +41,8 @@ export default {
 				{
 					id: 1,
 					icon: '🧹',
-					title: 'Cleaning Service',
-					description: 'Professional cleaning service for your apartment. Deep cleaning, regular maintenance, or move-out cleaning available.',
+					title: this.$t('dashboard.services.cleaning'),
+					description: this.$t('dashboard.services.cleaning.description'),
 					price: '¥8,000 - ¥15,000',
 					availability: 'Mon-Sat, 9:00 AM - 5:00 PM',
 					contact: '03-1234-5678'
@@ -50,8 +50,8 @@ export default {
 				{
 					id: 2,
 					icon: '🚴',
-					title: 'Bike Rental',
-					description: 'Rent a bicycle for daily transportation. Electric bikes and regular bikes available.',
+					title: this.$t('dashboard.services.bikeRental'),
+					description: this.$t('dashboard.services.bikeRental.description'),
 					price: '¥500/day - ¥3,000/week',
 					availability: '24/7 (Self-service)',
 					contact: 'Via app or front desk'
@@ -59,8 +59,8 @@ export default {
 				{
 					id: 3,
 					icon: '🛏️',
-					title: 'Futon Rental',
-					description: 'Extra bedding sets for guests. Clean, comfortable futons with full bedding included.',
+					title: this.$t('dashboard.services.futonRental'),
+					description: this.$t('dashboard.services.futonRental.description'),
 					price: '¥2,000/night',
 					availability: 'Book 24h in advance',
 					contact: 'Front desk'
@@ -68,8 +68,8 @@ export default {
 				{
 					id: 4,
 					icon: '🌸',
-					title: 'Flower Delivery',
-					description: 'Fresh flowers delivered to your door or sent to others. Perfect for celebrations or decorations.',
+					title: this.$t('dashboard.services.flowerDelivery'),
+					description: this.$t('dashboard.services.flowerDelivery.description'),
 					price: '¥3,000 - ¥10,000',
 					availability: 'Daily delivery',
 					contact: '03-1234-5679'

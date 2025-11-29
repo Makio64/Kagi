@@ -34,8 +34,8 @@ export default {
 					id: 1,
 					type: 'christmas',
 					icon: '🎄',
-					title: 'Christmas Party',
-					description: 'Join us for our annual Christmas celebration with food, drinks, and entertainment for all residents.',
+					title: this.$t('dashboard.events.christmasParty.title'),
+					description: this.$t('dashboard.events.christmasParty.description'),
 					date: 'December 24, 2025 - 6:00 PM',
 					location: '1st Floor Lobby'
 				},
@@ -61,8 +61,8 @@ export default {
 					id: 4,
 					type: 'safety',
 					icon: '🚨',
-					title: 'Fire Safety Drill',
-					description: 'Mandatory fire safety drill for all residents. Please follow evacuation procedures.',
+					title: this.$t('dashboard.events.fireDrill.title'),
+					description: this.$t('dashboard.events.fireDrill.description'),
 					date: 'November 5, 2025 - 10:00 AM',
 					location: 'Entire Building'
 				},

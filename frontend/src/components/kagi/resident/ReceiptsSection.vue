@@ -38,7 +38,7 @@
 					<button class="close-modal-btn" @click="closeReceipt">✕</button>
 					<div class="receipt-header">
 						<h2>{{ selectedReceipt.title }}</h2>
-						<span class="receipt-number">Receipt #{{ selectedReceipt.id }}</span>
+						<span class="receipt-number">{{ $t('bills.reference') }} #{{ selectedReceipt.id }}</span>
 					</div>
 					<div class="receipt-details">
 						<div class="detail-row">
@@ -69,28 +69,28 @@ export default {
 			mockReceipts: [
 				{
 					id: 1,
-					title: 'Management Fee',
+					title: this.$t('dashboard.bills.managementFee'),
 					period: '2025/01',
 					total: 35000,
 					paidDate: '2025/01/15'
 				},
 				{
 					id: 2,
-					title: 'Gym Booking',
+					title: this.$t('dashboard.booking.gym'),
 					period: '2024/12',
 					total: 5000,
 					paidDate: '2024/12/15'
 				},
 				{
 					id: 3,
-					title: 'Party Room Rental',
+					title: this.$t('dashboard.booking.partyRoom'),
 					period: '2024/11',
 					total: 12000,
 					paidDate: '2024/11/18'
 				},
 				{
 					id: 4,
-					title: 'Flower Delivery Service',
+					title: this.$t('dashboard.services.flowerDelivery'),
 					period: '2024/10',
 					total: 3500,
 					paidDate: '2024/10/20'

@@ -22,10 +22,10 @@
 							<div class="facility-badge party" :style="{ backgroundImage: 'url(./img/facilities/party-room.png)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.partyRoom') }}</h4>
-								<p>Perfect for celebrations and gatherings</p>
+								<p>{{ $t('booking.partyDesc') }}</p>
 								<div class="facility-meta">
-									<span>👥 Up to 20 people</span>
-									<span>💴 ¥10,000/half-day</span>
+									<span>👥 {{ $t('dashboard.booking.capacity') }}: 20 {{ $t('dashboard.booking.people') }}</span>
+									<span>💴 ¥10,000{{ $t('dashboard.booking.perHour') }}</span>
 								</div>
 							</div>
 							<button class="book-btn">{{ $t('booking.bookNow') }} →</button>
@@ -35,10 +35,10 @@
 							<div class="facility-badge guest" :style="{ backgroundImage: 'url(./img/facilities/guest-room-tatami.png)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.guestRoom') }}</h4>
-								<p>Comfortable accommodation for visitors</p>
+								<p>{{ $t('booking.guestDesc') }}</p>
 								<div class="facility-meta">
-									<span>👥 Up to 2 guests</span>
-									<span>💴 ¥5,000/night</span>
+									<span>👥 {{ $t('dashboard.booking.capacity') }}: 2 {{ $t('dashboard.booking.people') }}</span>
+									<span>💴 ¥5,000{{ $t('dashboard.booking.perNight') }}</span>
 								</div>
 							</div>
 							<button class="book-btn">{{ $t('booking.bookNow') }} →</button>
@@ -48,10 +48,10 @@
 							<div class="facility-badge gym" :style="{ backgroundImage: 'url(./img/facilities/gym.jpg)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.gym') }}</h4>
-								<p>Stay fit with modern equipment</p>
+								<p>{{ $t('booking.gymDesc') }}</p>
 								<div class="facility-meta">
-									<span>👥 10 people max</span>
-									<span>✨ Free for residents</span>
+									<span>👥 {{ $t('dashboard.booking.capacity') }}: 10 {{ $t('dashboard.booking.people') }}</span>
+									<span>✨ {{ $t('dashboard.booking.free') }}</span>
 								</div>
 							</div>
 							<button class="book-btn">{{ $t('booking.bookNow') }} →</button>
@@ -61,10 +61,10 @@
 							<div class="facility-badge parking" :style="{ backgroundImage: 'url(./img/facilities/parking.jpg)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.guestParking') }}</h4>
-								<p>Convenient parking for your visitors</p>
+								<p>{{ $t('dashboard.booking.guestParking') }}</p>
 								<div class="facility-meta">
-									<span>🚗 1 vehicle</span>
-									<span>💴 ¥1,000/day</span>
+									<span>🚗 1 {{ $t('dashboard.booking.capacity') }}</span>
+									<span>💴 ¥1,000{{ $t('dashboard.booking.perNight') }}</span>
 								</div>
 							</div>
 							<button class="book-btn">{{ $t('booking.bookNow') }} →</button>

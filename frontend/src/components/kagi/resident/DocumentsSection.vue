@@ -49,7 +49,7 @@ export default {
 				{
 					id: 'management',
 					icon: '📋',
-					title: 'Management Rules',
+					title: this.$t('dashboard.documents.managementRules'),
 					lastUpdated: '2024/01',
 					content: `# Building Management Rules
 
@@ -86,7 +86,7 @@ For questions, please contact building management.`
 				{
 					id: 'facility',
 					icon: '🏢',
-					title: 'Facility Usage Rules',
+					title: this.$t('dashboard.documents.facilityRules'),
 					lastUpdated: '2024/03',
 					content: `# Facility Usage Rules
 
@@ -132,7 +132,7 @@ Contact management for bookings and inquiries.`
 				{
 					id: 'parking',
 					icon: '🚗',
-					title: 'Parking Rules',
+					title: this.$t('dashboard.documents.parkingRules'),
 					lastUpdated: '2023/12',
 					content: `# Parking Rules & Regulations
 
