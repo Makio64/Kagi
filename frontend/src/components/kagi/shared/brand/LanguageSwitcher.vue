@@ -1,7 +1,7 @@
 <template>
 	<div class="language-switcher">
 		<button class="language-button" @click="toggleDropdown">
-			<span>{{ currentLanguageLabel }}</span>
+			<Icon name="globe" :size="18" />
 			<span class="arrow">{{ isOpen ? '▲' : '▼' }}</span>
 		</button>
 		<div v-if="isOpen" class="language-dropdown">

@@ -3,13 +3,13 @@
 		<div class="language-switcher-container">
 			<LanguageSwitcher />
 		</div>
-		
+
 		<header class="hero">
 			<div class="hero-background">
 				<div class="blob blob-1" />
 				<div class="blob blob-2" />
 			</div>
-			
+
 			<div class="hero-content container">
 				<div class="logo-container">
 					<KagiLogo :size="160" />
@@ -154,13 +154,13 @@ export default {
 	height 100%
 	z-index 0
 	pointer-events none
-	
+
 	.blob
 		position absolute
 		border-radius 50%
 		filter blur(60px)
 		opacity 0.6
-		
+
 	.blob-1
 		top -10%
 		right -10%
@@ -168,7 +168,7 @@ export default {
 		height 600px
 		background var(--color-primary-200)
 		animation float 8s ease-in-out infinite
-		
+
 	.blob-2
 		bottom -10%
 		left -10%
@@ -231,6 +231,7 @@ export default {
 	font-weight var(--font-semibold)
 	display inline-flex
 	align-items center
+	justify-content center
 	gap var(--space-2)
 
 .btn-primary
@@ -284,7 +285,7 @@ export default {
 	background var(--color-gray-50)
 	transition all var(--transition-base)
 	text-align left
-	
+
 	&:hover
 		transform translateY(-5px)
 		background white
@@ -352,11 +353,11 @@ export default {
 	padding var(--space-12)
 	max-width 800px
 	margin 0 auto
-	
+
 	h2
 		font-size var(--text-3xl)
 		margin-bottom var(--space-4)
-	
+
 	p
 		font-size var(--text-xl)
 		color var(--color-gray-700)
@@ -396,7 +397,7 @@ export default {
 @media (max-width: 768px)
 	.title
 		font-size 2.5rem
-	
+
 	.section-why, .section-how, .section-cta
 		padding var(--space-12) 0
 </style>

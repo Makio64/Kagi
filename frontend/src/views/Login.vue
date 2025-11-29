@@ -1,29 +1,18 @@
 <template>
 	<div class="login-page">
+		<div class="login-background">
+			<div class="blob blob-1" />
+			<div class="blob blob-2" />
+		</div>
 		<div class="language-switcher-container">
 			<LanguageSwitcher />
 		</div>
 		<div class="login-container">
-			<div class="login-card">
+			<div class="login-card glass-card">
 				<div class="logo-section">
 					<KagiLogo :size="80" color="#333" />
 					<h1>{{ $t('app.name') }}</h1>
 					<p class="tagline">{{ $t('app.tagline') }}</p>
-				</div>
-
-				<div class="login-tabs">
-					<button
-						:class="['tab', { active: activeTab === 'resident' }]"
-						@click="activeTab = 'resident'"
-					>
-						{{ $t('login.tabs.resident') }}
-					</button>
-					<button
-						:class="['tab', { active: activeTab === 'admin' }]"
-						@click="activeTab = 'admin'"
-					>
-						{{ $t('login.tabs.admin') }}
-					</button>
 				</div>
 
 				<div class="login-form">
@@ -62,6 +51,12 @@
 							<p>{{ $t('login.resident.success.title') }}</p>
 							<p class="small">{{ $t('login.resident.success.description') }}</p>
 						</div>
+
+						<div class="switch-mode">
+							<a href="#" @click.prevent="activeTab = 'admin'">
+								{{ $t('login.switchToAdmin') }}
+							</a>
+						</div>
 					</div>
 
 					<!-- Admin Login (Password) -->
@@ -77,7 +72,7 @@
 								<input
 									id="admin-email"
 									v-model="adminEmail"
-									type="email"
+									type="text"
 									:placeholder="$t('login.admin.emailPlaceholder')"
 									autocomplete="username"
 									required
@@ -104,6 +99,12 @@
 								<span v-if="loading">{{ $t('login.admin.loggingIn') }}</span>
 								<span v-else>{{ $t('login.admin.login') }}</span>
 							</button>
+
+							<div class="switch-mode">
+								<a href="#" @click.prevent="activeTab = 'resident'">
+									{{ $t('login.switchToResident') }}
+								</a>
+							</div>
 						</form>
 					</div>
 				</div>
@@ -222,31 +223,71 @@ export default {
 	display flex
 	align-items center
 	justify-content center
-	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-	padding 2rem
-	padding-top calc(2rem + var(--sait, 0px))
+	background var(--color-primary-50)
+	padding 1rem
 	position relative
+	overflow hidden
+
+.login-background
+	position absolute
+	top 0
+	left 0
+	width 100%
+	height 100%
+	z-index 0
+	pointer-events none
+
+	.blob
+		position absolute
+		border-radius 50%
+		filter blur(60px)
+		opacity 0.6
+
+	.blob-1
+		top -10%
+		right -10%
+		width 600px
+		height 600px
+		background var(--color-primary-200)
+		animation float 8s ease-in-out infinite
+
+	.blob-2
+		bottom -10%
+		left -10%
+		width 500px
+		height 500px
+		background var(--color-primary-300)
+		animation float 10s ease-in-out infinite reverse
 
 .language-switcher-container
-	position absolute
-	top calc(2rem + var(--sait, 0px))
-	right calc(2rem + var(--sair, 0px))
-	z-index 100
+	position fixed
+	top 20px
+	right 20px
+	z-index 10
 
 .login-container
 	width 100%
-	max-width 450px
+	max-width 480px
+	position relative
+	z-index 1
 
 .login-card
 	background white
-	border-radius 20px
-	box-shadow 0 20px 60px rgba(0,0,0,0.1)
+	border-radius 24px
+	box-shadow 0 20px 40px rgba(0, 0, 0, 0.1)
 	overflow hidden
+	transition all 0.3s ease
+
+.glass-card
+	background rgba(255, 255, 255, 0.8)
+	backdrop-filter blur(20px)
+	-webkit-backdrop-filter blur(20px)
+	border 1px solid rgba(255, 255, 255, 0.5)
 
 .logo-section
 	text-align center
 	padding 3rem 2rem 2rem
-	background linear-gradient(135deg, #FFC107 0%, #FFD54F 100%)
+	background linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 213, 79, 0.2) 100%)
 
 	.key-logo
 		animation float 3s ease-in-out infinite
@@ -269,27 +310,30 @@ export default {
 
 .login-tabs
 	display flex
-	background #f5f5f5
+	background rgba(0, 0, 0, 0.03)
+	padding 0.5rem
+	gap 0.5rem
 
 	.tab
 		flex 1
-		padding 1rem
+		padding 0.75rem
 		border none
 		background transparent
 		cursor pointer
 		font-size 0.95rem
 		color #666
 		transition all 0.3s ease
-		border-bottom 3px solid transparent
+		border-radius 12px
+		font-weight 500
 
 		&.active
 			background white
 			color #333
-			border-bottom-color #FFC107
+			box-shadow 0 2px 8px rgba(0,0,0,0.05)
 			font-weight 600
 
 		&:hover:not(.active)
-			background #efefef
+			background rgba(0,0,0,0.05)
 
 .login-form
 	padding 2rem
@@ -318,45 +362,65 @@ export default {
 
 	input
 		width 100%
-		box-sizing: border-box;
+		box-sizing border-box
 		padding 0.75rem 1rem
-		border 2px solid #e0e0e0
-		border-radius 10px
+		border 2px solid rgba(0,0,0,0.1)
+		border-radius 12px
 		font-size 1rem
 		transition all 0.3s ease
+		background rgba(255,255,255,0.5)
 
 		&:focus
 			outline none
 			border-color #FFC107
+			background white
 			box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
 
 .submit-btn
 	width 100%
 	padding 1rem
-	background #FFC107
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 	color #333
 	border none
-	border-radius 10px
+	border-radius 12px
 	font-size 1.1rem
 	font-weight 600
 	cursor pointer
 	transition all 0.3s ease
+	box-shadow 0 4px 15px rgba(255, 193, 7, 0.3)
 
 	&:hover:not(:disabled)
-		background #FFB300
 		transform translateY(-2px)
-		box-shadow 0 5px 15px rgba(255, 193, 7, 0.3)
+		box-shadow 0 6px 20px rgba(255, 193, 7, 0.4)
 
 	&:disabled
 		opacity 0.6
 		cursor not-allowed
+		transform none
+		box-shadow none
+
+.switch-mode
+	margin-top 1.5rem
+	text-align center
+	
+	a
+		color #666
+		text-decoration none
+		font-size 0.9rem
+		border-bottom 1px dashed #999
+		transition all 0.3s ease
+		
+		&:hover
+			color #FFC107
+			border-bottom-color #FFC107
 
 .success-message
 	margin-top 1.5rem
 	padding 1rem
-	background #E8F5E9
-	border-radius 10px
+	background rgba(232, 245, 233, 0.8)
+	border-radius 12px
 	text-align center
+	border 1px solid rgba(46, 125, 50, 0.1)
 
 	p
 		color #2E7D32
@@ -369,27 +433,41 @@ export default {
 .error-message
 	margin 1rem 2rem
 	padding 1rem
-	background #FFEBEE
+	background rgba(255, 235, 238, 0.8)
 	color #C62828
-	border-radius 10px
+	border-radius 12px
 	text-align center
 	font-size 0.9rem
+	border 1px solid rgba(198, 40, 40, 0.1)
 
 .login-footer
 	padding 1.5rem
 	text-align center
-	background #f9f9f9
+	background rgba(0,0,0,0.02)
 
 	.back-link
 		color #666
 		text-decoration none
 		font-size 0.9rem
 		transition color 0.3s ease
+		display inline-flex
+		align-items center
+		gap 0.5rem
 
 		&:hover
 			color #FFC107
 
 @media (max-width: 480px)
+	.login-card
+		border-radius 0
+		box-shadow none
+		background transparent
+
+	.glass-card
+		background transparent
+		backdrop-filter none
+		border none
+		box-shadow none
 
 	.logo-section h1
 		font-size 2rem
