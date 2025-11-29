@@ -95,11 +95,57 @@
 
 		<footer class="footer">
 			<div class="container">
-				<div class="footer-content">
-					<div class="footer-logo">
-						<KagiLogo :size="40" />
-						<span>{{ $t('app.name') }}</span>
+				<div class="footer-grid">
+					<div class="footer-brand">
+						<div class="footer-logo">
+							<KagiLogo :size="40" />
+							<span>{{ $t('app.name') }}</span>
+						</div>
+						<p class="footer-description">{{ $t('home.hero.description') }}</p>
+						<div class="social-links">
+							<a href="#" class="social-link" aria-label="Twitter">
+								<Icon name="twitter" :size="20" />
+							</a>
+							<a href="#" class="social-link" aria-label="Facebook">
+								<Icon name="facebook" :size="20" />
+							</a>
+							<a href="#" class="social-link" aria-label="Instagram">
+								<Icon name="instagram" :size="20" />
+							</a>
+							<a href="#" class="social-link" aria-label="LinkedIn">
+								<Icon name="linkedin" :size="20" />
+							</a>
+						</div>
 					</div>
+
+					<div class="footer-links">
+						<div class="footer-column">
+							<h4>Product</h4>
+							<ul>
+								<li><a href="#">Features</a></li>
+								<li><a href="#">Pricing</a></li>
+								<li><a href="#">Support</a></li>
+							</ul>
+						</div>
+						<div class="footer-column">
+							<h4>Company</h4>
+							<ul>
+								<li><a href="#">About Us</a></li>
+								<li><a href="#">Careers</a></li>
+								<li><a href="#">Contact</a></li>
+							</ul>
+						</div>
+						<div class="footer-column">
+							<h4>Legal</h4>
+							<ul>
+								<li><a href="#">Privacy Policy</a></li>
+								<li><a href="#">Terms of Service</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+				<div class="footer-bottom">
 					<p>{{ $t('home.footer.copyright') }}</p>
 				</div>
 			</div>
@@ -377,14 +423,22 @@ export default {
 
 .footer
 	background var(--color-gray-900)
-	color white
-	padding var(--space-12) 0
-	text-align center
+	color var(--color-gray-300)
+	padding var(--space-16) 0 var(--space-8)
+	text-align left
 
-.footer-content
+.footer-grid
+	display grid
+	grid-template-columns 1fr
+	gap var(--space-12)
+	margin-bottom var(--space-12)
+
+	@media (min-width: 768px)
+		grid-template-columns 1fr 2fr
+
+.footer-brand
 	display flex
 	flex-direction column
-	align-items center
 	gap var(--space-4)
 
 .footer-logo
@@ -393,6 +447,61 @@ export default {
 	gap var(--space-2)
 	font-size var(--text-xl)
 	font-weight var(--font-bold)
+	color white
+
+.footer-description
+	font-size var(--text-base)
+	max-width 300px
+	line-height 1.5
+
+.social-links
+	display flex
+	gap var(--space-4)
+
+.social-link
+	color var(--color-gray-400)
+	transition color 0.2s
+
+	&:hover
+		color var(--color-primary-500)
+
+.footer-links
+	display grid
+	grid-template-columns repeat(2, 1fr)
+	gap var(--space-8)
+
+	@media (min-width: 640px)
+		grid-template-columns repeat(3, 1fr)
+
+.footer-column
+	h4
+		color white
+		font-size var(--text-lg)
+		font-weight var(--font-semibold)
+		margin-bottom var(--space-4)
+
+	ul
+		list-style none
+		padding 0
+		margin 0
+		display flex
+		flex-direction column
+		gap var(--space-2)
+
+	a
+		color var(--color-gray-400)
+		text-decoration none
+		transition color 0.2s
+
+		&:hover
+			color var(--color-primary-500)
+
+.footer-bottom
+	border-top 1px solid var(--color-gray-800)
+	padding-top var(--space-8)
+	text-align center
+	font-size var(--text-sm)
+	color var(--color-gray-500)
 
 @media (max-width: 768px)
 	.title
