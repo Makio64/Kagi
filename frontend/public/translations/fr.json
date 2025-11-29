@@ -57,6 +57,8 @@
   "login.resident.linkSent": "✓ Vérifiez votre email",
   "login.resident.success.title": "📧 Lien de connexion envoyé",
   "login.resident.success.description": "Veuillez vérifier votre email (valide 15 minutes)",
+  "login.switchToAdmin": "Se connecter en tant qu'administrateur",
+  "login.switchToResident": "Se connecter en tant que résident",
   "login.admin.title": "Connexion administrateur",
   "login.admin.description": "Connexion avec compte administrateur",
   "login.admin.email": "Email",

@@ -57,6 +57,8 @@
   "login.resident.linkSent": "✓ メールを確認してください",
   "login.resident.success.title": "📧 ログインリンクを送信しました",
   "login.resident.success.description": "メールをご確認ください（15分間有効）",
+  "login.switchToAdmin": "管理者としてログイン",
+  "login.switchToResident": "居住者としてログイン",
   "login.admin.title": "管理者ログイン",
   "login.admin.description": "管理者アカウントでログイン",
   "login.admin.email": "メールアドレス",
