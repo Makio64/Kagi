@@ -12,17 +12,11 @@
 				<div class="logo-section">
 					<KagiLogo :size="80" color="#333" />
 					<h1>{{ $t('app.name') }}</h1>
-					<p class="tagline">{{ $t('app.tagline') }}</p>
 				</div>
 
 				<div class="login-form">
 					<!-- Resident Login (Magic Link) -->
 					<div v-if="activeTab === 'resident'" class="form-content">
-						<h2>{{ $t('login.resident.title') }}</h2>
-						<p class="form-description">
-							{{ $t('login.resident.description') }}
-						</p>
-
 						<form @submit.prevent="requestMagicLink">
 							<div class="form-group">
 								<label for="email">{{ $t('login.resident.email') }}</label>
@@ -61,11 +55,6 @@
 
 					<!-- Admin Login (Password) -->
 					<div v-else class="form-content">
-						<h2>{{ $t('login.admin.title') }}</h2>
-						<p class="form-description">
-							{{ $t('login.admin.description') }}
-						</p>
-
 						<form @submit.prevent="adminLogin">
 							<div class="form-group">
 								<label for="admin-email">{{ $t('login.admin.email') }}</label>
