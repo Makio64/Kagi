@@ -23,14 +23,14 @@
 import * as store from '../store'
 
 const MENU_ITEMS = [
-	{ id: 'home', icon: '🏠' },
-	{ id: 'events', icon: '📢' },
-	{ id: 'services', icon: '🛎️' },
-	{ id: 'booking', icon: '📅' },
-	{ id: 'contact', icon: '📱' },
-	{ id: 'documents', icon: '📄' },
-	{ id: 'receipts', icon: '🧾' },
-	{ id: 'maintenance', icon: '🔧' }
+	{ id: 'home', icon: 'home' },
+	{ id: 'events', icon: 'event' },
+	{ id: 'services', icon: 'room_service' },
+	{ id: 'booking', icon: 'calendar' },
+	{ id: 'contact', icon: 'communication' },
+	{ id: 'documents', icon: 'document' },
+	{ id: 'receipts', icon: 'receipt' },
+	{ id: 'maintenance', icon: 'maintenance' }
 ]
 
 export default {

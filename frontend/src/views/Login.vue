@@ -19,7 +19,6 @@
 					<div v-if="activeTab === 'resident'" class="form-content">
 						<form @submit.prevent="requestMagicLink">
 							<div class="form-group">
-								<label for="email">{{ $t('login.resident.email') }}</label>
 								<input
 									id="email"
 									v-model="residentEmail"

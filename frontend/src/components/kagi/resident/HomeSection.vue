@@ -12,7 +12,9 @@
 				@click="$emit('navigate', item.id)"
 			>
 				<button class="service-card">
-					<div class="service-icon">{{ item.icon }}</div>
+					<div class="service-icon">
+						<Icon :name="item.icon" :size="40" />
+					</div>
 					<h3>{{ item.label }}</h3>
 					<p class="service-description">{{ item.description }}</p>
 				</button>
@@ -21,8 +23,11 @@
 	</div>
 </template>
 <script>
+import Icon from '../../Icon.vue'
+
 export default {
 	name: 'HomeSection',
+	components: { Icon },
 	props: {
 		menuItems: { type: Array, required: true }
 	},
@@ -30,66 +35,101 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
+@import '../../../styles/tokens-modern.styl'
+
 .home-welcome
-	margin-bottom 2rem
+	margin-bottom var(--space-8)
 	h2
-		font-size 2rem
-		margin-bottom 0.5rem
+		font-size var(--text-2xl)
+		margin-bottom var(--space-2)
+		color var(--color-gray-900)
+		font-weight var(--font-bold)
 	p
-		color #666
+		color var(--color-gray-600)
+		font-size var(--text-lg)
+
 .services-grid
 	display grid
-	grid-template-columns repeat(auto-fill, minmax(250px, 1fr))
-	gap 1.5rem
+	grid-template-columns repeat(auto-fill, minmax(280px, 1fr))
+	gap var(--space-6)
 
 .service-card
 	background white
-	padding 2rem
-	border-radius 12px
-	border none
+	padding var(--space-8)
+	border-radius var(--radius-xl)
+	border 1px solid rgba(0,0,0,0.05)
 	cursor pointer
-	text-align center
-	transition all 0.2s
-	box-shadow 0 2px 8px rgba(0,0,0,0.08)
+	text-align left
+	transition all var(--transition-base)
+	box-shadow var(--shadow-sm)
+	display flex
+	flex-direction column
+	align-items flex-start
+	height 100%
+	width 100%
+	
 	&:hover
-		transform translateY(-2px)
-		box-shadow 0 4px 16px rgba(0,0,0,0.15)
+		transform translateY(-4px)
+		box-shadow var(--shadow-lg)
+		border-color var(--color-primary-200)
+		.service-icon
+			background var(--color-primary-500)
+			color white
+			transform scale(1.1) rotate(-5deg)
 
 .service-icon
-	font-size 3rem
-	margin-bottom 1rem
+	margin-bottom var(--space-6)
+	color var(--color-primary-600)
+	background var(--color-primary-50)
+	width 64px
+	height 64px
+	border-radius var(--radius-lg)
+	display flex
+	align-items center
+	justify-content center
+	transition all var(--transition-base)
 
 h3
-	margin-bottom 0.5rem
+	margin-bottom var(--space-2)
+	font-size var(--text-lg)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
 
 .service-description
-	color #666
-	font-size 0.85rem
+	color var(--color-gray-600)
+	font-size var(--text-sm)
 	margin 0
-	line-height 1.4
+	line-height 1.5
 
 @media (max-width: 768px)
 	.home-section
-		padding 0.5rem
+		padding var(--space-2)
 
 	.home-welcome
-		margin-bottom 1.5rem
+		margin-bottom var(--space-6)
+		h2
+			font-size var(--text-xl)
 
 	.services-grid
-		grid-template-columns repeat(auto-fill, minmax(150px, 1fr))
-		gap 1rem
+		grid-template-columns repeat(auto-fill, minmax(160px, 1fr))
+		gap var(--space-4)
 
 	.service-card
-		padding 1.25rem
+		padding var(--space-5)
+		border-radius var(--radius-lg)
 
 	.service-icon
-		font-size 2.5rem
-		margin-bottom 0.5rem
+		width 48px
+		height 48px
+		margin-bottom var(--space-4)
+		:deep(svg)
+			width 24px
+			height 24px
 
 	h3
-		font-size 0.9rem
-		margin-bottom 0.25rem
+		font-size var(--text-base)
+		margin-bottom var(--space-1)
 
 	.service-description
-		font-size 0.75rem
+		font-size var(--text-xs)
 </style>

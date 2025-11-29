@@ -1,7 +1,11 @@
 <template>
 	<div class="dashboard-layout">
+		<div class="dashboard-background">
+			<div class="blob blob-1" />
+			<div class="blob blob-2" />
+		</div>
 		<!-- Header -->
-		<header class="dashboard-header">
+		<header class="dashboard-header glass-card">
 			<div class="header-content">
 				<div class="header-left" @click="handleLogoClick">
 					<KagiLogo :size="48" :class="['logo']" color="#333333" />
@@ -20,7 +24,7 @@
 		</header>
 		<!-- Mobile Settings Menu -->
 		<transition name="slide">
-			<div v-if="showMobileMenu" class="mobile-settings-menu">
+			<div v-if="showMobileMenu" class="mobile-settings-menu glass-card">
 				<div class="mobile-menu-header">
 					<h3>{{ $t('common.settings') }}</h3>
 					<button class="close-menu-btn" @click="showMobileMenu = false">✕</button>
@@ -54,7 +58,7 @@
 		<!-- Main Content Area -->
 		<div class="dashboard-content">
 			<!-- Sidebar Navigation -->
-			<aside class="dashboard-sidebar">
+			<aside class="dashboard-sidebar glass-card">
 				<nav class="nav-menu">
 					<button
 						v-for="item in menuItems"
@@ -62,12 +66,12 @@
 						:class="['nav-item', { active: activeSection === item.id }]"
 						@click="handleNavigation(item.id)"
 					>
-						<span class="nav-icon">{{ item.icon }}</span>
+						<span class="nav-icon"><Icon :name="item.icon" :size="24" /></span>
 						<span class="nav-label">{{ item.label }}</span>
 					</button>
 				</nav>
 				<!-- Mobile menu with circular icons -->
-				<nav class="nav-menu-mobile">
+				<nav class="nav-menu-mobile glass-card">
 					<ButtonFX
 						v-for="item in mobileMenuItems"
 						:key="item.id"
@@ -77,7 +81,7 @@
 							:class="['nav-item-mobile', { active: activeSection === item.id }]"
 						>
 							<div class="nav-icon-circle">
-								<span class="nav-icon">{{ item.icon }}</span>
+								<span class="nav-icon"><Icon :name="item.icon" :size="24" /></span>
 							</div>
 							<span class="nav-label-mobile">{{ item.label }}</span>
 						</button>
@@ -93,9 +97,11 @@
 </template>
 <script>
 import * as store from '../../../store'
+import Icon from '../../Icon.vue'
 
 export default {
 	name: 'DashboardLayout',
+	components: { Icon },
 	emits: ['navigate', 'logout', 'logo-click', 'edit-profile'],
 	props: {
 		// Layout config
@@ -143,92 +149,148 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-@import '../../../styles/tokens.styl'
+@import '../../../styles/tokens-modern.styl'
+
 .dashboard-layout
 	min-height 100vh
-	background $gradient-subtle
+	background var(--surface-base)
 	display flex
 	flex-direction column
+	position relative
+	overflow-x hidden
+
+.dashboard-background
+	position fixed
+	top 0
+	left 0
+	width 100%
+	height 100%
+	z-index 0
+	pointer-events none
+
+	.blob
+		position absolute
+		border-radius 50%
+		filter blur(80px)
+		opacity 0.6
+
+	.blob-1
+		top -10%
+		right -10%
+		width 600px
+		height 600px
+		background var(--color-primary-200)
+		animation float 8s ease-in-out infinite
+
+	.blob-2
+		bottom -10%
+		left -10%
+		width 500px
+		height 500px
+		background var(--color-primary-300)
+		animation float 10s ease-in-out infinite reverse
+
+@keyframes float
+	0%
+		transform translate(0, 0)
+	50%
+		transform translate(20px, 20px)
+	100%
+		transform translate(0, 0)
+
+.glass-card
+	background rgba(255, 255, 255, 0.7)
+	backdrop-filter blur(20px)
+	-webkit-backdrop-filter blur(20px)
+	border 1px solid rgba(255, 255, 255, 0.5)
+	box-shadow var(--shadow-lg)
+
 // Header
 .dashboard-header
-	background $gradient-light
-	box-shadow $shadow-md
 	position sticky
 	top 0
-	z-index $z-sticky
+	z-index 100
 	padding-top var(--sait, 0px)
+	border-bottom 1px solid rgba(255, 255, 255, 0.5)
+
 .header-content
 	display flex
 	justify-content space-between
 	align-items center
-	padding $spacing-md $spacing-xl
+	padding var(--space-4) var(--space-8)
 	max-width 1600px
 	margin 0 auto
-	@media (max-width: $breakpoint-md)
-		padding $spacing-md
+	@media (max-width: 768px)
+		padding var(--space-4)
+
 .header-left
 	display flex
 	align-items center
-	gap $spacing-md
+	gap var(--space-4)
 	cursor pointer
 	.logo
-		@media (max-width: $breakpoint-sm)
-			width 43px
-			height 43px
+		@media (max-width: 640px)
+			width 40px
+			height 40px
 	h1
 		margin 0
-		font-size $font-xl
-		font-weight $font-semibold
-		color $color-text
+		font-size var(--text-xl)
+		font-weight var(--font-semibold)
+		color var(--color-gray-900)
 		&:not(.residence-name)
-			@media (max-width: $breakpoint-sm)
+			@media (max-width: 640px)
 				display none
 	.residence-name
 		margin 0
-		font-size $font-xl
-		font-weight $font-semibold
-		color $color-text
-		@media (max-width: $breakpoint-sm)
-			font-size $font-lg
+		font-size var(--text-xl)
+		font-weight var(--font-semibold)
+		color var(--color-gray-900)
+		@media (max-width: 640px)
+			font-size var(--text-lg)
+
 .header-right
 	display flex
 	align-items center
-	gap $spacing-md
+	gap var(--space-4)
+
 .user-badge
-	padding $spacing-xs $spacing-md
-	background $color-primary
-	color white
-	border-radius $radius-pill
-	font-size $font-sm
-	font-weight $font-semibold
-	@media (max-width: $breakpoint-md)
+	padding var(--space-1) var(--space-3)
+	background var(--color-primary-500)
+	color var(--color-gray-900)
+	border-radius var(--radius-full)
+	font-size var(--text-sm)
+	font-weight var(--font-semibold)
+	@media (max-width: 768px)
 		display none
+
 .user-menu-btn
 	display flex
 	align-items center
-	gap $spacing-sm
-	padding $spacing-sm $spacing-md
-	background white
-	border 1px solid $color-border
-	border-radius $radius-pill
+	gap var(--space-2)
+	padding var(--space-2) var(--space-4)
+	background rgba(255, 255, 255, 0.5)
+	border 1px solid rgba(255, 255, 255, 0.5)
+	border-radius var(--radius-full)
 	cursor pointer
-	transition $transition-base
+	transition all var(--transition-base)
 	&:hover
-		background $color-background-light
-		border-color $color-primary
+		background white
+		border-color var(--color-primary-500)
 	.user-email
-		font-size $font-sm
-		color $color-text
+		font-size var(--text-sm)
+		color var(--color-gray-900)
+		font-weight var(--font-medium)
 	.desktop-only
-		@media (max-width: $breakpoint-sm)
+		@media (max-width: 640px)
 			display none
 	.mobile-only
 		display none
-		@media (max-width: $breakpoint-sm)
+		@media (max-width: 640px)
 			display inline
 	.menu-arrow
-		color $color-text-secondary
-		font-size $font-xs
+		color var(--color-gray-500)
+		font-size var(--text-xs)
+
 // Mobile Settings Menu
 .mobile-settings-menu
 	position fixed
@@ -236,221 +298,251 @@ export default {
 	right 0
 	width 300px
 	height 100vh
-	background white
-	box-shadow -2px 0 10px rgba(0, 0, 0, 0.15)
-	z-index $z-modal
+	z-index 200
 	overflow-y auto
-	@media (max-width: $breakpoint-sm)
+	@media (max-width: 640px)
 		width 100%
+
 .mobile-menu-header
 	display flex
 	justify-content space-between
 	align-items center
-	padding $spacing-lg
-	padding-top "calc(%s + %s)" % ($spacing-lg var(--sait, 0px))
-	background $gradient-light
+	padding var(--space-6)
+	padding-top "calc(%s + %s)" % (var(--space-6) var(--sait, 0px))
+	border-bottom 1px solid rgba(0,0,0,0.05)
 	h3
 		margin 0
-		font-size $font-lg
-		color $color-text
+		font-size var(--text-lg)
+		color var(--color-gray-900)
+
 .close-menu-btn
 	background none
 	border none
-	font-size $font-xl
-	color $color-text-secondary
+	font-size var(--text-xl)
+	color var(--color-gray-500)
 	cursor pointer
 	padding 0
-	width 30px
-	height 30px
+	width 32px
+	height 32px
 	display flex
 	align-items center
 	justify-content center
-	border-radius $radius-round
-	transition $transition-base
+	border-radius var(--radius-full)
+	transition all var(--transition-base)
 	&:hover
-		background $color-background-light
-		color $color-text
+		background rgba(0,0,0,0.05)
+		color var(--color-gray-900)
+
 .mobile-menu-content
-	padding $spacing-lg
+	padding var(--space-6)
+
 .mobile-user-info
-	padding $spacing-md
-	background $color-background-light
-	border-radius $radius-md
-	margin-bottom $spacing-lg
+	padding var(--space-4)
+	background rgba(255,255,255,0.5)
+	border-radius var(--radius-lg)
+	margin-bottom var(--space-6)
 	display flex
 	flex-direction column
-	gap $spacing-sm
+	gap var(--space-2)
 	.user-info-item
-		font-size $font-sm
-		color $color-text
+		font-size var(--text-sm)
+		color var(--color-gray-700)
 		line-height 1.5
 		&.mansion-name
-			font-size $font-base
-			font-weight $font-semibold
-			color $color-primary
+			font-size var(--text-base)
+			font-weight var(--font-semibold)
+			color var(--color-primary-600)
 		&.user-name
-			font-size $font-base
-			font-weight $font-medium
+			font-size var(--text-base)
+			font-weight var(--font-medium)
+			color var(--color-gray-900)
 		.label
-			color $color-text-secondary
-			font-weight $font-normal
+			color var(--color-gray-500)
+			font-weight var(--font-normal)
 	.edit-profile-btn
-		margin-top $spacing-sm
-		padding $spacing-sm $spacing-md
-		background $color-primary
-		color white
+		margin-top var(--space-2)
+		padding var(--space-2) var(--space-4)
+		background var(--color-primary-500)
+		color var(--color-gray-900)
 		border none
-		border-radius $radius-md
-		font-size $font-sm
-		font-weight $font-medium
+		border-radius var(--radius-md)
+		font-size var(--text-sm)
+		font-weight var(--font-medium)
 		cursor pointer
-		transition $transition-base
+		transition all var(--transition-base)
 		&:hover
-			background darken($color-primary, 10%)
+			background var(--color-primary-400)
+
 .mobile-lang-section
-	padding $spacing-md 0
-	border-top 1px solid $color-border
-	border-bottom 1px solid $color-border
-	margin-bottom $spacing-lg
+	padding var(--space-4) 0
+	border-top 1px solid rgba(0,0,0,0.05)
+	border-bottom 1px solid rgba(0,0,0,0.05)
+	margin-bottom var(--space-6)
+
 .mobile-logout-btn
 	width 100%
-	padding $spacing-md
-	background $color-danger
+	padding var(--space-3)
+	background var(--color-red-500)
 	color white
 	border none
-	border-radius $radius-md
-	font-size $font-base
-	font-weight $font-medium
+	border-radius var(--radius-md)
+	font-size var(--text-base)
+	font-weight var(--font-medium)
 	cursor pointer
-	transition $transition-base
+	transition all var(--transition-base)
 	&:hover
-		background darken($color-danger, 10%)
+		background var(--color-red-600)
+
 // Main Content Area
 .dashboard-content
 	display flex
 	flex 1
-	max-width 1440px
+	max-width 1600px
 	margin 0 auto
 	width 100%
-	padding $spacing-lg
-	gap $spacing-lg
-	@media (max-width: $breakpoint-md)
-		padding $spacing-md
-		gap $spacing-md
-	@media (max-width: 550px)
+	padding var(--space-8)
+	gap var(--space-8)
+	position relative
+	z-index 1
+	@media (max-width: 1024px)
+		padding var(--space-4)
+		gap var(--space-4)
+	@media (max-width: 640px)
 		padding 0
+
 // Sidebar
 .dashboard-sidebar
-	width 260px
+	width 280px
 	flex-shrink 0
-	@media (max-width: $breakpoint-md)
+	border-radius var(--radius-xl)
+	padding var(--space-4)
+	height fit-content
+	position sticky
+	top 100px
+	@media (max-width: 1024px)
 		width auto
 		position fixed
 		bottom 0
 		left 0
 		right 0
-		background white
-		box-shadow 0 -2px 10px rgba(0, 0, 0, 0.1)
-		z-index $z-fixed
-		padding $spacing-sm
-		padding-bottom "calc(%s + %s)" % ($spacing-sm var(--saib, 0px))
+		top auto
+		border-radius 0
+		background rgba(255, 255, 255, 0.9)
+		backdrop-filter blur(20px)
+		box-shadow 0 -4px 20px rgba(0, 0, 0, 0.1)
+		z-index 90
+		padding var(--space-2)
+		padding-bottom "calc(%s + %s)" % (var(--space-2) var(--saib, 0px))
+
 .nav-menu
-	background white
-	border-radius $radius-lg
-	padding $spacing-md
-	box-shadow $shadow-sm
-	@media (max-width: $breakpoint-md)
+	display flex
+	flex-direction column
+	gap var(--space-2)
+	@media (max-width: 1024px)
 		display none
+
 .nav-item
 	display flex
 	align-items center
-	gap $spacing-md
+	gap var(--space-4)
 	width 100%
-	padding $spacing-md
+	padding var(--space-3) var(--space-4)
 	background transparent
 	border none
-	border-radius $radius-md
+	border-radius var(--radius-lg)
 	cursor pointer
-	transition $transition-base
-	margin-bottom $spacing-xs
-	&:last-child
-		margin-bottom 0
+	transition all var(--transition-base)
+	color var(--color-gray-600)
 	&:hover
-		background $color-background-light
+		background rgba(255, 255, 255, 0.5)
+		color var(--color-primary-600)
+		transform translateX(4px)
 	&.active
-		background $gradient-light
-		border-left 3px solid $color-primary
+		background var(--color-primary-100)
+		color var(--color-primary-700)
+		font-weight var(--font-semibold)
 	.nav-icon
-		font-size $font-xl
+		display flex
+		align-items center
+		justify-content center
 		width 24px
-		text-align center
+		height 24px
 	.nav-label
-		font-size $font-base
-		color $color-text
-		font-weight $font-medium
+		font-size var(--text-base)
+		font-weight inherit
+
 // Mobile Navigation
 .nav-menu-mobile
 	display none
-	@media (max-width: $breakpoint-md)
+	@media (max-width: 1024px)
 		display flex
 		justify-content space-around
-		padding $spacing-xs 0
+		padding var(--space-1) 0
+		background transparent
+		box-shadow none
+
 .nav-item-mobile
 	display flex
 	flex-direction column
 	align-items center
-	gap $spacing-xs
+	gap var(--space-1)
 	background transparent
 	border none
-	padding $spacing-xs
+	padding var(--space-1)
 	cursor pointer
-	transition $transition-base
+	transition all var(--transition-base)
 	flex 1
 	&.active
 		.nav-icon-circle
-			background $gradient-primary
-			color white
+			background var(--color-primary-500)
+			color var(--color-gray-900)
+			transform translateY(-4px)
+			box-shadow var(--shadow-md)
 		.nav-label-mobile
-			color $color-primary
-			font-weight $font-semibold
+			color var(--color-primary-600)
+			font-weight var(--font-semibold)
+
 .nav-icon-circle
-	width 48px
-	height 48px
-	background $color-background-light
-	border-radius $radius-round
+	width 44px
+	height 44px
+	background rgba(0,0,0,0.05)
+	border-radius var(--radius-full)
 	display flex
 	align-items center
 	justify-content center
-	transition $transition-base
-	.nav-icon
-		font-size $font-xl
+	transition all var(--transition-base)
+	color var(--color-gray-600)
+
 .nav-label-mobile
 	font-size 10px
-	color $color-text-secondary
+	color var(--color-gray-500)
 	text-align center
+	font-weight var(--font-medium)
+
 // Main Content
 .dashboard-main
 	flex 1
 	min-width 0
-	background white
-	border-radius $radius-lg
-	padding $spacing-xl
-	box-shadow $shadow-sm
-	@media (max-width: $breakpoint-md)
-		padding $spacing-lg
-		padding-top "calc(%s + 1rem)" % $spacing-lg
-		padding-bottom "calc(%s + 1rem)" % $spacing-lg
-		margin-bottom 80px // Space for mobile nav
-	@media (max-width: 768px)
-		padding 0
-		padding-top 1.5rem
-		padding-bottom 1.5rem
+	background rgba(255, 255, 255, 0.8)
+	backdrop-filter blur(10px)
+	border-radius var(--radius-xl)
+	padding var(--space-8)
+	box-shadow var(--shadow-sm)
+	border 1px solid rgba(255, 255, 255, 0.5)
+	@media (max-width: 1024px)
+		padding var(--space-6)
+		margin-bottom 100px // Space for mobile nav
+	@media (max-width: 640px)
+		padding var(--space-4)
 		border-radius 0
+		background transparent
+		box-shadow none
+		border none
+
 // Transitions
 .slide-enter-active, .slide-leave-active
 	transition transform 0.3s ease
-.slide-enter-from
-	transform translateX(100%)
-.slide-leave-to
+
+.slide-enter-from, .slide-leave-to
 	transform translateX(100%)
 </style>

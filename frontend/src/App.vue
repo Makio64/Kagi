@@ -109,12 +109,11 @@ export default {
 		hideInitialLoader() {
 			const loader = document.getElementById( 'initial-loader' )
 			if ( loader ) {
-				// Simple fade out and remove
-				loader.style.transition = 'opacity 0.4s ease'
-				loader.style.opacity = '0'
+				// Slide up to reveal content (awwwards-style)
+				loader.style.transform = 'translateY(-100%)'
 				setTimeout( () => {
 					loader.remove()
-				}, 400 )
+				}, 800 )
 			}
 		}
 	},
