@@ -67,7 +67,7 @@ export default {
 	align-items flex-start
 	height 100%
 	width 100%
-	
+
 	&:hover
 		transform translateY(-4px)
 		box-shadow var(--shadow-lg)
