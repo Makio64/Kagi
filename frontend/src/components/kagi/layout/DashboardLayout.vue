@@ -13,7 +13,7 @@
 					<h1 v-else>{{ title }}</h1>
 				</div>
 				<div class="header-right">
-					<span v-if="userRole" class="user-badge">{{ userRole }}</span>
+					<span v-if="userRole && userRole !== 'resident'" class="user-badge">{{ userRole }}</span>
 					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
 						<span class="user-email desktop-only">{{ userProfile.userEmail }}</span>
 						<span class="user-email mobile-only">{{ $t('common.profile') }}</span>
@@ -212,6 +212,7 @@ export default {
 	z-index 100
 	padding-top var(--sait, 0px)
 	border-bottom 1px solid rgba(255, 255, 255, 0.5)
+	box-shadow 0 2px 8px rgba(0, 0, 0, 0.04)
 
 .header-content
 	display flex

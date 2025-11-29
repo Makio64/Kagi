@@ -37,7 +37,7 @@ export default {
 			if ( newVal ) {
 				setTimeout( () => {
 					window.location.href = this.loginLink
-				}, 3000 )
+				}, 1500 )
 			}
 		}
 	}
@@ -124,7 +124,7 @@ h3
 	height 100%
 	background #FFC107
 	width 0%
-	animation fillBar 3s linear forwards
+	animation fillBar 1.5s linear forwards
 
 @keyframes fillBar
 	to

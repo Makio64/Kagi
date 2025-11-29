@@ -19,7 +19,7 @@
 					<h3>{{ $t('booking.availableFacilities') }}</h3>
 					<div class="facilities-list">
 						<div class="facility-card" @click="selectFacility('party')">
-							<div class="facility-badge party" :style="{ backgroundImage: 'url(/img/facilities/party-room.png)' }" />
+							<div class="facility-badge party" :style="{ backgroundImage: 'url(./img/facilities/party-room.png)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.partyRoom') }}</h4>
 								<p>Perfect for celebrations and gatherings</p>
@@ -32,7 +32,7 @@
 						</div>
 
 						<div class="facility-card" @click="selectFacility('guest')">
-							<div class="facility-badge guest" :style="{ backgroundImage: 'url(/img/facilities/guest-room-tatami.png)' }" />
+							<div class="facility-badge guest" :style="{ backgroundImage: 'url(./img/facilities/guest-room-tatami.png)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.guestRoom') }}</h4>
 								<p>Comfortable accommodation for visitors</p>
@@ -45,7 +45,7 @@
 						</div>
 
 						<div class="facility-card" @click="selectFacility('gym')">
-							<div class="facility-badge gym" :style="{ backgroundImage: 'url(/img/facilities/gym.jpg)' }" />
+							<div class="facility-badge gym" :style="{ backgroundImage: 'url(./img/facilities/gym.jpg)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.gym') }}</h4>
 								<p>Stay fit with modern equipment</p>
@@ -58,7 +58,7 @@
 						</div>
 
 						<div class="facility-card" @click="selectFacility('parking')">
-							<div class="facility-badge parking" :style="{ backgroundImage: 'url(/img/facilities/parking.jpg)' }" />
+							<div class="facility-badge parking" :style="{ backgroundImage: 'url(./img/facilities/parking.jpg)' }" />
 							<div class="facility-info">
 								<h4>{{ $t('dashboard.booking.guestParking') }}</h4>
 								<p>Convenient parking for your visitors</p>
@@ -146,7 +146,7 @@ const FACILITIES = {
 		id: 'party',
 		name: 'Party Room',
 		icon: '🎉',
-		image: '/img/facilities/party-room.png',
+		image: './img/facilities/party-room.png',
 		description: 'Perfect for celebrations and gatherings',
 		capacity: 'Up to 20 people',
 		maxCapacity: 20,
@@ -159,7 +159,7 @@ const FACILITIES = {
 		id: 'guest',
 		name: 'Guest Room',
 		icon: '🛏️',
-		image: '/img/facilities/guest-room-tatami.png',
+		image: './img/facilities/guest-room-tatami.png',
 		description: 'Comfortable accommodation for visitors',
 		capacity: 'Up to 2 guests',
 		maxCapacity: 2,
@@ -172,7 +172,7 @@ const FACILITIES = {
 		id: 'gym',
 		name: 'Gym',
 		icon: '💪',
-		image: '/img/facilities/gym.jpg',
+		image: './img/facilities/gym.jpg',
 		description: 'Stay fit with modern equipment',
 		capacity: '10 people max',
 		maxCapacity: 10,
@@ -185,7 +185,7 @@ const FACILITIES = {
 		id: 'parking',
 		name: 'Guest Parking',
 		icon: '🅿️',
-		image: '/img/facilities/parking.jpg',
+		image: './img/facilities/parking.jpg',
 		description: 'Convenient parking for your visitors',
 		capacity: '1 vehicle',
 		maxCapacity: 1,

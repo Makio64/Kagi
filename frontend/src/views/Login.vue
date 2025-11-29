@@ -446,17 +446,6 @@ export default {
 			color #FFC107
 
 @media (max-width: 480px)
-	.login-card
-		border-radius 0
-		box-shadow none
-		background transparent
-
-	.glass-card
-		background transparent
-		backdrop-filter none
-		border none
-		box-shadow none
-
 	.logo-section h1
 		font-size 2rem
 </style>
