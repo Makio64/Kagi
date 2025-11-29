@@ -402,14 +402,14 @@ export default {
 .switch-mode
 	margin-top 1.5rem
 	text-align center
-	
+
 	a
 		color #666
 		text-decoration none
 		font-size 0.9rem
 		border-bottom 1px dashed #999
 		transition all 0.3s ease
-		
+
 		&:hover
 			color #FFC107
 			border-bottom-color #FFC107
