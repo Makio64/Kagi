@@ -34,63 +34,51 @@
 <script>
 export default {
 	name: 'ServicesSection',
-	data() {
-		return {
-			// Mock services data - in the future this will come from API
-			mockServices: [
+	computed: {
+		// Mock services data - in the future this will come from API
+		mockServices() {
+			return [
 				{
 					id: 1,
 					icon: '🧹',
-					title: this.$t('dashboard.services.cleaning'),
-					description: this.$t('dashboard.services.cleaning.description'),
-					price: '¥8,000 - ¥15,000',
-					availability: 'Mon-Sat, 9:00 AM - 5:00 PM',
-					contact: '03-1234-5678'
+					title: this.$t( 'dashboard.services.cleaning' ),
+					description: this.$t( 'dashboard.services.cleaning.description' ),
+					price: '¥8,000 - ¥15,000'
 				},
 				{
 					id: 2,
 					icon: '🚴',
-					title: this.$t('dashboard.services.bikeRental'),
-					description: this.$t('dashboard.services.bikeRental.description'),
-					price: '¥500/day - ¥3,000/week',
-					availability: '24/7 (Self-service)',
-					contact: 'Via app or front desk'
+					title: this.$t( 'dashboard.services.bikeRental' ),
+					description: this.$t( 'dashboard.services.bikeRental.description' ),
+					price: `¥500${this.$t( 'dashboard.booking.perDay' )} - ¥3,000${this.$t( 'dashboard.booking.perWeek' )}`
 				},
 				{
 					id: 3,
 					icon: '🛏️',
-					title: this.$t('dashboard.services.futonRental'),
-					description: this.$t('dashboard.services.futonRental.description'),
-					price: '¥2,000/night',
-					availability: 'Book 24h in advance',
-					contact: 'Front desk'
+					title: this.$t( 'dashboard.services.futonRental' ),
+					description: this.$t( 'dashboard.services.futonRental.description' ),
+					price: `¥2,000${this.$t( 'dashboard.booking.perNight' )}`
 				},
 				{
 					id: 4,
 					icon: '🌸',
-					title: this.$t('dashboard.services.flowerDelivery'),
-					description: this.$t('dashboard.services.flowerDelivery.description'),
-					price: '¥3,000 - ¥10,000',
-					availability: 'Daily delivery',
-					contact: '03-1234-5679'
+					title: this.$t( 'dashboard.services.flowerDelivery' ),
+					description: this.$t( 'dashboard.services.flowerDelivery.description' ),
+					price: '¥3,000 - ¥10,000'
 				},
 				{
 					id: 5,
 					icon: '📦',
-					title: 'Package Holding',
-					description: 'Secure package storage for deliveries when you\'re away. Pick up at your convenience.',
-					price: 'Free',
-					availability: '24/7 pickup',
-					contact: 'Front desk'
+					title: this.$t( 'dashboard.services.packageHolding' ),
+					description: this.$t( 'dashboard.services.packageHolding.description' ),
+					price: this.$t( 'dashboard.booking.free' )
 				},
 				{
 					id: 6,
 					icon: '🚗',
-					title: 'Car Wash Service',
-					description: 'Professional car washing and detailing service in the building parking area.',
-					price: '¥3,000 - ¥8,000',
-					availability: 'Weekdays 10:00 AM - 4:00 PM',
-					contact: '03-1234-5680'
+					title: this.$t( 'dashboard.services.carWash' ),
+					description: this.$t( 'dashboard.services.carWash.description' ),
+					price: '¥3,000 - ¥8,000'
 				}
 			]
 		}

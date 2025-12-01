@@ -69,28 +69,28 @@ export default {
 			mockReceipts: [
 				{
 					id: 1,
-					title: this.$t('dashboard.bills.managementFee'),
+					title: this.$t( 'dashboard.bills.managementFee' ),
 					period: '2025/01',
 					total: 35000,
 					paidDate: '2025/01/15'
 				},
 				{
 					id: 2,
-					title: this.$t('dashboard.booking.gym'),
+					title: this.$t( 'dashboard.booking.gym' ),
 					period: '2024/12',
 					total: 5000,
 					paidDate: '2024/12/15'
 				},
 				{
 					id: 3,
-					title: this.$t('dashboard.booking.partyRoom'),
+					title: this.$t( 'dashboard.booking.partyRoom' ),
 					period: '2024/11',
 					total: 12000,
 					paidDate: '2024/11/18'
 				},
 				{
 					id: 4,
-					title: this.$t('dashboard.services.flowerDelivery'),
+					title: this.$t( 'dashboard.services.flowerDelivery' ),
 					period: '2024/10',
 					total: 3500,
 					paidDate: '2024/10/20'

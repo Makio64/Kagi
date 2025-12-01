@@ -41,31 +41,26 @@ export const maintenanceCategories = [
 	{
 		id: 'plumbing',
 		icon: '🚰',
-		title: 'Plumbing',
-		description: 'Leaks, clogs, water pressure issues'
+		descriptionKey: 'dashboard.maintenance.plumbing.description'
 	},
 	{
 		id: 'electrical',
 		icon: '⚡',
-		title: 'Electrical',
-		description: 'Power outlets, lighting, circuit issues'
+		descriptionKey: 'dashboard.maintenance.electrical.description'
 	},
 	{
 		id: 'aircon',
 		icon: '❄️',
-		title: 'Air Conditioning',
-		description: 'Heating, cooling, ventilation problems'
+		descriptionKey: 'dashboard.maintenance.aircon.description'
 	},
 	{
 		id: 'pest',
 		icon: '🐛',
-		title: 'Pest Control',
-		description: 'Insects, rodents, or other pest issues'
+		descriptionKey: 'dashboard.maintenance.pest.description'
 	},
 	{
 		id: 'other',
 		icon: '🔧',
-		title: 'Other',
-		description: 'General repairs and maintenance'
+		descriptionKey: 'dashboard.maintenance.other.description'
 	}
 ]

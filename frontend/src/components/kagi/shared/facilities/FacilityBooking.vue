@@ -258,7 +258,7 @@
 									</svg>
 									<div>
 										<strong>{{ $t('booking.morning') }}</strong>
-										<small>9:00 AM - 1:00 PM</small>
+										<small>{{ $t('booking.morningTime') }}</small>
 									</div>
 								</button>
 								<button
@@ -271,7 +271,7 @@
 									</svg>
 									<div>
 										<strong>{{ $t('booking.afternoon') }}</strong>
-										<small>2:00 PM - 6:00 PM</small>
+										<small>{{ $t('booking.afternoonTime') }}</small>
 									</div>
 								</button>
 							</div>
@@ -296,6 +296,11 @@
 						</div>
 					</transition>
 				</div>
+				<!-- Total Cost Display -->
+				<div v-if="calculateCost" class="cost-display">
+					<span class="cost-label">{{ $t('booking.totalCost') }}:</span>
+					<span class="cost-value">{{ calculateCost }}</span>
+				</div>
 				<!-- Terms Agreement -->
 				<div class="terms-agreement">
 					<label class="checkbox-label">
@@ -308,11 +313,6 @@
 							<a href="#" class="terms-link" @click.prevent="showTermsModal = true">{{ $t('booking.termsAndConditions') }}</a>
 						</span>
 					</label>
-				</div>
-				<!-- Total Cost Display -->
-				<div v-if="calculateCost" class="cost-display">
-					<span class="cost-label">{{ $t('booking.totalCost') }}:</span>
-					<span class="cost-value">{{ calculateCost }}</span>
 				</div>
 				<!-- Book Button -->
 				<GradientButton
@@ -346,21 +346,21 @@
 
 					<div class="info-section">
 						<div class="detail-item">
-							<span class="detail-label">👥 Capacity:</span>
+							<span class="detail-label">👥 {{ $t('booking.capacityLabel') }}:</span>
 							<span class="detail-value">{{ facility.capacity }}</span>
 						</div>
 						<div class="detail-item">
-							<span class="detail-label">💴 Price:</span>
+							<span class="detail-label">💴 {{ $t('booking.priceLabel') }}:</span>
 							<span class="detail-value">{{ facility.price }}</span>
 						</div>
 						<div v-if="facility.amenities" class="detail-item">
-							<span class="detail-label">✨ Amenities:</span>
+							<span class="detail-label">✨ {{ $t('booking.amenitiesLabel') }}:</span>
 							<span class="detail-value">{{ facility.amenities }}</span>
 						</div>
 					</div>
 
 					<div class="rules-section">
-						<h4>📋 Rules</h4>
+						<h4>📋 {{ $t('booking.rulesLabel') }}</h4>
 						<div class="rules-list">
 							<div class="rule-item">{{ $t('booking.rule1') }}</div>
 							<div class="rule-item">{{ $t('booking.rule2') }}</div>
@@ -376,9 +376,9 @@
 			<div v-if="showTermsModal" class="modal-overlay" @click="showTermsModal = false">
 				<div class="modal-content" @click.stop>
 					<DocumentViewer
-						title="Terms & Conditions"
+						:title="$t('booking.termsTitle')"
 						:content="termsMarkdown"
-						last-updated="January 2025"
+						:last-updated="$t('booking.termsLastUpdated')"
 						@close="showTermsModal = false"
 					/>
 				</div>
@@ -475,21 +475,21 @@ For questions or concerns, please contact building management at **info@kagi-bui
 			return this.selectedMonth === now.getMonth() && this.selectedYear === now.getFullYear()
 		},
 		currentMonthYear() {
-			const months = [
-				'January',
-				'February',
-				'March',
-				'April',
-				'May',
-				'June',
-				'July',
-				'August',
-				'September',
-				'October',
-				'November',
-				'December'
+			const monthKeys = [
+				'calendar.january',
+				'calendar.february',
+				'calendar.march',
+				'calendar.april',
+				'calendar.may',
+				'calendar.june',
+				'calendar.july',
+				'calendar.august',
+				'calendar.september',
+				'calendar.october',
+				'calendar.november',
+				'calendar.december'
 			]
-			return `${months[this.selectedMonth]} ${this.selectedYear}`
+			return `${this.$t( monthKeys[this.selectedMonth] )} ${this.selectedYear}`
 		},
 		calendarDays() {
 			const days = []
@@ -652,16 +652,16 @@ For questions or concerns, please contact building management at **info@kagi-bui
 			this.showTimePicker = false
 		},
 		getTimeDisplayText() {
-			if ( !this.startDate ) return 'Select date first'
+			if ( !this.startDate ) return this.$t( 'booking.selectDateFirst' )
 			if ( this.selectedTime ) {
 				if ( this.facility.bookingType === 'half-day' ) {
 					return this.selectedTime === 'morning'
-						? 'Morning (9:00 AM - 1:00 PM)'
-						: 'Afternoon (2:00 PM - 6:00 PM)'
+						? `${this.$t( 'booking.morning' )} (${this.$t( 'booking.morningTime' )})`
+						: `${this.$t( 'booking.afternoon' )} (${this.$t( 'booking.afternoonTime' )})`
 				}
 				return this.selectedTime
 			}
-			return 'Select time'
+			return this.$t( 'booking.selectTime' )
 		},
 		getBookingDateDisplay() {
 			if ( this.facility.bookingType === 'full-day' && this.startDate && this.endDate ) {
@@ -672,8 +672,8 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		getBookingTimeDisplay() {
 			if ( this.facility.bookingType === 'half-day' ) {
 				return this.selectedTime === 'morning'
-					? 'Morning (9:00 AM - 1:00 PM)'
-					: 'Afternoon (2:00 PM - 6:00 PM)'
+					? `${this.$t( 'booking.morning' )} (${this.$t( 'booking.morningTime' )})`
+					: `${this.$t( 'booking.afternoon' )} (${this.$t( 'booking.afternoonTime' )})`
 			}
 			return this.selectedTime || ''
 		},

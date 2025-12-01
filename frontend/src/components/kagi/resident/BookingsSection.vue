@@ -141,61 +141,6 @@
 <script>
 import { filterBookings, getBookingCountdown, sampleBookings } from '../../../utils/bookingUtils'
 
-const FACILITIES = {
-	party: {
-		id: 'party',
-		name: 'Party Room',
-		icon: '🎉',
-		image: '/img/facilities/party-room.png',
-		description: 'Perfect for celebrations and gatherings',
-		capacity: 'Up to 20 people',
-		maxCapacity: 20,
-		price: '¥10,000/half-day',
-		priceValue: 10000,
-		amenities: 'Kitchen, Audio system, Projector',
-		bookingType: 'half-day'
-	},
-	guest: {
-		id: 'guest',
-		name: 'Guest Room',
-		icon: '🛏️',
-		image: '/img/facilities/guest-room-tatami.png',
-		description: 'Comfortable accommodation for visitors',
-		capacity: 'Up to 2 guests',
-		maxCapacity: 2,
-		price: '¥5,000/night',
-		priceValue: 5000,
-		amenities: 'Private bathroom, WiFi, TV, Mini fridge',
-		bookingType: 'full-day'
-	},
-	gym: {
-		id: 'gym',
-		name: 'Gym',
-		icon: '💪',
-		image: '/img/facilities/gym.jpg',
-		description: 'Stay fit with modern equipment',
-		capacity: '10 people max',
-		maxCapacity: 10,
-		price: 'Free for residents',
-		priceValue: 0,
-		amenities: 'Treadmills, Weights, Yoga mats',
-		bookingType: 'hourly'
-	},
-	parking: {
-		id: 'parking',
-		name: 'Guest Parking',
-		icon: '🅿️',
-		image: '/img/facilities/parking.jpg',
-		description: 'Convenient parking for your visitors',
-		capacity: '1 vehicle',
-		maxCapacity: 1,
-		price: '¥1,000/day',
-		priceValue: 1000,
-		amenities: 'Covered parking, Security cameras',
-		bookingType: 'full-day'
-	}
-}
-
 export default {
 	name: 'BookingsSection',
 	data() {
@@ -206,6 +151,62 @@ export default {
 		}
 	},
 	computed: {
+		facilities() {
+			return {
+				party: {
+					id: 'party',
+					name: this.$t( 'dashboard.booking.partyRoom' ),
+					icon: '🎉',
+					image: '/img/facilities/party-room.png',
+					description: this.$t( 'booking.partyDesc' ),
+					capacity: `${this.$t( 'booking.capacityLabel' )}: 20 ${this.$t( 'dashboard.booking.people' )}`,
+					maxCapacity: 20,
+					price: `¥10,000${this.$t( 'dashboard.booking.perHour' )}`,
+					priceValue: 10000,
+					amenities: this.$t( 'booking.amenities' ),
+					bookingType: 'half-day'
+				},
+				guest: {
+					id: 'guest',
+					name: this.$t( 'dashboard.booking.guestRoom' ),
+					icon: '🛏️',
+					image: '/img/facilities/guest-room-tatami.png',
+					description: this.$t( 'booking.guestDesc' ),
+					capacity: `${this.$t( 'booking.capacityLabel' )}: 2 ${this.$t( 'dashboard.booking.people' )}`,
+					maxCapacity: 2,
+					price: `¥5,000${this.$t( 'dashboard.booking.perNight' )}`,
+					priceValue: 5000,
+					amenities: this.$t( 'booking.amenities' ),
+					bookingType: 'full-day'
+				},
+				gym: {
+					id: 'gym',
+					name: this.$t( 'dashboard.booking.gym' ),
+					icon: '💪',
+					image: '/img/facilities/gym.jpg',
+					description: this.$t( 'booking.gymDesc' ),
+					capacity: `${this.$t( 'booking.capacityLabel' )}: 10 ${this.$t( 'dashboard.booking.people' )}`,
+					maxCapacity: 10,
+					price: this.$t( 'dashboard.booking.free' ),
+					priceValue: 0,
+					amenities: this.$t( 'booking.amenities' ),
+					bookingType: 'hourly'
+				},
+				parking: {
+					id: 'parking',
+					name: this.$t( 'dashboard.booking.guestParking' ),
+					icon: '🅿️',
+					image: '/img/facilities/parking.jpg',
+					description: this.$t( 'booking.guestDesc' ),
+					capacity: `1 ${this.$t( 'booking.capacityLabel' )}`,
+					maxCapacity: 1,
+					price: `¥1,000${this.$t( 'dashboard.booking.perNight' )}`,
+					priceValue: 1000,
+					amenities: this.$t( 'booking.amenities' ),
+					bookingType: 'full-day'
+				}
+			}
+		},
 		filteredBookings() {
 			return filterBookings( this.userBookings, this.activeFilter )
 		},
@@ -232,7 +233,7 @@ export default {
 	methods: {
 		getBookingCountdown,
 		selectFacility( facilityId ) {
-			this.selectedFacility = FACILITIES[facilityId]
+			this.selectedFacility = this.facilities[facilityId]
 		},
 		cancelBooking( bookingId ) {
 			this.userBookings = this.userBookings.filter( b => b.id !== bookingId )

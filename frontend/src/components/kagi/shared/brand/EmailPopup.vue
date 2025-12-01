@@ -7,7 +7,7 @@
 				</div>
 				<h3>{{ $t('login.resident.success.title') }}</h3>
 				<p class="email-text">
-					Redirecting to dashboard...
+					{{ $t('login.redirecting') }}
 				</p>
 				<div class="loading-bar">
 					<div class="bar-fill" />

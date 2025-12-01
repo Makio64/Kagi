@@ -15,7 +15,7 @@
 				>
 					<span class="category-icon">{{ category.icon }}</span>
 					<h4>{{ $t(`dashboard.maintenance.${category.id}`) }}</h4>
-					<p>{{ category.description }}</p>
+					<p>{{ $t(category.descriptionKey) }}</p>
 				</button>
 			</div>
 		</div>

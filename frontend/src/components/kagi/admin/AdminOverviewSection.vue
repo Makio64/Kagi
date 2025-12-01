@@ -37,7 +37,7 @@
 			/>
 		</div>
 		<!-- Recent Activities -->
-		<KCard title="Recent Activity" icon="🔔" variant="default" elevated>
+		<KCard :title="$t('admin.recentActivity')" icon="🔔" variant="default" elevated>
 			<div class="activity-list">
 				<div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
 					<span class="activity-icon">{{ activity.icon }}</span>

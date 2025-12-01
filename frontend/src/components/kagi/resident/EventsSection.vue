@@ -26,65 +26,77 @@
 <script>
 export default {
 	name: 'EventsSection',
-	data() {
-		return {
-			// Mock events data - in the future this will come from API
-			mockEvents: [
+	computed: {
+		monthKeys() {
+			return [
+				'calendar.january', 'calendar.february', 'calendar.march',
+				'calendar.april', 'calendar.may', 'calendar.june',
+				'calendar.july', 'calendar.august', 'calendar.september',
+				'calendar.october', 'calendar.november', 'calendar.december'
+			]
+		},
+		// Mock events data - in the future this will come from API
+		mockEvents() {
+			return [
 				{
 					id: 1,
 					type: 'christmas',
 					icon: '🎄',
-					title: this.$t('dashboard.events.christmasParty.title'),
-					description: this.$t('dashboard.events.christmasParty.description'),
-					date: 'December 24, 2025 - 6:00 PM',
-					location: '1st Floor Lobby'
+					title: this.$t( 'dashboard.events.christmasParty.title' ),
+					description: this.$t( 'dashboard.events.christmasParty.description' ),
+					date: this.formatDate( 11, 24, 2025, '18:00' )
 				},
 				{
 					id: 2,
 					type: 'assembly',
 					icon: '👥',
-					title: 'Residents Assembly',
-					description: 'Annual general meeting to discuss building improvements, budget, and community matters.',
-					date: 'January 15, 2026 - 2:00 PM',
-					location: 'Meeting Room A'
+					title: this.$t( 'events.residentsAssembly.title' ),
+					description: this.$t( 'events.residentsAssembly.description' ),
+					date: this.formatDate( 0, 15, 2026, '14:00' )
 				},
 				{
 					id: 3,
 					type: 'maintenance',
 					icon: '🔧',
-					title: 'Building Maintenance',
-					description: 'Scheduled maintenance work on the elevator system. Please use stairs during this period.',
-					date: 'November 10-12, 2025',
-					location: 'All Elevators'
+					title: this.$t( 'events.buildingMaintenance.title' ),
+					description: this.$t( 'events.buildingMaintenance.description' ),
+					date: this.formatDateRange( 10, 10, 12, 2025 )
 				},
 				{
 					id: 4,
 					type: 'safety',
 					icon: '🚨',
-					title: this.$t('dashboard.events.fireDrill.title'),
-					description: this.$t('dashboard.events.fireDrill.description'),
-					date: 'November 5, 2025 - 10:00 AM',
-					location: 'Entire Building'
+					title: this.$t( 'dashboard.events.fireDrill.title' ),
+					description: this.$t( 'dashboard.events.fireDrill.description' ),
+					date: this.formatDate( 10, 5, 2025, '10:00' )
 				},
 				{
 					id: 5,
 					type: 'cleaning',
 					icon: '🧹',
-					title: 'Community Cleaning Day',
-					description: 'Join your neighbors for a community cleanup day. Refreshments will be provided.',
-					date: 'October 20, 2025 - 9:00 AM',
-					location: 'Common Areas & Garden'
+					title: this.$t( 'events.communityCleaningDay.title' ),
+					description: this.$t( 'events.communityCleaningDay.description' ),
+					date: this.formatDate( 9, 20, 2025, '9:00' )
 				},
 				{
 					id: 6,
 					type: 'garden',
 					icon: '🌸',
-					title: 'Spring Garden Party',
-					description: 'Celebrate spring with a garden party featuring live music, barbecue, and games for children.',
-					date: 'March 30, 2026 - 3:00 PM',
-					location: 'Rooftop Garden'
+					title: this.$t( 'events.springGardenParty.title' ),
+					description: this.$t( 'events.springGardenParty.description' ),
+					date: this.formatDate( 2, 30, 2026, '15:00' )
 				}
 			]
+		}
+	},
+	methods: {
+		formatDate( month, day, year, time ) {
+			const monthName = this.$t( this.monthKeys[month] )
+			return `${monthName} ${day}, ${year} - ${time}`
+		},
+		formatDateRange( month, startDay, endDay, year ) {
+			const monthName = this.$t( this.monthKeys[month] )
+			return `${monthName} ${startDay}-${endDay}, ${year}`
 		}
 	}
 }

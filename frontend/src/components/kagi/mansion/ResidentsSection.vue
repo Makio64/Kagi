@@ -15,35 +15,35 @@
 					</div>
 					<div class="resident-info">
 						<div class="info-item">
-							<span class="label">Unit:</span>
+							<span class="label">{{ $t('mansion.residents.unit') }}:</span>
 							<span class="value">{{ resident.unit }}</span>
 						</div>
 						<div class="info-item">
-							<span class="label">Email:</span>
+							<span class="label">{{ $t('mansion.residents.email') }}:</span>
 							<span class="value">{{ resident.email }}</span>
 						</div>
 						<div class="info-item">
-							<span class="label">Phone:</span>
+							<span class="label">{{ $t('mansion.residents.phone') }}:</span>
 							<span class="value">{{ resident.phone }}</span>
 						</div>
 						<div class="info-item">
-							<span class="label">Move-in:</span>
+							<span class="label">{{ $t('mansion.residents.since') }}:</span>
 							<span class="value">{{ resident.moveInDate }}</span>
 						</div>
 					</div>
 					<div class="resident-actions">
 						<KButton size="small" variant="secondary" @click.stop="$emit('message', resident)">
-							📧 Message
+							📧 {{ $t('mansion.residents.message') }}
 						</KButton>
 						<KButton size="small" @click.stop="$emit('edit', resident)">
-							✏️ Edit
+							✏️ {{ $t('common.edit') }}
 						</KButton>
 					</div>
 				</div>
 			</KCard>
 		</div>
 		<KButton class="add-resident-btn" @click="$emit('add')">
-			➕ Add New Resident
+			➕ {{ $t('mansion.residents.add') }}
 		</KButton>
 	</div>
 </template>

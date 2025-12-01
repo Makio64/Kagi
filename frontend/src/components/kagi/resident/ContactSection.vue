@@ -88,7 +88,7 @@
 					<div class="contact-details">
 						<h4>{{ $t('dashboard.profile.phone') }}</h4>
 						<p class="contact-value">03-1234-5678</p>
-						<p class="contact-note">Mon-Fri: 9:00 AM - 6:00 PM</p>
+						<p class="contact-note">{{ $t('contact.officeHoursWeekdays') }}</p>
 					</div>
 				</div>
 
@@ -97,7 +97,7 @@
 					<div class="contact-details">
 						<h4>{{ $t('dashboard.profile.email') }}</h4>
 						<p class="contact-value">management@building.com</p>
-						<p class="contact-note">Response within 24 hours</p>
+						<p class="contact-note">{{ $t('contact.responseTime') }}</p>
 					</div>
 				</div>
 
@@ -105,9 +105,9 @@
 					<div class="contact-icon">🏢</div>
 					<div class="contact-details">
 						<h4>{{ $t('contact.officeHours') }}</h4>
-						<p class="contact-value">Monday - Friday</p>
-						<p class="contact-note">9:00 AM - 6:00 PM</p>
-						<p class="contact-note">Closed on weekends & holidays</p>
+						<p class="contact-value">{{ $t('contact.weekdays') }}</p>
+						<p class="contact-note">{{ $t('contact.officeTime') }}</p>
+						<p class="contact-note">{{ $t('contact.closedWeekends') }}</p>
 					</div>
 				</div>
 
@@ -116,7 +116,7 @@
 					<div class="contact-details">
 						<h4>{{ $t('dashboard.profile.emergencyContact') }}</h4>
 						<p class="contact-value">080-9999-9999</p>
-						<p class="contact-note">24/7 Emergency Line</p>
+						<p class="contact-note">{{ $t('contact.emergencyLine') }}</p>
 					</div>
 				</div>
 			</div>
@@ -247,7 +247,7 @@ export default {
 				const managementMessage = {
 					id: Date.now(),
 					sender: 'management',
-					text: 'Thank you for your message. We will get back to you shortly.',
+					text: this.$t( 'contact.autoReply' ),
 					time: new Date().toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit' } )
 				}
 				this.currentMessages.push( managementMessage )

@@ -3,7 +3,7 @@
 		<KDataTable
 			:columns="columns"
 			:data="requests"
-			empty-text="No maintenance requests"
+			:empty-text="$t('mansion.maintenance.noRequests')"
 		>
 			<template #cell-priority="{ value }">
 				<StatusBadge :status="value" :variant="getPriorityVariant(value)" />
@@ -13,7 +13,7 @@
 			</template>
 			<template #actions="{ row }">
 				<KButton size="small" variant="secondary" @click="$emit('view', row)">
-					View
+					{{ $t('mansion.maintenance.view') }}
 				</KButton>
 			</template>
 		</KDataTable>
@@ -29,15 +29,15 @@ export default {
 		}
 	},
 	emits: ['view', 'update'],
-	data() {
-		return {
-			columns: [
-				{ key: 'title', label: 'Issue' },
-				{ key: 'unit', label: 'Unit', width: '80px' },
-				{ key: 'priority', label: 'Priority', width: '100px' },
-				{ key: 'status', label: 'Status', width: '120px' },
-				{ key: 'assignedTo', label: 'Assigned To', width: '150px' },
-				{ key: 'created', label: 'Created', width: '120px' }
+	computed: {
+		columns() {
+			return [
+				{ key: 'title', label: this.$t( 'mansion.maintenance.issue' ) },
+				{ key: 'unit', label: this.$t( 'mansion.residents.unit' ), width: '80px' },
+				{ key: 'priority', label: this.$t( 'mansion.maintenance.priority' ), width: '100px' },
+				{ key: 'status', label: this.$t( 'admin.users.status' ), width: '120px' },
+				{ key: 'assignedTo', label: this.$t( 'mansion.maintenance.assignedTo' ), width: '150px' },
+				{ key: 'created', label: this.$t( 'mansion.maintenance.created' ), width: '120px' }
 			]
 		}
 	},
