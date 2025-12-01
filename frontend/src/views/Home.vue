@@ -95,58 +95,13 @@
 
 		<footer class="footer">
 			<div class="container">
-				<div class="footer-grid">
-					<div class="footer-brand">
-						<div class="footer-logo">
-							<KagiLogo :size="40" />
-							<span>{{ $t('app.name') }}</span>
-						</div>
-						<p class="footer-description">{{ $t('home.hero.description') }}</p>
-						<div class="social-links">
-							<a href="#" class="social-link" aria-label="Twitter">
-								<Icon name="twitter" :size="20" />
-							</a>
-							<a href="#" class="social-link" aria-label="Facebook">
-								<Icon name="facebook" :size="20" />
-							</a>
-							<a href="#" class="social-link" aria-label="Instagram">
-								<Icon name="instagram" :size="20" />
-							</a>
-							<a href="#" class="social-link" aria-label="LinkedIn">
-								<Icon name="linkedin" :size="20" />
-							</a>
-						</div>
+				<div class="footer-content">
+					<div class="footer-logo">
+						<KagiLogo :size="40" />
+						<span>{{ $t('app.name') }}</span>
 					</div>
-
-					<div class="footer-links">
-						<div class="footer-column">
-							<h4>Product</h4>
-							<ul>
-								<li><a href="#">Features</a></li>
-								<li><a href="#">Pricing</a></li>
-								<li><a href="#">Support</a></li>
-							</ul>
-						</div>
-						<div class="footer-column">
-							<h4>Company</h4>
-							<ul>
-								<li><a href="#">About Us</a></li>
-								<li><a href="#">Careers</a></li>
-								<li><a href="#">Contact</a></li>
-							</ul>
-						</div>
-						<div class="footer-column">
-							<h4>Legal</h4>
-							<ul>
-								<li><a href="#">Privacy Policy</a></li>
-								<li><a href="#">Terms of Service</a></li>
-							</ul>
-						</div>
-					</div>
-				</div>
-
-				<div class="footer-bottom">
-					<p>{{ $t('home.footer.copyright') }}</p>
+					<p class="footer-description">{{ $t('home.hero.description') }}</p>
+					<p class="footer-copyright">{{ $t('home.footer.copyright') }}</p>
 				</div>
 			</div>
 		</footer>
@@ -422,84 +377,40 @@ export default {
 	box-shadow var(--shadow-lg)
 
 .footer
-	background var(--color-gray-900)
+	background linear-gradient(to top, var(--color-gray-900), var(--color-gray-800))
 	color var(--color-gray-300)
-	padding var(--space-16) 0 var(--space-8)
-	text-align left
+	padding var(--space-8) 0
+	border-top 1px solid rgba(255, 255, 255, 0.05)
 
-.footer-grid
-	display grid
-	grid-template-columns 1fr
-	gap var(--space-12)
-	margin-bottom var(--space-12)
-
-	@media (min-width: 768px)
-		grid-template-columns 1fr 2fr
-
-.footer-brand
+.footer-content
 	display flex
-	flex-direction column
-	gap var(--space-4)
+	align-items center
+	justify-content space-between
+	gap var(--space-6)
+
+	@media (max-width: 640px)
+		flex-direction column
+		text-align center
 
 .footer-logo
 	display flex
 	align-items center
 	gap var(--space-2)
-	font-size var(--text-xl)
-	font-weight var(--font-bold)
+	font-size var(--text-lg)
+	font-weight var(--font-semibold)
 	color white
+	opacity 0.9
 
 .footer-description
-	font-size var(--text-base)
-	max-width 300px
-	line-height 1.5
-
-.social-links
-	display flex
-	gap var(--space-4)
-
-.social-link
-	color var(--color-gray-400)
-	transition color 0.2s
-
-	&:hover
-		color var(--color-primary-500)
-
-.footer-links
-	display grid
-	grid-template-columns repeat(2, 1fr)
-	gap var(--space-8)
-
-	@media (min-width: 640px)
-		grid-template-columns repeat(3, 1fr)
-
-.footer-column
-	h4
-		color white
-		font-size var(--text-lg)
-		font-weight var(--font-semibold)
-		margin-bottom var(--space-4)
-
-	ul
-		list-style none
-		padding 0
-		margin 0
-		display flex
-		flex-direction column
-		gap var(--space-2)
-
-	a
-		color var(--color-gray-400)
-		text-decoration none
-		transition color 0.2s
-
-		&:hover
-			color var(--color-primary-500)
-
-.footer-bottom
-	border-top 1px solid var(--color-gray-800)
-	padding-top var(--space-8)
+	font-size var(--text-sm)
+	color var(--color-gray-500)
+	flex 1
 	text-align center
+
+	@media (max-width: 640px)
+		order 3
+
+.footer-copyright
 	font-size var(--text-sm)
 	color var(--color-gray-500)
 
