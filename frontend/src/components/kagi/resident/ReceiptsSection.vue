@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">🧾 {{ $t('dashboard.menu.receipts') }}</h2>
+			<h2 class="section-title">
+				<Icon name="receipt" :size="30" color="#FFC107" />
+				{{ $t('dashboard.menu.receipts') }}
+			</h2>
 		</div>
 
 		<div class="receipts-container">
@@ -121,6 +124,11 @@ export default {
 	font-size 1.75rem
 	font-weight 600
 	color #333
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 
 .receipts-container
 	padding 0 2rem 3rem 2rem

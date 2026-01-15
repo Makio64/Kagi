@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">🛎️ {{ $t('dashboard.services.title') }}</h2>
+			<h2 class="section-title">
+				<Icon name="room_service" :size="30" color="#FFC107" />
+				{{ $t('dashboard.services.title') }}
+			</h2>
 		</div>
 
 		<div class="services-grid">
@@ -95,6 +98,11 @@ export default {
 	font-size 1.75rem
 	font-weight 600
 	color #333
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 
 .services-grid
 	display grid

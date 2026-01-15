@@ -3,7 +3,10 @@
 		<!-- Document List -->
 		<div v-if="!selectedDocument">
 			<div class="section-header">
-				<h2 class="section-title">📄 {{ $t('dashboard.menu.documents') }}</h2>
+				<h2 class="section-title">
+					<Icon name="document" :size="30" color="#FFC107" />
+					{{ $t('dashboard.menu.documents') }}
+				</h2>
 			</div>
 
 			<div class="documents-grid">
@@ -204,6 +207,11 @@ For parking permits or questions, contact management office.`
 	font-size 1.75rem
 	font-weight 600
 	color #333
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 
 .documents-grid
 	display grid

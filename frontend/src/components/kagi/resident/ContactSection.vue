@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">📱 {{ $t('dashboard.menu.contact') }}</h2>
+			<h2 class="section-title">
+				<Icon name="communication" :size="30" color="#FFC107" />
+				{{ $t('dashboard.menu.contact') }}
+			</h2>
 		</div>
 
 		<div class="contact-layout">
@@ -288,6 +291,11 @@ export default {
 	font-size 1.75rem
 	font-weight 600
 	color #333
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 
 .contact-layout
 	display grid

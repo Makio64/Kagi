@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">📢 {{ $t('dashboard.menu.events') }}</h2>
+			<h2 class="section-title">
+				<Icon name="event" :size="30" color="#FFC107" />
+				{{ $t('dashboard.menu.events') }}
+			</h2>
 		</div>
 
 		<div class="events-list">
@@ -29,10 +32,18 @@ export default {
 	computed: {
 		monthKeys() {
 			return [
-				'calendar.january', 'calendar.february', 'calendar.march',
-				'calendar.april', 'calendar.may', 'calendar.june',
-				'calendar.july', 'calendar.august', 'calendar.september',
-				'calendar.october', 'calendar.november', 'calendar.december'
+				'calendar.january',
+				'calendar.february',
+				'calendar.march',
+				'calendar.april',
+				'calendar.may',
+				'calendar.june',
+				'calendar.july',
+				'calendar.august',
+				'calendar.september',
+				'calendar.october',
+				'calendar.november',
+				'calendar.december'
 			]
 		},
 		// Mock events data - in the future this will come from API
@@ -114,6 +125,10 @@ export default {
 	font-size 1.75rem
 	font-weight 600
 	color #333
+	display flex
+	align-items center
+	justify-content center
+	gap 0.5rem
 
 .events-list
 	padding 0 2rem 3rem 2rem
