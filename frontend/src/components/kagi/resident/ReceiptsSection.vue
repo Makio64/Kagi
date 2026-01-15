@@ -228,7 +228,7 @@ export default {
 	left 0
 	right 0
 	bottom 0
-	background rgba(255, 255, 255, 0.85)
+	background linear-gradient(to bottom, rgba(255, 248, 225, 0.95) 0%, rgba(255, 224, 130, 0.9) 100%)
 	display flex
 	align-items center
 	justify-content center
@@ -242,7 +242,7 @@ export default {
 	width 100%
 	padding 2rem
 	position relative
-	box-shadow 0 20px 60px rgba(0, 0, 0, 0.3)
+	box-shadow 0 8px 24px rgba(0, 0, 0, 0.12)
 
 .close-modal-btn
 	position absolute

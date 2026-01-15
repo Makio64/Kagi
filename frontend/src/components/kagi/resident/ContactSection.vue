@@ -559,8 +559,8 @@ export default {
 
 .contact-icon
 	position absolute
-	top 20px
-	right 20px
+	top 16px
+	left 16px
 	display flex
 	align-items center
 	justify-content center

@@ -139,7 +139,7 @@ export default {
 	flex-direction column
 
 	h3
-		margin 0 0 0.75rem 0
+		margin 0 0 0.3rem 0
 		font-size var(--text-lg)
 		color var(--color-gray-900)
 		font-weight var(--font-semibold)

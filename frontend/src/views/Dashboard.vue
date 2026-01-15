@@ -81,4 +81,5 @@ export default {
 	.section
 		padding 0.5rem
 		border-radius 0
+		background transparent
 </style>
