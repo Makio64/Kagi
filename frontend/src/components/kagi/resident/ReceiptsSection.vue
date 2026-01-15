@@ -27,7 +27,7 @@
 							</div>
 						</div>
 						<button class="details-btn-small" @click="openReceipt(receipt)">
-							{{ $t('dashboard.receipts.details') }}
+							{{ $t('dashboard.receipts.details') }} →
 						</button>
 					</div>
 				</div>
@@ -199,19 +199,21 @@ export default {
 
 .details-btn-small
 	padding 0.5rem 1.25rem
-	background transparent
-	color #1976D2
-	border 1px solid #e0e0e0
-	border-radius 6px
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+	color #333
+	border none
+	border-radius 25px
 	font-size 0.85rem
-	font-weight 500
+	font-weight 600
 	cursor pointer
-	transition all 0.2s ease
+	transition all 0.25s ease
 	white-space nowrap
+	box-shadow 0 3px 10px rgba(255, 193, 7, 0.25)
 
 	&:hover
-		background #f5f5f5
-		border-color #1976D2
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+		transform translateY(-2px)
+		box-shadow 0 5px 15px rgba(255, 193, 7, 0.35)
 
 // Receipt Modal
 .receipt-modal-overlay

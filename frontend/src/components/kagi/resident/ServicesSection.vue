@@ -23,7 +23,7 @@
 					</div>
 
 					<button class="book-service-btn">
-						{{ $t('dashboard.services.book') }}
+						{{ $t('dashboard.services.book') }} →
 					</button>
 				</div>
 			</div>
