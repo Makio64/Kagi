@@ -3,7 +3,9 @@
 		<svg
 			v-if="path"
 			viewBox="0 0 24 24"
-			fill="currentColor"
+			width="100%"
+			height="100%"
+			:fill="color"
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<path :d="path" />
