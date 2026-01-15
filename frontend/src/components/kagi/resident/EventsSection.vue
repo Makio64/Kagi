@@ -114,6 +114,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import '../../../styles/tokens-modern.styl'
+
 .section
 	padding 0
 
@@ -122,9 +124,9 @@ export default {
 
 .section-title
 	margin 0
-	font-size 1.75rem
-	font-weight 600
-	color #333
+	font-size var(--text-2xl)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
 	display flex
 	align-items center
 	justify-content center
@@ -143,13 +145,13 @@ export default {
 	background white
 	border-radius 16px
 	overflow hidden
-	box-shadow 0 2px 12px rgba(0,0,0,0.08)
+	box-shadow 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)
 	transition all 0.3s ease
 	cursor pointer
 
 	&:hover
 		transform translateY(-4px)
-		box-shadow 0 8px 24px rgba(0,0,0,0.15)
+		box-shadow 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)
 
 .event-icon-col
 	display flex
@@ -168,20 +170,20 @@ export default {
 	gap 0.5rem
 
 .event-date
-	font-size 0.85rem
-	color #999
-	font-weight 500
+	font-size var(--text-xs)
+	color var(--color-gray-400)
+	font-weight var(--font-medium)
 
 h3
 	margin 0
-	font-size 1.15rem
-	color #1a1a1a
-	font-weight 600
+	font-size var(--text-base)
+	color var(--color-gray-900)
+	font-weight var(--font-semibold)
 
 p
 	margin 0
-	color #666
-	font-size 0.9rem
+	color var(--color-gray-500)
+	font-size var(--text-sm)
 	line-height 1.6
 
 @media (max-width: 768px)
@@ -206,8 +208,8 @@ p
 		padding 1rem 1rem 1rem 0
 
 	h3
-		font-size 1rem
+		font-size var(--text-sm)
 
 	p
-		font-size 0.85rem
+		font-size var(--text-xs)
 </style>

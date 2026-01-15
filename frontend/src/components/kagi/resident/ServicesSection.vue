@@ -86,6 +86,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import '../../../styles/tokens-modern.styl'
+
 .section
 	padding 0
 
@@ -94,9 +96,9 @@ export default {
 
 .section-title
 	margin 0
-	font-size 1.75rem
-	font-weight 600
-	color #333
+	font-size var(--text-2xl)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
 	display flex
 	align-items center
 	gap 0.5rem
@@ -138,9 +140,9 @@ export default {
 
 	h3
 		margin 0 0 0.75rem 0
-		font-size 1.25rem
-		color #333
-		font-weight 600
+		font-size var(--text-lg)
+		color var(--color-gray-900)
+		font-weight var(--font-semibold)
 		display flex
 		align-items center
 		gap 0.5rem
@@ -150,8 +152,8 @@ export default {
 
 .service-description
 	margin 0 0 1.25rem 0
-	color #666
-	font-size 0.95rem
+	color var(--color-gray-500)
+	font-size var(--text-sm)
 	line-height 1.6
 	flex 1
 
@@ -161,8 +163,8 @@ export default {
 	gap 0.5rem
 	margin-bottom 1rem
 	span
-		font-size 0.85rem
-		color #4b5563
+		font-size var(--text-xs)
+		color var(--color-gray-600)
 		display flex
 		align-items center
 		justify-content center

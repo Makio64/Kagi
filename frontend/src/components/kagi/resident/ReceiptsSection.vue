@@ -228,7 +228,7 @@ export default {
 	left 0
 	right 0
 	bottom 0
-	background rgba(0, 0, 0, 0.5)
+	background rgba(255, 255, 255, 0.85)
 	display flex
 	align-items center
 	justify-content center
@@ -276,7 +276,7 @@ export default {
 		color #333
 
 	.receipt-number
-		color #666
+		color #FFC107
 		font-size 0.9rem
 
 .receipt-details
@@ -299,6 +299,9 @@ export default {
 				font-size 1.2rem
 				font-weight 700
 
+			.detail-value
+				color #FFC107
+
 	.detail-label
 		color #666
 		font-weight 500
@@ -306,9 +309,6 @@ export default {
 	.detail-value
 		color #333
 		font-weight 600
-
-		.total &
-			color #4CAF50
 
 .modal-fade-enter-active, .modal-fade-leave-active
 	transition all 0.3s ease
