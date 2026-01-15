@@ -13,9 +13,8 @@
 				:key="service.id"
 				class="service-card"
 			>
-				<div class="service-icon-badge">{{ service.icon }}</div>
 				<div class="service-content">
-					<h3>{{ service.title }}</h3>
+					<h3><span class="service-icon">{{ service.icon }}</span> {{ service.title }}</h3>
 					<p class="service-description">{{ service.description }}</p>
 
 					<div class="service-meta">
@@ -102,6 +101,8 @@ export default {
 	align-items center
 	gap 0.5rem
 	justify-content center
+	flex-wrap nowrap
+	white-space nowrap
 
 
 .services-grid
@@ -130,17 +131,6 @@ export default {
 		transform translateY(-4px)
 		box-shadow 0 8px 24px rgba(0,0,0,0.15)
 
-.service-icon-badge
-	width 70px
-	height 70px
-	display flex
-	align-items center
-	justify-content center
-	font-size 2.5rem
-	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-	border-radius 12px
-	margin-bottom 1rem
-
 .service-content
 	flex 1
 	display flex
@@ -151,6 +141,12 @@ export default {
 		font-size 1.25rem
 		color #333
 		font-weight 600
+		display flex
+		align-items center
+		gap 0.5rem
+		justify-content center
+.service-icon
+	font-size 1.5rem
 
 .service-description
 	margin 0 0 1.25rem 0

@@ -156,28 +156,10 @@ export default {
 	align-items center
 	justify-content center
 	padding 1.5rem
+	background #FFFDE7
 
 .event-icon
 	font-size 3rem
-
-.event-item
-	&.christmas .event-icon-col
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-
-	&.assembly .event-icon-col
-		background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
-
-	&.maintenance .event-icon-col
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-
-	&.safety .event-icon-col
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-
-	&.cleaning .event-icon-col
-		background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
-
-	&.garden .event-icon-col
-		background linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)
 
 .event-content
 	padding 1.5rem 1.5rem 1.5rem 0

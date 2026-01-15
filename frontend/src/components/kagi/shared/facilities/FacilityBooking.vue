@@ -858,6 +858,7 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		padding 1.5rem
 // Booking Form
 .booking-form
+	min-width 0
 	h3
 		margin 0 0 1.5rem
 		font-size 1.25rem
@@ -1081,6 +1082,7 @@ textarea
 		border-color #3b82f6
 .terms-agreement
 	margin 1.5rem 0
+	max-width 100%
 	.checkbox-label
 		display flex
 		align-items flex-start
@@ -1089,11 +1091,18 @@ textarea
 		font-size 0.9rem
 		color #4b5563
 		line-height 1.5
+		width 100%
 		input[type="checkbox"]
+			width 18px
+			height 18px
 			margin-top 0.125rem
 			cursor pointer
 			flex-shrink 0
 			accent-color #FFA000
+		span
+			flex 1
+			min-width 0
+			word-wrap break-word
 		.terms-link
 			color #FFA000
 			text-decoration underline
