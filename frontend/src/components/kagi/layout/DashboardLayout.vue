@@ -534,7 +534,7 @@ export default {
 		padding var(--space-6)
 		margin-bottom 100px // Space for mobile nav
 	@media (max-width: 640px)
-		padding var(--space-4)
+		padding var(--space-1)
 		border-radius 0
 		background transparent
 		box-shadow none

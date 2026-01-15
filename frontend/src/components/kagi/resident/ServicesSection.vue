@@ -15,11 +15,8 @@
 					<h3>{{ service.title }}</h3>
 					<p class="service-description">{{ service.description }}</p>
 
-					<div class="service-details">
-						<div class="detail-item">
-							<span class="detail-label">{{ $t('dashboard.services.price') }}:</span>
-							<span class="detail-value">{{ service.price }}</span>
-						</div>
+					<div class="service-meta">
+						<span>💴 {{ service.price }}</span>
 					</div>
 
 					<button class="book-service-btn">
@@ -154,47 +151,36 @@ export default {
 	line-height 1.6
 	flex 1
 
-.service-details
-	background #f8f9fa
-	border-radius 8px
-	padding 1rem
-	margin-bottom 1rem
-
-.detail-item
+.service-meta
 	display flex
-	justify-content space-between
-	align-items center
-	padding 0.5rem 0
-
-	&:not(:last-child)
-		border-bottom 1px solid #e9ecef
-
-.detail-label
-	color #666
-	font-size 0.9rem
-	font-weight 500
-
-.detail-value
-	color #333
-	font-size 0.9rem
-	font-weight 500
-	text-align right
+	flex-direction column
+	gap 0.5rem
+	margin-bottom 1rem
+	span
+		font-size 0.85rem
+		color #4b5563
+		display flex
+		align-items center
+		justify-content center
+		gap 0.25rem
 
 .book-service-btn
 	width 100%
 	padding 0.75rem
-	background #1976D2
-	color white
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+	color #333
 	border none
-	border-radius 8px
+	border-radius 25px
 	font-size 0.95rem
-	font-weight 500
+	font-weight 600
 	cursor pointer
-	transition all 0.2s ease
+	transition all 0.25s ease
+	box-shadow 0 3px 10px rgba(255, 193, 7, 0.25)
 
 	&:hover
-		background #1565C0
-		transform translateY(-1px)
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+		transform translateY(-2px)
+		box-shadow 0 5px 15px rgba(255, 193, 7, 0.35)
 
 @media (max-width: 768px)
 	.services-grid

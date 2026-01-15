@@ -3,7 +3,8 @@
 		<!-- Header -->
 		<div class="booking-header">
 			<button class="back-btn" @click="$emit('close')">
-				← {{ $t('common.back') }}
+				<span class="back-arrow">←</span>
+				<span class="back-text">{{ $t('common.back') }}</span>
 			</button>
 			<h2>{{ $t(`booking.booking${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) }}</h2>
 		</div>
@@ -769,10 +770,18 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		cursor pointer
 		transition all 0.2s ease
 		font-size 0.9rem
+		display flex
+		align-items center
+		gap 0.25rem
 		&:hover
 			background #f9fafb
 			border-color #d1d5db
 			color #1a1a1a
+		.back-text
+			@media (max-width: 768px)
+				display none
+		@media (max-width: 768px)
+			padding 0.5rem 0.75rem
 	h2
 		margin 0
 		font-size 1.5rem
