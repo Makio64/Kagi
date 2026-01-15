@@ -13,6 +13,7 @@
 					v-for="receipt in mockReceipts"
 					:key="receipt.id"
 					class="receipt-item"
+					@click="openReceiptMobile(receipt)"
 				>
 					<div class="receipt-content">
 						<div class="receipt-main">
@@ -104,6 +105,11 @@ export default {
 	methods: {
 		openReceipt( receipt ) {
 			this.selectedReceipt = receipt
+		},
+		openReceiptMobile( receipt ) {
+			if ( window.innerWidth <= 768 ) {
+				this.selectedReceipt = receipt
+			}
 		},
 		closeReceipt() {
 			this.selectedReceipt = null
@@ -315,10 +321,13 @@ export default {
 	transform scale(0.9)
 
 @media (max-width: 768px)
+	.receipt-item
+		cursor pointer
+
 	.receipt-content
 		flex-direction column
-		align-items stretch
-		gap 0.75rem
+		align-items flex-start
+		gap 0.5rem
 
 	.receipt-info
 		flex-direction column
@@ -330,5 +339,5 @@ export default {
 		gap 0.5rem
 
 	.details-btn-small
-		width 100%
+		display none
 </style>
