@@ -28,6 +28,7 @@
 		"@capacitor/keyboard": "^8.0.0",
 		"@capacitor/splash-screen": "^8.0.0",
 		"@capacitor/status-bar": "^8.0.0",
+		"@supabase/supabase-js": "^2.91.1",
 		"animejs": "^4.2.2",
 		"axios": "^1.13.2",
 		"dompurify": "^3.3.1",

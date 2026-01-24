@@ -138,14 +138,25 @@ export default {
 		}
 	},
 	async mounted() {
-		// Check for magic link token in URL
 		const urlParams = new URLSearchParams( window.location.search )
+
+		// Mock backend: token in query param
 		const token = urlParams.get( 'token' )
-		if ( token ) {
+
+		// Supabase PKCE flow: code in query param
+		const code = urlParams.get( 'code' )
+
+		// Supabase implicit flow: access_token in URL hash
+		const hashParams = new URLSearchParams( window.location.hash.replace( '#', '' ) )
+		const accessToken = hashParams.get( 'access_token' )
+		const hashType = hashParams.get( 'type' )
+
+		const magicToken = token || code || ( hashType === 'magiclink' ? accessToken : null )
+
+		if ( magicToken ) {
 			this.loading = true
 			try {
-				await store.verifyMagicLink( token )
-				// Magic link is only used for residents, always redirect to /dashboard
+				await store.verifyMagicLink( magicToken )
 				this.$router.push( '/dashboard' )
 			} catch {
 				this.error = this.$t( 'login.errors.invalidLink' )

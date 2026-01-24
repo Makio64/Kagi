@@ -1,8 +1,11 @@
 import { computed, ref, watch } from 'vue'
 
-import backend from '@/services/Backend'
+import mockBackend from '@/services/Backend'
+import supabaseBackend from '@/services/SupabaseBackend'
 
 export const USE_MOCK_BACKEND = import.meta.env.VITE_USE_MOCK_BACKEND !== 'false' // Default to true
+
+const backend = USE_MOCK_BACKEND ? mockBackend : supabaseBackend
 
 // General app state
 export const contentLoaded = ref( false )
@@ -75,8 +78,16 @@ export const requestMagicLink = async ( email, _role = 'resident', _mansionId = 
 			}
 			throw new Error( response.error?.message || 'Failed to send magic link' )
 		} else {
-			// Real backend implementation would go here
-			throw new Error( 'Real backend not implemented yet' )
+			// Supabase backend - send real magic link email
+			const auth = await backend.auth()
+			await auth.sendMagicLink( email )
+			return {
+				success: true,
+				message: 'Magic link sent (check your email)',
+				email,
+				token: null,
+				mockLogin: false
+			}
 		}
 	} catch ( error ) {
 		console.error( 'Magic link request failed:', error )
@@ -89,26 +100,21 @@ export const requestMagicLink = async ( email, _role = 'resident', _mansionId = 
 export const verifyMagicLink = async ( magicToken ) => {
 	loading.value = true
 	try {
-		if ( USE_MOCK_BACKEND ) {
-			// Using mock backend
-			const auth = await backend.auth()
-			const response = await auth.verifyMagicLink( magicToken )
+		// Both mock and Supabase use the same auth interface
+		const auth = await backend.auth()
+		const response = await auth.verifyMagicLink( magicToken )
 
-			if ( response.success ) {
-				user.value = response.data.user
-				token.value = response.data.token
-				isAuthenticated.value = true
+		if ( response.success ) {
+			user.value = response.data.user
+			token.value = response.data.token
+			isAuthenticated.value = true
 
-				localStorage.setItem( 'kagi_token', token.value )
-				localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+			localStorage.setItem( 'kagi_token', token.value )
+			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
 
-				return response.data
-			}
-			throw new Error( response.error?.message || 'Failed to verify magic link' )
-		} else {
-			// Real backend implementation would go here
-			throw new Error( 'Real backend not implemented yet' )
+			return response.data
 		}
+		throw new Error( response.error?.message || 'Failed to verify magic link' )
 	} catch ( error ) {
 		console.error( 'Magic link verification failed:', error )
 		throw error
@@ -120,26 +126,21 @@ export const verifyMagicLink = async ( magicToken ) => {
 export const adminLogin = async ( email, password ) => {
 	loading.value = true
 	try {
-		if ( USE_MOCK_BACKEND ) {
-			// Using mock backend
-			const auth = await backend.auth()
-			const response = await auth.login( email, password )
+		// Both mock and Supabase use the same auth.login interface
+		const auth = await backend.auth()
+		const response = await auth.login( email, password )
 
-			if ( response.success ) {
-				user.value = response.data.user
-				token.value = response.data.token
-				isAuthenticated.value = true
+		if ( response.success ) {
+			user.value = response.data.user
+			token.value = response.data.token
+			isAuthenticated.value = true
 
-				localStorage.setItem( 'kagi_token', token.value )
-				localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+			localStorage.setItem( 'kagi_token', token.value )
+			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
 
-				return response.data
-			}
-			throw new Error( response.error?.message || 'Login failed' )
-		} else {
-			// Real backend implementation would go here
-			throw new Error( 'Real backend not implemented yet' )
+			return response.data
 		}
+		throw new Error( response.error?.message || 'Login failed' )
 	} catch ( error ) {
 		console.error( 'Admin login failed:', error )
 		throw error
@@ -157,40 +158,29 @@ export const checkAuth = async () => {
 		user.value = JSON.parse( storedUser )
 		isAuthenticated.value = true
 
-		if ( USE_MOCK_BACKEND ) {
-			// Mock backend always validates stored tokens
-			try {
-				const auth = await backend.auth()
-				const response = await auth.getCurrentUser()
+		try {
+			const auth = await backend.auth()
+			const response = await auth.getCurrentUser()
 
-				if ( response.success && response.data ) {
-					user.value = response.data
-					localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
-					return true
-				}
-			} catch ( error ) {
-				console.error( 'Auth check failed:', error )
+			if ( response.success && response.data ) {
+				user.value = response.data
+				localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+				return true
 			}
-			// Only logout if token is invalid
-			logout()
-			return false
-		} else {
-			// Real backend implementation would go here
-			// For now, trust the stored token
-			return true
+		} catch ( error ) {
+			console.error( 'Auth check failed:', error )
 		}
+
+		logout()
+		return false
 	}
 	return false
 }
 
 export const logout = async () => {
 	try {
-		if ( USE_MOCK_BACKEND ) {
-			const auth = await backend.auth()
-			await auth.logout()
-		} else {
-			// Real backend implementation would go here
-		}
+		const auth = await backend.auth()
+		await auth.logout()
 	} catch ( error ) {
 		console.error( 'Logout error:', error )
 	}
