@@ -807,4 +807,4 @@ class SupabaseBackend {
 
 // Create singleton
 const backend = new SupabaseBackend()
-export { SupabaseBackend, backend as default }
+export { backend as default, SupabaseBackend }

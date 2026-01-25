@@ -7,7 +7,11 @@
 		<div class="language-switcher-container">
 			<LanguageSwitcher />
 		</div>
-		<div class="login-container">
+		<div v-if="checkingSession" class="loading-overlay">
+			<div class="loader" />
+			<p>{{ $t('login.loading') || 'Loading...' }}</p>
+		</div>
+		<div v-else class="login-container">
 			<div class="login-card glass-card">
 				<div class="logo-section">
 					<KagiLogo :size="80" color="#333" />
@@ -134,7 +138,8 @@ export default {
 			error: '',
 			magicLinkSent: false,
 			showEmailPopup: false,
-			magicLinkToken: ''
+			magicLinkToken: '',
+			checkingSession: true // Start true to prevent flicker
 		}
 	},
 	async mounted() {
@@ -157,6 +162,9 @@ export default {
 
 		if ( magicToken ) {
 			this.loading = true
+			this.checkingSession = false // Show loader (controlled by loading state in template? No, need to adjust)
+			// Actually we want to show *nothing* or a full page loader while verifying.
+			// Let's use checkingSession to cover this case too or just render the loader.
 			try {
 				console.log( '[Login] Verifying magic token...' )
 				await store.verifyMagicLink( magicToken )
@@ -165,6 +173,7 @@ export default {
 			} catch ( err ) {
 				console.error( '[Login] Verification failed:', err )
 				this.error = this.$t( 'login.errors.invalidLink' )
+				this.checkingSession = false // Show form with error
 			} finally {
 				this.loading = false
 			}
@@ -176,6 +185,8 @@ export default {
 			if ( hasSession ) {
 				console.log( '[Login] Active session found, redirecting to dashboard' )
 				this.$router.push( '/dashboard' )
+			} else {
+				this.checkingSession = false // Show form
 			}
 		}
 	},
@@ -231,6 +242,36 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.loading-overlay
+	position fixed
+	top 0
+	left 0
+	right 0
+	bottom 0
+	display flex
+	flex-direction column
+	justify-content center
+	align-items center
+	background rgba(255, 255, 255, 0.8)
+	z-index 100
+	color #333
+	font-weight bold
+
+	.loader
+		width 50px
+		height 50px
+		border 5px solid #f3f3f3
+		border-top 5px solid #FFC107
+		border-radius 50%
+		margin-bottom 1rem
+		animation spin 1s linear infinite
+
+@keyframes spin
+	0%
+		transform rotate(0deg)
+	100%
+		transform rotate(360deg)
+
 .login-page
 	min-height 100vh
 	display flex

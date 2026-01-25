@@ -1,4 +1,5 @@
 // Mobile-specific initialization
+import { App } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { Keyboard, KeyboardStyle } from '@capacitor/keyboard'
 import { SplashScreen } from '@capacitor/splash-screen'
@@ -37,3 +38,16 @@ export function isNative() {
 export function getPlatform() {
 	return Capacitor.getPlatform() // 'ios', 'android', or 'web'
 }
+
+// Listen for deep links (e.g. kagi://)
+export function listenForDeepLinks( callback ) {
+	if ( !Capacitor.isNativePlatform() ) {
+		return
+	}
+
+	App.addListener( 'appUrlOpen', ( event ) => {
+		console.log( '🔗 Deep link opened:', event.url )
+		callback( event.url )
+	} )
+}
+

@@ -12,6 +12,7 @@ import { TinyRouter } from 'vue-tiny-router'
 import { loadTranslations } from 'vue-tiny-translation'
 
 import { detectLang } from '@/makio/utils/detect'
+import { listenForDeepLinks } from '@/mobile'
 import { contentLoaded, initAuth } from '@/store'
 
 // Configure engine with default settings
@@ -104,6 +105,30 @@ export default {
 		setTimeout( () => {
 			this.hideInitialLoader()
 		}, 500 )
+
+		// Listen for deep links (e.g. magic link login)
+		listenForDeepLinks( ( url ) => {
+			// Extract token from URL if present (magic link)
+			if ( url.includes( 'token=' ) || url.includes( 'access_token=' ) ) {
+				// We can't easily push URL params to TinyRouter if it manages hash/history differently.
+				// But Supabase client reads window.location.
+				// If we update window.location, the app might reload.
+				// Best is to manually trigger navigation to /login with params
+
+				// Basic parsing
+				const parts = url.split( '?' )
+				// const path = parts[0].replace( /.*:\/\/.*?\//, '/' ) // Remove scheme://host
+				// For magic links it might come as query params or hash
+
+				// Simply redirect to login, Login.vue will check session or params (if we could pass them)
+				// Since we added checkSession() in Login.vue, if Supabase handles the session from the URL internally
+				// (which it usually does from the intent), we just need to be at the page.
+				// BUT Supabase JS client inside WebView might not see the intent URL initially.
+				// We might need to handle session manually.
+				// For now, let's navigate to Login.
+				window.location.href = '#/login'
+			}
+		} )
 	},
 	methods: {
 		hideInitialLoader() {
