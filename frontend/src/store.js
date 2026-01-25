@@ -123,6 +123,31 @@ export const verifyMagicLink = async ( magicToken ) => {
 	}
 }
 
+export const checkSession = async () => {
+	loading.value = true
+	try {
+		const auth = await backend.auth()
+		// Try to recover session (Supabase handles URL parsing internally)
+		const response = await auth.session()
+
+		if ( response.success && response.data ) {
+			user.value = response.data.user
+			token.value = response.data.token
+			isAuthenticated.value = true
+
+			localStorage.setItem( 'kagi_token', token.value )
+			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+
+			return true
+		}
+	} catch ( error ) {
+		// No session found is normal
+	} finally {
+		loading.value = false
+	}
+	return false
+}
+
 export const adminLogin = async ( email, password ) => {
 	loading.value = true
 	try {

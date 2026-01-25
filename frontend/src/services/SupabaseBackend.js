@@ -97,15 +97,21 @@ class SupabaseBackend {
 			verifyMagicLink: async ( codeOrToken ) => {
 				let session = null
 
+				console.log( '[SupabaseBackend] Exchanging code for session:', codeOrToken?.substring( 0, 20 ) + '...' )
+
 				// Try PKCE code exchange first (newer Supabase flow)
 				const { data, error } = await this.supabase.auth.exchangeCodeForSession( codeOrToken )
+
+				console.log( '[SupabaseBackend] Exchange result:', { hasSession: !!data?.session, error: error?.message } )
 
 				if ( !error && data?.session ) {
 					session = data.session
 				} else {
 					// Fallback: check if session already exists (implicit flow)
+					console.log( '[SupabaseBackend] Trying fallback getSession...' )
 					const { data: sessionData } = await this.supabase.auth.getSession()
 					session = sessionData?.session
+					console.log( '[SupabaseBackend] Fallback result:', { hasSession: !!session } )
 				}
 
 				if ( !session ) throw this.createError( 'Invalid or expired token', 401 )

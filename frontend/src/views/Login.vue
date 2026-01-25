@@ -153,15 +153,29 @@ export default {
 
 		const magicToken = token || code || ( hashType === 'magiclink' ? accessToken : null )
 
+		console.log( '[Login] URL params:', { token, code, accessToken, hashType, magicToken } )
+
 		if ( magicToken ) {
 			this.loading = true
 			try {
+				console.log( '[Login] Verifying magic token...' )
 				await store.verifyMagicLink( magicToken )
+				console.log( '[Login] Verification successful, redirecting to dashboard' )
 				this.$router.push( '/dashboard' )
-			} catch {
+			} catch ( err ) {
+				console.error( '[Login] Verification failed:', err )
 				this.error = this.$t( 'login.errors.invalidLink' )
 			} finally {
 				this.loading = false
+			}
+		} else {
+			// Check if Supabase already consumed the token and has a session
+			// or if the user is already logged in
+			console.log( '[Login] No token in URL, checking for active session...' )
+			const hasSession = await store.checkSession()
+			if ( hasSession ) {
+				console.log( '[Login] Active session found, redirecting to dashboard' )
+				this.$router.push( '/dashboard' )
 			}
 		}
 	},
