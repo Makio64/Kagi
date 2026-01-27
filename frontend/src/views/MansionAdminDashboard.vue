@@ -68,6 +68,16 @@ export default {
 	},
 	mounted() {
 		document.querySelector( '#app' )?.scrollTo( 0, 0 )
+
+		// Security: Verify user has mansion admin/manager/admin role
+		if ( !store.isAuthenticated.value ) {
+			this.$router.push( '/login' )
+			return
+		}
+		const allowedRoles = ['admin', 'manager', 'mansion_admin']
+		if ( !allowedRoles.includes( store.userRole.value ) ) {
+			this.$router.push( '/dashboard' )
+		}
 	},
 	methods: {
 		navigateToSection( section ) {

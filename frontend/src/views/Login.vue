@@ -223,13 +223,16 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				await store.adminLogin( this.adminEmail, this.adminPassword )
+				const result = await store.adminLogin( this.adminEmail, this.adminPassword )
 
-				// Admin login always goes to mansion dashboard, except for specific "admin" email
-				if ( this.adminEmail === 'admin' || this.adminEmail === 'admin@kagi.com' ) {
-					this.$router.push( '/admin-dashboard' )  // Only for exact "admin" email
+				// Route based on actual role from backend, not email matching
+				const role = result.user?.role || store.userRole.value
+				if ( role === 'admin' ) {
+					this.$router.push( '/admin-dashboard' )
+				} else if ( role === 'manager' || role === 'mansion_admin' ) {
+					this.$router.push( '/mansion-dashboard' )
 				} else {
-					this.$router.push( '/mansion-dashboard' )  // All other admin logins go to mansion dashboard
+					this.$router.push( '/dashboard' )
 				}
 			} catch {
 				this.error = this.$t( 'login.errors.invalidCredentials' )

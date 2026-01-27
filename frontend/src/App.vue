@@ -13,7 +13,7 @@ import { loadTranslations } from 'vue-tiny-translation'
 
 import { detectLang } from '@/makio/utils/detect'
 import { listenForDeepLinks } from '@/mobile'
-import { contentLoaded, initAuth } from '@/store'
+import { contentLoaded, initAuth, isAdmin, isAuthenticated, isMansionAdmin, userRole } from '@/store'
 
 // Configure engine with default settings
 engine.timeUnit = 's'
@@ -84,8 +84,9 @@ export default {
 				this.hideInitialLoader()
 			}
 		},
-		'$route'() {
+		'$route'( route ) {
 			window.scrollTo( 0, 0 )
+			this.checkRouteAccess( route )
 		}
 	},
 	async mounted() {
@@ -139,6 +140,46 @@ export default {
 				setTimeout( () => {
 					loader.remove()
 				}, 800 )
+			}
+		},
+		checkRouteAccess( route ) {
+			const path = route?.path || window.location.hash.replace( '#', '' )
+
+			// Admin dashboard requires admin role
+			if ( path.startsWith( '/admin-dashboard' ) ) {
+				if ( !isAuthenticated.value ) {
+					this.$router.push( '/login' )
+					return
+				}
+				if ( !isAdmin.value ) {
+					// Redirect non-admins to their appropriate dashboard
+					if ( isMansionAdmin.value || userRole.value === 'manager' ) {
+						this.$router.push( '/mansion-dashboard' )
+					} else {
+						this.$router.push( '/dashboard' )
+					}
+					return
+				}
+			}
+
+			// Mansion dashboard requires mansion_admin, manager, or admin role
+			if ( path.startsWith( '/mansion-dashboard' ) ) {
+				if ( !isAuthenticated.value ) {
+					this.$router.push( '/login' )
+					return
+				}
+				const allowedRoles = ['admin', 'manager', 'mansion_admin']
+				if ( !allowedRoles.includes( userRole.value ) ) {
+					this.$router.push( '/dashboard' )
+					return
+				}
+			}
+
+			// Regular dashboard requires authentication
+			if ( path.startsWith( '/dashboard' ) ) {
+				if ( !isAuthenticated.value ) {
+					this.$router.push( '/login' )
+				}
 			}
 		}
 	},

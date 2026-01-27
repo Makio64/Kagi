@@ -202,6 +202,26 @@ export const checkAuth = async () => {
 	return false
 }
 
+// Refresh user role from backend (security measure - don't trust localStorage alone)
+export const refreshUserRole = async () => {
+	if ( !isAuthenticated.value ) return false
+
+	try {
+		const auth = await backend.auth()
+		const response = await auth.getCurrentUser()
+
+		if ( response.success && response.data ) {
+			// Update user with fresh data from backend
+			user.value = response.data
+			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+			return true
+		}
+	} catch ( error ) {
+		console.error( 'Failed to refresh user role:', error )
+	}
+	return false
+}
+
 export const logout = async () => {
 	try {
 		const auth = await backend.auth()

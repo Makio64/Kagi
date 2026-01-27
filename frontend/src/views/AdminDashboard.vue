@@ -436,6 +436,20 @@ export default {
 	},
 	mounted() {
 		document.querySelector( '#app' )?.scrollTo( 0, 0 )
+
+		// Security: Verify user has admin role
+		if ( !store.isAuthenticated.value ) {
+			this.$router.push( '/login' )
+			return
+		}
+		if ( !store.isAdmin.value ) {
+			// Redirect to appropriate dashboard based on role
+			if ( store.isMansionAdmin.value || store.userRole.value === 'manager' ) {
+				this.$router.push( '/mansion-dashboard' )
+			} else {
+				this.$router.push( '/dashboard' )
+			}
+		}
 	},
 	methods: {
 		navigateToSection( section ) {
