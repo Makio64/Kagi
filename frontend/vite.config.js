@@ -1,6 +1,12 @@
 import path from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 
+import { sentryVitePlugin } from '@sentry/vite-plugin'
+import { config } from 'dotenv'
+import { transform } from 'esbuild'
+
+// Load .env file for SENTRY_* variables (Vite only auto-loads VITE_* prefixed vars)
+config()
 import vue from '@vitejs/plugin-vue'
 import cssnano from 'cssnano'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -56,15 +62,28 @@ export default defineConfig( {
 		// network, sunburst, treemap, icicle
 		// visualizer( { open: true, brotliSize: true, template: 'sunburst', emitFile: false, sourcemap: true } ),
 		brotliSizePlugin(),
+		// Sentry source maps (production only)
+		...( isProd && process.env.SENTRY_AUTH_TOKEN ? [
+			sentryVitePlugin( {
+				org: process.env.SENTRY_ORG,
+				project: process.env.SENTRY_PROJECT,
+				authToken: process.env.SENTRY_AUTH_TOKEN,
+				telemetry: false,
+				silent: true,
+				sourcemaps: {
+					filesToDeleteAfterUpload: ['./dist/**/*.map']
+				}
+			} )
+		] : [] ),
 	],
 	build: {
 		target: 'esnext',
 		emptyOutDir: true,
-		sourcemap: false,
+		sourcemap: 'hidden',
 		cssCodeSplit: false,
 		// Enable minification for all file types
 		minify: 'terser', // Use terser for better JS minification
-		cssMinify: 'esbuild', // Fast CSS minification
+		cssMinify: 'esbuild',
 		terserOptions: {
 			compress: {
 				drop_console: true, // Remove console.log statements

@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
 
 // Mock window.location for magic link tests
 Object.defineProperty( window, 'location', {

@@ -11,6 +11,8 @@
 		"lint": "eslint src --fix",
 		"test": "vitest",
 		"test:run": "vitest run",
+		"test:unit": "vitest run --exclude='**/*.integration.test.js'",
+		"test:integration": "vitest run --include='**/*.integration.test.js'",
 		"test:coverage": "vitest run --coverage",
 		"optimizeImg": "node nodejs-tools/optimizeImg.js",
 		"optimizeKtx": "node nodejs-tools/optimizeKtx.js",
@@ -32,6 +34,7 @@
 		"@capacitor/keyboard": "^8.0.0",
 		"@capacitor/splash-screen": "^8.0.0",
 		"@capacitor/status-bar": "^8.0.0",
+		"@sentry/vue": "^10.37.0",
 		"@supabase/supabase-js": "^2.91.1",
 		"animejs": "^4.2.2",
 		"axios": "^1.13.2",
@@ -46,12 +49,11 @@
 	},
 	"devDependencies": {
 		"@capacitor/assets": "^3.0.5",
-		"@vue/test-utils": "^2.4.6",
-		"happy-dom": "^15.0.0",
-		"vitest": "^3.0.0",
 		"@eslint/eslintrc": "^3.3.3",
+		"@sentry/vite-plugin": "^4.8.0",
 		"@stylistic/eslint-plugin": "^5.7.0",
 		"@vitejs/plugin-vue": "^6.0.3",
+		"@vue/test-utils": "^2.4.6",
 		"airtable": "^0.12.2",
 		"copy-and-watch": "^0.1.8",
 		"cssnano": "^7.1.2",
@@ -61,6 +63,7 @@
 		"eslint-plugin-unused-imports": "^4.3.0",
 		"eslint-plugin-vue": "^10.6.2",
 		"fast-glob": "^3.3.3",
+		"happy-dom": "^15.0.0",
 		"postcss": "^8.5.6",
 		"rollup-plugin-visualizer": "^6.0.5",
 		"sharp": "^0.34.5",
@@ -74,6 +77,7 @@
 		"vite-plugin-mkcert": "^1.17.9",
 		"vite-plugin-qrcode": "^0.3.0",
 		"vite-plugin-tsl-operator": "^1.6.0",
+		"vitest": "^3.0.0",
 		"vue-eslint-parser": "^10.2.0"
 	},
 	"pnpm": {
@@ -82,7 +86,8 @@
 			"micromatch@<4.0.8": ">=4.0.8",
 			"rollup@>=4.0.0 <4.22.4": ">=4.22.4",
 			"cross-spawn@<7.0.5": ">=7.0.5",
-			"nanoid@<3.3.8": ">=3.3.8"
+			"nanoid@<3.3.8": ">=3.3.8",
+			"baseline-browser-mapping": "latest"
 		},
 		"onlyBuiltDependencies": [
 			"esbuild",

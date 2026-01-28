@@ -219,17 +219,58 @@ class SupabaseBackend {
 	}
 
 	/**
-	 * Get all users, optionally filtered by mansion
+	 * Get all users with optional filtering, search, sorting, and pagination
+	 * @param {Object|string} options - Options object or mansionId for backward compatibility
+	 * @param {string} options.mansionId - Filter by mansion ID
+	 * @param {string} options.role - Filter by role
+	 * @param {string} options.search - Search by name or email
+	 * @param {number} options.page - Page number (1-indexed)
+	 * @param {number} options.limit - Items per page
+	 * @param {string} options.sort - Sort field (prefix with - for descending)
 	 */
-	async getUsers( mansionId = null ) {
+	async getUsers( options = {} ) {
+		// Backward compatibility: if a string is passed, treat it as mansionId
+		if ( typeof options === 'string' || options === null ) {
+			options = { mansionId: options }
+		}
+
+		const {
+			mansionId = null,
+			role = null,
+			search = null,
+			page = 1,
+			limit = 25,
+			sort = '-createdAt'
+		} = options
+
 		let query = this.supabase
 			.from( 'profiles' )
 			.select( '*, mansions(name)', { count: 'exact' } )
-			.order( 'created_at', { ascending: false } )
 
+		// Apply mansion filter
 		if ( mansionId ) {
 			query = query.eq( 'mansion_id', mansionId )
 		}
+
+		// Apply role filter
+		if ( role ) {
+			query = query.eq( 'role', role )
+		}
+
+		// Apply search (name, email)
+		if ( search && search.trim() ) {
+			const searchTerm = search.trim()
+			query = query.or( `name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%` )
+		}
+
+		// Apply sorting
+		const desc = sort.startsWith( '-' )
+		const sortField = sort.replace( /^-/, '' ).replace( /([A-Z])/g, '_$1' ).toLowerCase()
+		query = query.order( sortField, { ascending: !desc } )
+
+		// Apply pagination
+		const start = ( page - 1 ) * limit
+		query = query.range( start, start + limit - 1 )
 
 		const { data, error, count } = await query
 
@@ -249,7 +290,12 @@ class SupabaseBackend {
 			settings: u.settings,
 			createdAt: u.created_at,
 			updatedAt: u.updated_at
-		} ) ), { total: count || 0 } )
+		} ) ), {
+			page,
+			limit,
+			total: count || 0,
+			totalPages: Math.ceil( ( count || 0 ) / limit )
+		} )
 	}
 
 	/**
@@ -304,34 +350,60 @@ class SupabaseBackend {
 	 * Get system-wide stats for admin dashboard
 	 */
 	async getSystemStats() {
-		const [mansionsRes, usersRes, maintenanceRes, billsRes] = await Promise.all( [
+		// Calculate date ranges for "this month" and "last month"
+		const now = new Date()
+		const thisMonthStart = new Date( now.getFullYear(), now.getMonth(), 1 ).toISOString()
+		const lastMonthStart = new Date( now.getFullYear(), now.getMonth() - 1, 1 ).toISOString()
+		const lastMonthEnd = new Date( now.getFullYear(), now.getMonth(), 0, 23, 59, 59 ).toISOString()
+
+		const [mansionsRes, mansionsThisMonthRes, usersRes, usersThisMonthRes, maintenanceRes, billsRes, billsLastMonthRes] = await Promise.all( [
 			this.supabase.from( 'mansions' ).select( 'id', { count: 'exact' } ),
-			this.supabase.from( 'profiles' ).select( 'id, role', { count: 'exact' } ),
-			this.supabase.from( 'maintenance_requests' ).select( 'id, status', { count: 'exact' } ),
-			this.supabase.from( 'bills' ).select( 'id, amount, status', { count: 'exact' } )
+			this.supabase.from( 'mansions' ).select( 'id', { count: 'exact' } ).gte( 'created_at', thisMonthStart ),
+			this.supabase.from( 'profiles' ).select( 'id, role, created_at', { count: 'exact' } ),
+			this.supabase.from( 'profiles' ).select( 'id, role', { count: 'exact' } ).eq( 'role', 'resident' ).gte( 'created_at', thisMonthStart ),
+			this.supabase.from( 'maintenance_requests' ).select( 'id, status, priority', { count: 'exact' } ),
+			this.supabase.from( 'bills' ).select( 'id, amount, status, paid_at', { count: 'exact' } ),
+			this.supabase.from( 'bills' ).select( 'id, amount', { count: 'exact' } ).eq( 'status', 'paid' ).gte( 'paid_at', lastMonthStart ).lte( 'paid_at', lastMonthEnd )
 		] )
 
 		const users = usersRes.data || []
 		const maintenance = maintenanceRes.data || []
 		const bills = billsRes.data || []
+		const billsLastMonth = billsLastMonthRes.data || []
+
+		// Calculate revenue for this month and last month for percentage change
+		const revenueThisMonth = bills
+			.filter( b => b.status === 'paid' && b.paid_at && new Date( b.paid_at ) >= new Date( thisMonthStart ) )
+			.reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 )
+		const revenueLastMonth = billsLastMonth.reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 )
+		const percentChange = revenueLastMonth > 0
+			? Math.round( ( ( revenueThisMonth - revenueLastMonth ) / revenueLastMonth ) * 100 )
+			: ( revenueThisMonth > 0 ? 100 : 0 )
 
 		return this.createResponse( {
 			buildings: {
-				total: mansionsRes.count || 0
+				total: mansionsRes.count || 0,
+				thisMonth: mansionsThisMonthRes.count || 0
 			},
 			users: {
 				total: usersRes.count || 0,
 				residents: users.filter( u => u.role === 'resident' ).length,
-				admins: users.filter( u => ['admin', 'mansion_admin', 'manager'].includes( u.role ) ).length
+				admins: users.filter( u => ['admin', 'mansion_admin', 'manager'].includes( u.role ) ).length,
+				residentsThisMonth: usersThisMonthRes.count || 0
 			},
 			maintenance: {
 				total: maintenanceRes.count || 0,
 				pending: maintenance.filter( m => m.status === 'pending' ).length,
-				inProgress: maintenance.filter( m => m.status === 'in_progress' ).length
+				inProgress: maintenance.filter( m => m.status === 'in_progress' ).length,
+				completed: maintenance.filter( m => m.status === 'completed' ).length,
+				urgent: maintenance.filter( m => m.priority === 'urgent' ).length
 			},
 			revenue: {
 				total: bills.filter( b => b.status === 'paid' ).reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 ),
-				pending: bills.filter( b => b.status === 'pending' ).reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 )
+				pending: bills.filter( b => b.status === 'pending' ).reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 ),
+				thisMonth: revenueThisMonth,
+				lastMonth: revenueLastMonth,
+				percentChange
 			}
 		} )
 	}

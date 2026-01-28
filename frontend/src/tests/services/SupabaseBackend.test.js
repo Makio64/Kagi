@@ -1,16 +1,15 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
-	createMockSupabaseClient,
-	mockSupabaseResponse,
-	createMockProfile,
+	createMockAnnouncement,
+	createMockBill,
 	createMockBooking,
 	createMockMaintenance,
-	createMockBill,
 	createMockMansion,
 	createMockNotification,
-	createMockAnnouncement
-} from '../mocks/supabase.js'
+	createMockProfile,
+	createMockSupabaseClient,
+	mockSupabaseResponse } from '../mocks/supabase.js'
 
 // Mock the Supabase module before importing SupabaseBackend
 vi.mock( '@supabase/supabase-js', () => ( {
@@ -937,7 +936,8 @@ describe( 'SupabaseBackend', () => {
 	describe( 'getUsers()', () => {
 		it( 'should return all users with mansion names', async () => {
 			const mockUsers = [createMockProfile()]
-			mockSupabase._queryMock.order.mockResolvedValue( {
+			// getUsers chain: select().or().order().range()
+			mockSupabase._queryMock.range.mockResolvedValue( {
 				data: mockUsers,
 				error: null,
 				count: 1
@@ -950,19 +950,16 @@ describe( 'SupabaseBackend', () => {
 		} )
 
 		it( 'should filter by mansionId when provided', async () => {
-			// For getUsers with mansionId, the chain is: .select().order().eq()
-			// We need order() to return a chainable mock that has eq()
-			const chainMock = mockSupabase._createChainableMock()
-			chainMock.eq.mockResolvedValue( {
+			// getUsers with mansionId: select().eq().or().order().range()
+			mockSupabase._queryMock.range.mockResolvedValue( {
 				data: [],
 				error: null,
 				count: 0
 			} )
-			mockSupabase._queryMock.order.mockReturnValue( chainMock )
 
-			await backend.getUsers( 'man_001' )
+			await backend.getUsers( { mansionId: 'man_001' } )
 
-			expect( chainMock.eq ).toHaveBeenCalledWith( 'mansion_id', 'man_001' )
+			expect( mockSupabase._queryMock.eq ).toHaveBeenCalledWith( 'mansion_id', 'man_001' )
 		} )
 	} )
 
@@ -1016,58 +1013,83 @@ describe( 'SupabaseBackend', () => {
 
 	describe( 'getSystemStats()', () => {
 		it( 'should aggregate statistics correctly', async () => {
-			// Mock parallel queries
-			mockSupabase.from.mockImplementation( ( table ) => {
-				const mock = createMockSupabaseClient()._queryMock
+			// Create chainable mock that properly resolves with then()
+			const createChainMock = ( data, count ) => {
+				const chainMock = {
+					select: vi.fn().mockReturnThis(),
+					gte: vi.fn().mockReturnThis(),
+					lte: vi.fn().mockReturnThis(),
+					eq: vi.fn().mockReturnThis(),
+					data,
+					count,
+					then: ( resolve ) => resolve( { data, count, error: null } )
+				}
+				chainMock.select.mockReturnValue( chainMock )
+				return chainMock
+			}
 
+			// Track call counts per table to return different data for different queries
+			let mansionsCallCount = 0
+			let profilesCallCount = 0
+			let billsCallCount = 0
+
+			mockSupabase.from.mockImplementation( ( table ) => {
 				if ( table === 'mansions' ) {
-					mock.select.mockReturnValue( {
-						data: [{}, {}],
-						count: 2
-					} )
-					return mock
+					mansionsCallCount++
+					// First call: total count, Second call: thisMonth count
+					return createChainMock( mansionsCallCount === 1 ? [{}, {}] : [{}], mansionsCallCount === 1 ? 2 : 1 )
 				}
 				if ( table === 'profiles' ) {
-					mock.select.mockReturnValue( {
-						data: [
-							{ role: 'resident' },
-							{ role: 'resident' },
-							{ role: 'admin' }
-						],
-						count: 3
-					} )
-					return mock
+					profilesCallCount++
+					// First call: all users, Second call: residents this month
+					if ( profilesCallCount === 1 ) {
+						return createChainMock( [
+							{ role: 'resident', created_at: '2024-01-15' },
+							{ role: 'resident', created_at: '2024-01-10' },
+							{ role: 'admin', created_at: '2024-01-01' }
+						], 3 )
+					}
+					return createChainMock( [{ role: 'resident' }], 1 )
 				}
 				if ( table === 'maintenance_requests' ) {
-					mock.select.mockReturnValue( {
-						data: [
-							{ status: 'pending' },
-							{ status: 'in_progress' }
-						],
-						count: 2
-					} )
-					return mock
+					return createChainMock( [
+						{ status: 'pending', priority: 'medium' },
+						{ status: 'in_progress', priority: 'high' },
+						{ status: 'completed', priority: 'low' },
+						{ status: 'pending', priority: 'urgent' }
+					], 4 )
 				}
 				if ( table === 'bills' ) {
-					mock.select.mockReturnValue( {
-						data: [
-							{ amount: 10000, status: 'paid' },
-							{ amount: 5000, status: 'pending' }
-						],
-						count: 2
-					} )
-					return mock
+					billsCallCount++
+					// First call: all bills, Second call: last month's paid bills
+					if ( billsCallCount === 1 ) {
+						return createChainMock( [
+							{ amount: 10000, status: 'paid', paid_at: '2024-01-15' },
+							{ amount: 5000, status: 'pending', paid_at: null }
+						], 2 )
+					}
+					return createChainMock( [{ amount: 8000 }], 1 )
 				}
-				return mock
+				return createChainMock( [], 0 )
 			} )
 
 			const result = await backend.getSystemStats()
 
 			expect( result.success ).toBe( true )
 			expect( result.data.buildings ).toBeDefined()
+			expect( result.data.buildings.total ).toBe( 2 )
+			expect( result.data.buildings.thisMonth ).toBe( 1 )
 			expect( result.data.users ).toBeDefined()
+			expect( result.data.users.residents ).toBe( 2 )
+			expect( result.data.users.residentsThisMonth ).toBe( 1 )
 			expect( result.data.maintenance ).toBeDefined()
+			expect( result.data.maintenance.pending ).toBe( 2 )
+			expect( result.data.maintenance.inProgress ).toBe( 1 )
+			expect( result.data.maintenance.completed ).toBe( 1 )
+			expect( result.data.maintenance.urgent ).toBe( 1 )
 			expect( result.data.revenue ).toBeDefined()
+			expect( result.data.revenue.total ).toBe( 10000 )
+			expect( result.data.revenue.pending ).toBe( 5000 )
 		} )
 	} )
 
@@ -1095,9 +1117,7 @@ describe( 'SupabaseBackend', () => {
 
 		it( 'should return conflicts with overlapping bookings', async () => {
 			mockSupabase._queryMock.gt.mockResolvedValue( {
-				data: [
-					{ id: 'conflict_1', start_date: '2024-02-01T11:00:00', end_date: '2024-02-01T13:00:00' }
-				],
+				data: [{ id: 'conflict_1', start_date: '2024-02-01T11:00:00', end_date: '2024-02-01T13:00:00' }],
 				error: null
 			} )
 
@@ -1230,9 +1250,7 @@ describe( 'SupabaseBackend', () => {
 
 	describe( '_generateTrend()', () => {
 		it( 'should generate data points for specified days', () => {
-			const data = [
-				{ created_at: new Date().toISOString() }
-			]
+			const data = [{ created_at: new Date().toISOString() }]
 
 			const result = backend._generateTrend( data, 'created_at', 7 )
 

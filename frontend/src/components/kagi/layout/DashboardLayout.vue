@@ -9,7 +9,7 @@
 			<div class="header-content">
 				<div class="header-left" @click="handleLogoClick">
 					<KagiLogo :size="48" :class="['logo']" color="#333333" />
-					<h1 v-if="userProfile.residenceName" class="residence-name">{{ userProfile.residenceName }}</h1>
+					<h1 v-if="userProfile.residenceName && showsMansionName" class="residence-name">{{ userProfile.residenceName }}</h1>
 					<h1 v-else>{{ title }}</h1>
 				</div>
 				<div class="header-right">
@@ -30,15 +30,15 @@
 					<button class="close-menu-btn" @click="showMobileMenu = false">✕</button>
 				</div>
 				<div class="mobile-menu-content">
-					<div v-if="userProfile.residenceName" class="mobile-mansion-name">
+					<div v-if="userProfile.residenceName && showsMansionName" class="mobile-mansion-name">
 						{{ userProfile.residenceName }}
 					</div>
 					<div class="mobile-user-info">
 						<div v-if="userProfile.userName" class="user-info-item user-name">{{ userProfile.userName }}</div>
-						<div v-if="userProfile.roomNumber" class="user-info-item">
+						<div v-if="userProfile.roomNumber && isResidentRole" class="user-info-item">
 							<span class="label">{{ $t('dashboard.profile.apartment') }}:</span> {{ userProfile.roomNumber }}
 						</div>
-						<div v-if="userProfile.userPhone" class="user-info-item">
+						<div v-if="userProfile.userPhone && isResidentRole" class="user-info-item">
 							{{ userProfile.userPhone }}
 						</div>
 						<div class="user-info-item">
@@ -126,6 +126,12 @@ export default {
 		},
 		userRole() {
 			return store.userRole.value
+		},
+		isResidentRole() {
+			return this.userRole === 'resident' || this.userRole === 'landlord'
+		},
+		showsMansionName() {
+			return this.userRole !== 'admin'
 		},
 		mobileMenuItems() {
 			// Filter out documents, bills, and maintenance from mobile menu

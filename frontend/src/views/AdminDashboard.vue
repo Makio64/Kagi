@@ -6,7 +6,7 @@
 		:menu-items="menuItemsWithLabels"
 		:active-section="activeSection"
 		@navigate="navigateToSection"
-		@logout="store.logout()"
+		@logout="handleLogout"
 		@logo-click="navigateToSection('overview')"
 	>
 		<div class="admin-dashboard-content">
@@ -14,6 +14,7 @@
 			<AdminOverviewSection
 				v-if="activeSection === 'overview'"
 				:stats="overviewStats"
+				:trends="overviewTrends"
 				:recent-activities="recentActivities"
 			/>
 
@@ -84,13 +85,71 @@
 					</template>
 				</SectionHeader>
 
+				<!-- Filter Bar -->
+				<div class="users-filter-bar">
+					<div class="filter-search">
+						<input
+							v-model="userFilters.search"
+							type="search"
+							class="search-input"
+							:placeholder="$t('admin.users.searchPlaceholder')"
+							@input="handleUserSearch($event.target.value)"
+						>
+					</div>
+
+					<div class="filter-group">
+						<label class="filter-label">{{ $t('admin.users.role') }}</label>
+						<select
+							v-model="userFilters.role"
+							class="filter-select"
+							@change="handleRoleFilter(userFilters.role)"
+						>
+							<option :value="null">{{ $t('admin.users.allRoles') }}</option>
+							<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+								{{ role.label }}
+							</option>
+						</select>
+					</div>
+
+					<div class="filter-group">
+						<label class="filter-label">{{ $t('admin.users.building') }}</label>
+						<select
+							v-model="userFilters.mansionId"
+							class="filter-select"
+							@change="handleBuildingFilter(userFilters.mansionId)"
+						>
+							<option :value="null">{{ $t('admin.users.allBuildings') }}</option>
+							<option v-for="building in buildings" :key="building.id" :value="building.id">
+								{{ building.name }}
+							</option>
+						</select>
+					</div>
+
+					<KButton
+						v-if="hasActiveFilters"
+						variant="ghost"
+						size="sm"
+						@click="clearUserFilters"
+					>
+						{{ $t('admin.users.clearFilters') }}
+					</KButton>
+				</div>
+
+				<!-- Results Count -->
+				<div v-if="userPagination.total > 0" class="users-results-info">
+					<span class="results-count">
+						{{ $t('admin.users.showingResults', { start: userResultsStart, end: userResultsEnd, total: userPagination.total }) }}
+					</span>
+				</div>
+
 				<div v-if="isLoadingUsers" class="loading-state">
-					<p>{{ $t('common.loading') || 'Loading...' }}</p>
+					<p>{{ $t('common.loading') }}</p>
 				</div>
 
 				<div v-else-if="users.length === 0" class="empty-state">
-					<p>{{ $t('admin.users.empty') || 'No users yet. Invite your first user!' }}</p>
-					<KButton variant="primary" @click="openInviteUserModal">
+					<p v-if="hasActiveFilters">{{ $t('admin.users.noResults') }}</p>
+					<p v-else>{{ $t('admin.users.empty') }}</p>
+					<KButton v-if="!hasActiveFilters" variant="primary" @click="openInviteUserModal">
 						{{ $t('admin.users.invite') }}
 					</KButton>
 				</div>
@@ -100,8 +159,18 @@
 						<table>
 							<thead>
 								<tr>
-									<th>{{ $t('admin.users.name') }}</th>
-									<th>{{ $t('admin.users.email') }}</th>
+									<th class="sortable-header" @click="handleUserSort('name')">
+										{{ $t('admin.users.name') }}
+										<span v-if="userSort === 'name' || userSort === '-name'" class="sort-indicator">
+											{{ userSort === 'name' ? '▲' : '▼' }}
+										</span>
+									</th>
+									<th class="sortable-header" @click="handleUserSort('email')">
+										{{ $t('admin.users.email') }}
+										<span v-if="userSort === 'email' || userSort === '-email'" class="sort-indicator">
+											{{ userSort === 'email' ? '▲' : '▼' }}
+										</span>
+									</th>
 									<th>{{ $t('admin.users.role') }}</th>
 									<th>{{ $t('admin.users.building') }}</th>
 									<th>{{ $t('admin.users.actions') }}</th>
@@ -123,17 +192,42 @@
 										</select>
 									</td>
 									<td>{{ u.building }}</td>
-									<td>
-										<KButton
-											size="xs"
-											icon="🗑️"
-											variant="ghost"
-											@click="confirmDeleteUser(u)"
-										/>
+									<td class="actions-cell">
+										<button class="action-btn" @click="openEditUserModal(u)">
+											✏️ {{ $t('common.edit') }}
+										</button>
+										<button class="action-btn action-btn--danger" @click="confirmDeleteUser(u)">
+											🗑️ {{ $t('common.delete') }}
+										</button>
 									</td>
 								</tr>
 							</tbody>
 						</table>
+					</div>
+
+					<!-- Pagination -->
+					<div v-if="userPagination.totalPages > 1" class="pagination">
+						<KButton
+							size="sm"
+							variant="secondary"
+							:disabled="userPagination.page === 1"
+							@click="handleUserPageChange(userPagination.page - 1)"
+						>
+							{{ $t('common.previous') }}
+						</KButton>
+
+						<span class="pagination-info">
+							{{ $t('common.pageOf', { current: userPagination.page, total: userPagination.totalPages }) }}
+						</span>
+
+						<KButton
+							size="sm"
+							variant="secondary"
+							:disabled="userPagination.page >= userPagination.totalPages"
+							@click="handleUserPageChange(userPagination.page + 1)"
+						>
+							{{ $t('common.next') }}
+						</KButton>
 					</div>
 				</KCard>
 			</section>
@@ -149,25 +243,25 @@
 					<StatCard
 						icon="🚨"
 						:label="$t('admin.maintenance.urgent')"
-						:value="8"
+						:value="maintenanceStats.urgent"
 						variant="danger"
 					/>
 					<StatCard
 						icon="⏳"
 						:label="$t('admin.maintenance.pending')"
-						:value="15"
+						:value="maintenanceStats.pending"
 						variant="warning"
 					/>
 					<StatCard
 						icon="🔧"
 						:label="$t('admin.maintenance.inProgress')"
-						:value="12"
+						:value="maintenanceStats.inProgress"
 						variant="info"
 					/>
 					<StatCard
 						icon="✅"
 						:label="$t('admin.maintenance.completed')"
-						:value="142"
+						:value="maintenanceStats.completed"
 						variant="success"
 					/>
 				</div>
@@ -212,26 +306,18 @@
 					<StatCard
 						icon="💵"
 						:label="$t('admin.financial.revenue')"
-						:value="152340000"
+						:value="financialStats.revenue"
 						format="currency"
-						subtext="This Year"
+						:subtext="$t('admin.financial.collected')"
 						variant="primary"
 					/>
 					<StatCard
-						icon="💸"
-						:label="$t('admin.financial.expenses')"
-						:value="98200000"
+						icon="⏳"
+						:label="$t('admin.financial.pending')"
+						:value="financialStats.pending"
 						format="currency"
-						subtext="This Year"
-						variant="secondary"
-					/>
-					<StatCard
-						icon="💰"
-						:label="$t('admin.financial.profit')"
-						:value="54140000"
-						format="currency"
-						subtext="This Year"
-						variant="success"
+						:subtext="$t('admin.financial.outstanding')"
+						variant="warning"
 					/>
 				</div>
 
@@ -545,6 +631,69 @@
 			</template>
 		</KModal>
 
+		<!-- Edit User Modal -->
+		<KModal
+			v-model="showEditUserModal"
+			:title="$t('admin.users.editUser')"
+		>
+			<form class="modal-form" @submit.prevent="saveEditUser">
+				<div class="form-group">
+					<label>{{ $t('admin.users.email') }}</label>
+					<input
+						type="email"
+						:value="editingUser?.email"
+						disabled
+						class="input-disabled"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-name">{{ $t('admin.users.name') }}</label>
+					<input
+						id="edit-name"
+						v-model="editUserForm.name"
+						type="text"
+						:placeholder="$t('admin.users.name')"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-mansion">{{ $t('admin.users.building') }}</label>
+					<select id="edit-mansion" v-model="editUserForm.mansionId">
+						<option :value="null">{{ $t('admin.users.noBuilding') }}</option>
+						<option v-for="building in buildings" :key="building.id" :value="building.id">
+							{{ building.name }}
+						</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="edit-unit">{{ $t('admin.users.unit') }}</label>
+					<input
+						id="edit-unit"
+						v-model="editUserForm.unit"
+						type="text"
+						:placeholder="$t('admin.users.unitPlaceholder')"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-phone">{{ $t('admin.users.phone') }}</label>
+					<input
+						id="edit-phone"
+						v-model="editUserForm.phone"
+						type="tel"
+						:placeholder="$t('admin.users.phonePlaceholder')"
+					>
+				</div>
+			</form>
+
+			<template #footer>
+				<KButton variant="secondary" @click="showEditUserModal = false">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="primary" :loading="isEditingUser" @click="saveEditUser">
+					{{ $t('common.save') }}
+				</KButton>
+			</template>
+		</KModal>
+
 		<!-- Delete Confirmation Modal -->
 		<KModal
 			v-model="showDeleteConfirm"
@@ -590,11 +739,13 @@ export default {
 			showAddBuildingModal: false,
 			showEditBuildingModal: false,
 			showInviteUserModal: false,
+			showEditUserModal: false,
 			showDeleteConfirm: false,
 			// Form states
 			isAddingBuilding: false,
 			isEditingBuilding: false,
 			isInvitingUser: false,
+			isEditingUser: false,
 			isDeletingItem: false,
 			// Building form
 			newBuilding: {
@@ -614,6 +765,14 @@ export default {
 				role: 'mansion_admin',
 				mansionId: null
 			},
+			// User edit form
+			editingUser: null,
+			editUserForm: {
+				name: '',
+				mansionId: null,
+				unit: '',
+				phone: ''
+			},
 			// Delete confirmation
 			deleteTarget: null,
 			deleteType: null,
@@ -625,6 +784,20 @@ export default {
 			maintenanceRequests: [],
 			buildingPayments: [],
 			systemStats: null,
+			// User filters
+			userFilters: {
+				search: '',
+				role: null,
+				mansionId: null
+			},
+			userPagination: {
+				page: 1,
+				limit: 25,
+				total: 0,
+				totalPages: 0
+			},
+			userSort: '-createdAt',
+			searchTimeout: null,
 			// Error handling
 			error: null
 		}
@@ -639,16 +812,25 @@ export default {
 		menuItemsWithLabels() {
 			return this.menuItems.map( ( item ) => ( {
 				...item,
-				translationKey: `admin.menu.${item.id}`
+				label: this.$t( `admin.menu.${item.id}` )
 			} ) )
 		},
 		roleOptions() {
 			return [
-				{ value: 'admin', label: this.$t( 'roles.admin' ) || 'System Admin' },
-				{ value: 'mansion_admin', label: this.$t( 'roles.mansionAdmin' ) || 'Building Admin' },
-				{ value: 'manager', label: this.$t( 'roles.manager' ) || 'Manager' },
-				{ value: 'resident', label: this.$t( 'roles.resident' ) || 'Resident' }
+				{ value: 'admin', label: this.$t( 'roles.admin' ) },
+				{ value: 'mansion_admin', label: this.$t( 'roles.mansionAdmin' ) },
+				{ value: 'manager', label: this.$t( 'roles.manager' ) },
+				{ value: 'resident', label: this.$t( 'roles.resident' ) }
 			]
+		},
+		hasActiveFilters() {
+			return this.userFilters.search || this.userFilters.role || this.userFilters.mansionId
+		},
+		userResultsStart() {
+			return ( ( this.userPagination.page - 1 ) * this.userPagination.limit ) + 1
+		},
+		userResultsEnd() {
+			return Math.min( this.userPagination.page * this.userPagination.limit, this.userPagination.total )
 		},
 		overviewStats() {
 			if ( !this.systemStats ) {
@@ -688,6 +870,54 @@ export default {
 				} )
 			} )
 			return activities.slice( 0, 5 )
+		},
+		overviewTrends() {
+			const stats = this.systemStats
+			if ( !stats ) {
+				return {
+					buildings: { text: '', positive: true },
+					residents: { text: '', positive: true },
+					maintenance: { text: '', positive: false },
+					revenue: { text: '', positive: true }
+				}
+			}
+			const buildingsThisMonth = stats.buildings?.thisMonth || 0
+			const residentsThisMonth = stats.users?.residentsThisMonth || 0
+			const urgentCount = stats.maintenance?.urgent || 0
+			const percentChange = stats.revenue?.percentChange || 0
+
+			return {
+				buildings: {
+					text: buildingsThisMonth > 0 ? `+${buildingsThisMonth} ${this.$t( 'admin.trends.thisMonth' )}` : '',
+					positive: true
+				},
+				residents: {
+					text: residentsThisMonth > 0 ? `+${residentsThisMonth} ${this.$t( 'admin.trends.thisMonth' )}` : '',
+					positive: true
+				},
+				maintenance: {
+					text: urgentCount > 0 ? `${urgentCount} ${this.$t( 'admin.trends.urgent' )}` : '',
+					positive: false
+				},
+				revenue: {
+					text: percentChange !== 0 ? `${percentChange > 0 ? '+' : ''}${percentChange}%` : '',
+					positive: percentChange >= 0
+				}
+			}
+		},
+		maintenanceStats() {
+			return {
+				urgent: this.systemStats?.maintenance?.urgent || 0,
+				pending: this.systemStats?.maintenance?.pending || 0,
+				inProgress: this.systemStats?.maintenance?.inProgress || 0,
+				completed: this.systemStats?.maintenance?.completed || 0
+			}
+		},
+		financialStats() {
+			return {
+				revenue: this.systemStats?.revenue?.total || 0,
+				pending: this.systemStats?.revenue?.pending || 0
+			}
 		}
 	},
 	watch: {
@@ -724,6 +954,11 @@ export default {
 	methods: {
 		navigateToSection( section ) {
 			this.activeSection = section
+		},
+
+		async handleLogout() {
+			await store.logout()
+			this.$router.push( '/login' )
 		},
 
 		// ==========================================
@@ -768,19 +1003,79 @@ export default {
 		async fetchUsers() {
 			this.isLoadingUsers = true
 			try {
-				const response = await backend.getUsers()
+				const response = await backend.getUsers( {
+					search: this.userFilters.search || undefined,
+					role: this.userFilters.role || undefined,
+					mansionId: this.userFilters.mansionId || undefined,
+					page: this.userPagination.page,
+					limit: this.userPagination.limit,
+					sort: this.userSort
+				} )
 				if ( response.success ) {
 					this.users = response.data.map( u => ( {
 						...u,
 						building: u.mansionName || '-',
 						status: 'active'
 					} ) )
+					// Update pagination from response
+					this.userPagination.total = response.meta.total
+					this.userPagination.totalPages = response.meta.totalPages
 				}
 			} catch ( error ) {
 				console.error( 'Failed to fetch users:', error )
 			} finally {
 				this.isLoadingUsers = false
 			}
+		},
+
+		// User filter methods
+		handleUserSearch( value ) {
+			this.userFilters.search = value
+			if ( this.searchTimeout ) {
+				clearTimeout( this.searchTimeout )
+			}
+			this.searchTimeout = setTimeout( () => {
+				this.userPagination.page = 1
+				this.fetchUsers()
+			}, 300 )
+		},
+
+		handleRoleFilter( role ) {
+			this.userFilters.role = role
+			this.userPagination.page = 1
+			this.fetchUsers()
+		},
+
+		handleBuildingFilter( mansionId ) {
+			this.userFilters.mansionId = mansionId
+			this.userPagination.page = 1
+			this.fetchUsers()
+		},
+
+		handleUserSort( field ) {
+			if ( this.userSort === field ) {
+				this.userSort = `-${field}`
+			} else if ( this.userSort === `-${field}` ) {
+				this.userSort = field
+			} else {
+				this.userSort = `-${field}`
+			}
+			this.fetchUsers()
+		},
+
+		handleUserPageChange( page ) {
+			this.userPagination.page = page
+			this.fetchUsers()
+		},
+
+		clearUserFilters() {
+			this.userFilters = {
+				search: '',
+				role: null,
+				mansionId: null
+			}
+			this.userPagination.page = 1
+			this.fetchUsers()
 		},
 
 		async fetchSystemStats() {
@@ -950,6 +1245,41 @@ export default {
 			}
 		},
 
+		openEditUserModal( user ) {
+			this.editingUser = user
+			this.editUserForm = {
+				name: user.name || '',
+				mansionId: user.mansionId || null,
+				unit: user.unit || '',
+				phone: user.phone || ''
+			}
+			this.showEditUserModal = true
+		},
+
+		async saveEditUser() {
+			if ( !this.editingUser ) return
+			this.isEditingUser = true
+			try {
+				const response = await backend.updateUser( this.editingUser.id, {
+					name: this.editUserForm.name,
+					mansionId: this.editUserForm.mansionId,
+					unit: this.editUserForm.unit,
+					phone: this.editUserForm.phone
+				} )
+				if ( response.success ) {
+					this.showEditUserModal = false
+					this.editingUser = null
+					await this.fetchUsers()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update user:', error )
+				this.error = error.error?.message || 'Failed to update user'
+				alert( this.error )
+			} finally {
+				this.isEditingUser = false
+			}
+		},
+
 		async updateUserRole( userId, newRole ) {
 			try {
 				const response = await backend.updateUser( userId, { role: newRole } )
@@ -1046,12 +1376,9 @@ export default {
 // Financial summary
 .financial-summary
 	display grid
-	grid-template-columns repeat(3, 1fr)
+	grid-template-columns repeat(auto-fit, minmax(280px, 1fr))
 	gap 1.5rem
 	margin-bottom 2rem
-
-	@media (max-width: 768px)
-		grid-template-columns 1fr
 
 // Buildings list
 .buildings-list
@@ -1087,6 +1414,79 @@ export default {
 
 	p
 		margin-bottom 1rem
+
+// User filter bar
+.users-filter-bar
+	display flex
+	flex-wrap wrap
+	align-items flex-end
+	gap 1rem
+	margin-bottom 1.5rem
+	padding 1rem 1.5rem
+	background $color-bg-tertiary
+	border-radius $radius-lg
+
+	@media (max-width: 768px)
+		flex-direction column
+		align-items stretch
+
+.filter-search
+	flex 1
+	min-width 250px
+
+	.search-input
+		width 100%
+		padding 0.75rem 1rem 0.75rem 2.5rem
+		border 1px solid $color-border
+		border-radius $radius-pill
+		font-size 0.95rem
+		background-image url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E")
+		background-repeat no-repeat
+		background-position 0.75rem center
+		transition border-color 0.2s
+
+		&:focus
+			outline none
+			border-color $color-primary
+			box-shadow 0 0 0 3px rgba(255, 193, 7, 0.15)
+
+		&::placeholder
+			color $color-text-tertiary
+
+.filter-group
+	display flex
+	flex-direction column
+	gap 0.25rem
+	min-width 150px
+
+.filter-label
+	font-size 0.8rem
+	color $color-text-secondary
+	font-weight 500
+
+.filter-select
+	padding 0.6rem 2rem 0.6rem 0.75rem
+	border 1px solid $color-border
+	border-radius $radius-md
+	font-size 0.95rem
+	background white
+	cursor pointer
+	appearance none
+	background-image url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+	background-repeat no-repeat
+	background-position right 0.75rem center
+	transition border-color 0.2s
+
+	&:focus
+		outline none
+		border-color $color-primary
+
+.users-results-info
+	margin-bottom 1rem
+
+	.results-count
+		font-size 0.9rem
+		color $color-text-secondary
 
 // Users table
 .users-table
@@ -1139,6 +1539,64 @@ export default {
 	&:focus
 		outline none
 		border-color $color-primary
+
+// Sortable headers
+.sortable-header
+	cursor pointer
+	user-select none
+	transition background 0.2s
+
+	&:hover
+		background rgba(255, 193, 7, 0.1)
+
+	.sort-indicator
+		margin-left 0.5rem
+		font-size 0.75rem
+		color $color-primary
+
+// Pagination
+.pagination
+	display flex
+	justify-content center
+	align-items center
+	gap 1rem
+	padding 1rem
+	border-top 1px solid $color-border
+
+	.pagination-info
+		font-size 0.9rem
+		color $color-text-secondary
+
+// Actions cell
+.actions-cell
+	display flex
+	gap 0.25rem
+	flex-wrap wrap
+
+.action-btn
+	padding 0.35rem 0.6rem
+	font-size 0.8rem
+	border none
+	border-radius 6px
+	background transparent
+	color #666
+	cursor pointer
+	transition all 0.2s
+	white-space nowrap
+
+	&:hover
+		background #f0f0f0
+		color #333
+
+	&--danger:hover
+		background #ffebee
+		color #d32f2f
+
+// Disabled input
+.input-disabled
+	background #f5f5f5
+	color #999
+	cursor not-allowed
 
 .help-text
 	color #666

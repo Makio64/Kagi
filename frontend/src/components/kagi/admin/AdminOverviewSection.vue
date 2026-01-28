@@ -11,21 +11,21 @@
 				:label="$t('admin.stats.buildings')"
 				:value="stats.buildings"
 				variant="primary"
-				:trend="{ text: '+2 this month', positive: true }"
+				:trend="trends.buildings"
 			/>
 			<StatCard
 				icon="👥"
 				:label="$t('admin.stats.residents')"
 				:value="stats.residents"
 				variant="secondary"
-				:trend="{ text: '+48 this month', positive: true }"
+				:trend="trends.residents"
 			/>
 			<StatCard
 				icon="🔧"
 				:label="$t('admin.stats.maintenance')"
 				:value="stats.maintenance"
 				variant="warning"
-				:trend="{ text: '8 urgent', positive: false }"
+				:trend="trends.maintenance"
 			/>
 			<StatCard
 				icon="💰"
@@ -33,7 +33,7 @@
 				:value="stats.revenue"
 				format="currency"
 				variant="success"
-				:trend="{ text: '+12%', positive: true }"
+				:trend="trends.revenue"
 			/>
 		</div>
 		<!-- Recent Activities -->
@@ -57,19 +57,24 @@ export default {
 		stats: {
 			type: Object,
 			default: () => ( {
-				buildings: 12,
-				residents: 1248,
-				maintenance: 23,
-				revenue: 12500000
+				buildings: 0,
+				residents: 0,
+				maintenance: 0,
+				revenue: 0
+			} )
+		},
+		trends: {
+			type: Object,
+			default: () => ( {
+				buildings: { text: '', positive: true },
+				residents: { text: '', positive: true },
+				maintenance: { text: '', positive: false },
+				revenue: { text: '', positive: true }
 			} )
 		},
 		recentActivities: {
 			type: Array,
-			default: () => [
-				{ id: 1, icon: '🔧', text: 'New maintenance request from Unit 502', time: '5 minutes ago' },
-				{ id: 2, icon: '📅', text: 'Party Room booked for Dec 25', time: '1 hour ago' },
-				{ id: 3, icon: '💳', text: '15 residents paid management fees', time: 'Today' }
-			]
+			default: () => []
 		}
 	}
 }

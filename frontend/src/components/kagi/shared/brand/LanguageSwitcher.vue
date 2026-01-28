@@ -25,7 +25,7 @@ export default {
 		variant: {
 			type: String,
 			default: 'full',
-			validator: ( value ) => [ 'compact', 'full' ].includes( value )
+			validator: ( value ) => ['compact', 'full'].includes( value )
 		}
 	},
 	data() {

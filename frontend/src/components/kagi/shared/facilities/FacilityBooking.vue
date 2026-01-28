@@ -1132,9 +1132,9 @@ textarea
 		opacity 0.5
 		cursor not-allowed
 	// Override GradientButton styles for harmonized look
-	>>> .gradient-border
+	:deep(.gradient-border)
 		border-radius 25px
-	>>> span
+	:deep(span)
 		border-radius 23px
 		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
 		color #333

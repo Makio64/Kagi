@@ -1,5 +1,6 @@
 import './styles/global-modern.styl'
 
+import * as Sentry from '@sentry/vue'
 import { createApp } from 'vue'
 import { TinyRouterInstall } from 'vue-tiny-router'
 import TranslatePlugin, { loadTranslations } from 'vue-tiny-translation'
@@ -31,6 +32,20 @@ async function init() {
 	localStorage.setItem( 'kagi_language', defaultLang )
 
 	const app = createApp( App )
+
+	// Initialize Sentry error monitoring
+	if ( import.meta.env.VITE_SENTRY_DSN ) {
+		Sentry.init( {
+			app,
+			dsn: import.meta.env.VITE_SENTRY_DSN,
+			environment: import.meta.env.MODE,
+			enabled: import.meta.env.PROD,
+
+			// Performance monitoring
+			integrations: [Sentry.browserTracingIntegration()],
+			tracesSampleRate: 0.1
+		} )
+	}
 
 	app.use( TranslatePlugin )
 	app.use( TinyRouterInstall )
