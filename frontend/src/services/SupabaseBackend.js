@@ -141,6 +141,202 @@ class SupabaseBackend {
 	}
 
 	// ==========================================
+	// USER INVITATION (Admin feature)
+	// ==========================================
+
+	/**
+	 * Invite a user with a specific role and mansion assignment
+	 * Sends magic link email with pre-configured metadata
+	 */
+	async inviteUser( { email, name, role, mansionId, unit } ) {
+		// Validate required fields
+		if ( !email ) throw this.createError( 'Email is required', 400 )
+		if ( !role ) throw this.createError( 'Role is required', 400 )
+
+		// Check if user already exists
+		const { data: existingProfile } = await this.supabase
+			.from( 'profiles' )
+			.select( 'id, email' )
+			.eq( 'email', email )
+			.single()
+
+		if ( existingProfile ) {
+			throw this.createError( 'User with this email already exists', 400 )
+		}
+
+		// Send magic link with user metadata (role, mansion, etc.)
+		const { error } = await this.supabase.auth.signInWithOtp( {
+			email,
+			options: {
+				emailRedirectTo: `${window.location.origin}/login`,
+				data: {
+					name: name || email.split( '@' )[0],
+					role,
+					mansion_id: mansionId || null,
+					unit: unit || null,
+					invited: true,
+					invitedAt: new Date().toISOString()
+				}
+			}
+		} )
+
+		if ( error ) throw this.createError( error.message, 400 )
+
+		this.emit( 'user.invited', { email, role, mansionId } )
+		return this.createResponse( {
+			message: 'Invitation sent successfully',
+			email,
+			role,
+			mansionId
+		} )
+	}
+
+	// ==========================================
+	// ADMIN ENDPOINTS
+	// ==========================================
+
+	/**
+	 * Get all mansions (admin only)
+	 */
+	async getMansions() {
+		const { data, error, count } = await this.supabase
+			.from( 'mansions' )
+			.select( '*', { count: 'exact' } )
+			.order( 'created_at', { ascending: false } )
+
+		if ( error ) throw this.createError( error.message, 500 )
+
+		return this.createResponse( ( data || [] ).map( m => ( {
+			id: m.id,
+			name: m.name,
+			address: m.address,
+			totalUnits: m.total_units,
+			settings: m.settings,
+			metadata: m.metadata,
+			createdAt: m.created_at,
+			updatedAt: m.updated_at
+		} ) ), { total: count || 0 } )
+	}
+
+	/**
+	 * Get all users, optionally filtered by mansion
+	 */
+	async getUsers( mansionId = null ) {
+		let query = this.supabase
+			.from( 'profiles' )
+			.select( '*, mansions(name)', { count: 'exact' } )
+			.order( 'created_at', { ascending: false } )
+
+		if ( mansionId ) {
+			query = query.eq( 'mansion_id', mansionId )
+		}
+
+		const { data, error, count } = await query
+
+		if ( error ) throw this.createError( error.message, 500 )
+
+		return this.createResponse( ( data || [] ).map( u => ( {
+			id: u.id,
+			email: u.email,
+			name: u.name,
+			phone: u.phone,
+			unit: u.unit,
+			role: u.role,
+			mansionId: u.mansion_id,
+			mansionName: u.mansions?.name || null,
+			avatar: u.avatar,
+			permissions: u.permissions,
+			settings: u.settings,
+			createdAt: u.created_at,
+			updatedAt: u.updated_at
+		} ) ), { total: count || 0 } )
+	}
+
+	/**
+	 * Update user role and/or mansion assignment
+	 */
+	async updateUser( userId, { role, mansionId, name, unit, phone } ) {
+		const updates = {}
+		if ( role !== undefined ) updates.role = role
+		if ( mansionId !== undefined ) updates.mansion_id = mansionId
+		if ( name !== undefined ) updates.name = name
+		if ( unit !== undefined ) updates.unit = unit
+		if ( phone !== undefined ) updates.phone = phone
+
+		const { data, error } = await this.supabase
+			.from( 'profiles' )
+			.update( updates )
+			.eq( 'id', userId )
+			.select( '*, mansions(name)' )
+			.single()
+
+		if ( error ) throw this.createError( error.message, 400 )
+
+		this.emit( 'user.updated', data )
+		return this.createResponse( {
+			id: data.id,
+			email: data.email,
+			name: data.name,
+			role: data.role,
+			mansionId: data.mansion_id,
+			mansionName: data.mansions?.name || null,
+			unit: data.unit,
+			phone: data.phone
+		} )
+	}
+
+	/**
+	 * Delete a user (remove from profiles - auth user remains but cannot access)
+	 */
+	async deleteUser( userId ) {
+		const { error } = await this.supabase
+			.from( 'profiles' )
+			.delete()
+			.eq( 'id', userId )
+
+		if ( error ) throw this.createError( error.message, 400 )
+
+		this.emit( 'user.deleted', { id: userId } )
+		return this.createResponse( { message: 'User deleted successfully', id: userId } )
+	}
+
+	/**
+	 * Get system-wide stats for admin dashboard
+	 */
+	async getSystemStats() {
+		const [mansionsRes, usersRes, maintenanceRes, billsRes] = await Promise.all( [
+			this.supabase.from( 'mansions' ).select( 'id', { count: 'exact' } ),
+			this.supabase.from( 'profiles' ).select( 'id, role', { count: 'exact' } ),
+			this.supabase.from( 'maintenance_requests' ).select( 'id, status', { count: 'exact' } ),
+			this.supabase.from( 'bills' ).select( 'id, amount, status', { count: 'exact' } )
+		] )
+
+		const users = usersRes.data || []
+		const maintenance = maintenanceRes.data || []
+		const bills = billsRes.data || []
+
+		return this.createResponse( {
+			buildings: {
+				total: mansionsRes.count || 0
+			},
+			users: {
+				total: usersRes.count || 0,
+				residents: users.filter( u => u.role === 'resident' ).length,
+				admins: users.filter( u => ['admin', 'mansion_admin', 'manager'].includes( u.role ) ).length
+			},
+			maintenance: {
+				total: maintenanceRes.count || 0,
+				pending: maintenance.filter( m => m.status === 'pending' ).length,
+				inProgress: maintenance.filter( m => m.status === 'in_progress' ).length
+			},
+			revenue: {
+				total: bills.filter( b => b.status === 'paid' ).reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 ),
+				pending: bills.filter( b => b.status === 'pending' ).reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 )
+			}
+		} )
+	}
+
+	// ==========================================
 	// PROFILE HELPERS
 	// ==========================================
 
@@ -174,15 +370,20 @@ class SupabaseBackend {
 			.single()
 
 		if ( error || !data ) {
-			// Profile doesn't exist yet - create it from auth user
+			// Profile doesn't exist yet - create it from auth user + invitation metadata
 			const { data: { user } } = await this.supabase.auth.getUser()
 			if ( !user ) return null
+
+			// Read invitation data from user_metadata (set during invite)
+			const metadata = user.user_metadata || {}
 
 			const newProfile = {
 				id: user.id,
 				email: user.email,
-				name: user.user_metadata?.name || user.email.split( '@' )[0],
-				role: user.user_metadata?.role || 'resident'
+				name: metadata.name || user.email.split( '@' )[0],
+				role: metadata.role || 'resident',
+				mansion_id: metadata.mansion_id || null,
+				unit: metadata.unit || null
 			}
 
 			const { data: created } = await this.supabase
@@ -190,6 +391,12 @@ class SupabaseBackend {
 				.upsert( newProfile )
 				.select( '*, mansions(name)' )
 				.single()
+
+			// Flatten mansion name for created profile
+			if ( created?.mansions ) {
+				created.mansion_name = created.mansions.name
+				delete created.mansions
+			}
 
 			return created || newProfile
 		}

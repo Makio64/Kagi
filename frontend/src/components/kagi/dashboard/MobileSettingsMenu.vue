@@ -93,7 +93,6 @@ export default {
 	padding 1.5rem
 	overflow-y auto
 .mobile-user-info
-	padding 1rem
 	background #f9f9f9
 	border-radius 12px
 	margin-bottom 1.5rem

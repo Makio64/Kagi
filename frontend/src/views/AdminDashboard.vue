@@ -11,7 +11,11 @@
 	>
 		<div class="admin-dashboard-content">
 			<!-- Overview Section -->
-			<AdminOverviewSection v-if="activeSection === 'overview'" />
+			<AdminOverviewSection
+				v-if="activeSection === 'overview'"
+				:stats="overviewStats"
+				:recent-activities="recentActivities"
+			/>
 
 			<!-- Buildings Management -->
 			<section v-if="activeSection === 'buildings'" class="section">
@@ -26,7 +30,18 @@
 					</template>
 				</SectionHeader>
 
-				<div class="buildings-list">
+				<div v-if="isLoadingBuildings" class="loading-state">
+					<p>{{ $t('common.loading') || 'Loading...' }}</p>
+				</div>
+
+				<div v-else-if="buildings.length === 0" class="empty-state">
+					<p>{{ $t('admin.buildings.empty') || 'No buildings yet. Add your first building!' }}</p>
+					<KButton variant="primary" @click="showAddBuildingModal = true">
+						{{ $t('admin.buildings.add') }}
+					</KButton>
+				</div>
+
+				<div v-else class="buildings-list">
 					<KCard
 						v-for="building in buildings"
 						:key="building.id"
@@ -38,15 +53,18 @@
 							<span class="building-status" :class="building.status">{{ building.status }}</span>
 						</template>
 						<div class="building-info">
-							<p><strong>{{ $t('admin.buildings.address') }}:</strong> {{ building.address }}</p>
-							<p><strong>{{ $t('admin.buildings.units') }}:</strong> {{ building.units }}</p>
-							<p><strong>{{ $t('admin.buildings.occupancy') }}:</strong> {{ building.occupancy }}%</p>
+							<p><strong>{{ $t('admin.buildings.address') }}:</strong> {{ building.address || '-' }}</p>
+							<p><strong>{{ $t('admin.buildings.units') }}:</strong> {{ building.units || 0 }}</p>
+							<p><strong>{{ $t('admin.buildings.occupancy') }}:</strong> {{ building.occupancy || 0 }}%</p>
 						</div>
 						<template #footer>
 							<div class="building-actions">
-								<KButton size="sm" variant="secondary">{{ $t('common.edit') }}</KButton>
-								<KButton size="sm" variant="primary">{{ $t('admin.buildings.manage') }}</KButton>
-								<KButton size="sm" variant="danger">{{ $t('common.delete') }}</KButton>
+								<KButton size="sm" variant="secondary" @click="openEditBuildingModal(building)">
+									{{ $t('common.edit') }}
+								</KButton>
+								<KButton size="sm" variant="danger" @click="confirmDeleteBuilding(building)">
+									{{ $t('common.delete') }}
+								</KButton>
 							</div>
 						</template>
 					</KCard>
@@ -58,17 +76,26 @@
 				<SectionHeader
 					:title="$t('admin.users.title')"
 					icon="👥"
-					searchable
-					search-placeholder="Search users..."
 				>
 					<template #actions>
-						<KButton variant="primary" icon="➕">
+						<KButton variant="primary" icon="➕" @click="openInviteUserModal">
 							{{ $t('admin.users.invite') }}
 						</KButton>
 					</template>
 				</SectionHeader>
 
-				<KCard elevated no-padding>
+				<div v-if="isLoadingUsers" class="loading-state">
+					<p>{{ $t('common.loading') || 'Loading...' }}</p>
+				</div>
+
+				<div v-else-if="users.length === 0" class="empty-state">
+					<p>{{ $t('admin.users.empty') || 'No users yet. Invite your first user!' }}</p>
+					<KButton variant="primary" @click="openInviteUserModal">
+						{{ $t('admin.users.invite') }}
+					</KButton>
+				</div>
+
+				<KCard v-else elevated no-padding>
 					<div class="users-table">
 						<table>
 							<thead>
@@ -77,20 +104,32 @@
 									<th>{{ $t('admin.users.email') }}</th>
 									<th>{{ $t('admin.users.role') }}</th>
 									<th>{{ $t('admin.users.building') }}</th>
-									<th>{{ $t('admin.users.status') }}</th>
 									<th>{{ $t('admin.users.actions') }}</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr v-for="u in users" :key="u.id">
-									<td>{{ u.name }}</td>
+									<td>{{ u.name || '-' }}</td>
 									<td>{{ u.email }}</td>
-									<td><span class="role-badge" :class="u.role">{{ u.role }}</span></td>
-									<td>{{ u.building }}</td>
-									<td><span class="status-badge" :class="u.status">{{ u.status }}</span></td>
 									<td>
-										<KButton size="xs" icon="✏️" variant="ghost" />
-										<KButton size="xs" icon="🗑️" variant="ghost" />
+										<select
+											:value="u.role"
+											class="role-select"
+											@change="updateUserRole(u.id, $event.target.value)"
+										>
+											<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+												{{ role.label }}
+											</option>
+										</select>
+									</td>
+									<td>{{ u.building }}</td>
+									<td>
+										<KButton
+											size="xs"
+											icon="🗑️"
+											variant="ghost"
+											@click="confirmDeleteUser(u)"
+										/>
 									</td>
 								</tr>
 							</tbody>
@@ -382,12 +421,160 @@
 				</KButton>
 			</template>
 		</KModal>
+
+		<!-- Edit Building Modal -->
+		<KModal
+			v-model="showEditBuildingModal"
+			:title="$t('admin.buildings.edit') || 'Edit Building'"
+			size="medium"
+		>
+			<form v-if="editingBuilding" @submit.prevent="updateBuilding">
+				<div class="form-group">
+					<label for="edit-building-name">{{ $t('admin.buildings.name') }} *</label>
+					<input
+						id="edit-building-name"
+						v-model="editingBuilding.name"
+						type="text"
+						required
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-building-address">{{ $t('admin.buildings.address') }} *</label>
+					<input
+						id="edit-building-address"
+						v-model="editingBuilding.address"
+						type="text"
+						required
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-building-description">{{ $t('admin.buildings.description') }}</label>
+					<textarea
+						id="edit-building-description"
+						v-model="editingBuilding.description"
+						rows="3"
+					/>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label for="edit-building-units">{{ $t('admin.buildings.totalUnits') }}</label>
+						<input
+							id="edit-building-units"
+							v-model.number="editingBuilding.units"
+							type="number"
+							min="1"
+						>
+					</div>
+					<div class="form-group">
+						<label for="edit-building-floors">{{ $t('admin.buildings.floors') }}</label>
+						<input
+							id="edit-building-floors"
+							v-model.number="editingBuilding.floors"
+							type="number"
+							min="1"
+						>
+					</div>
+				</div>
+			</form>
+
+			<template #footer>
+				<KButton variant="secondary" @click="showEditBuildingModal = false">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="primary" :loading="isEditingBuilding" @click="updateBuilding">
+					{{ $t('common.save') }}
+				</KButton>
+			</template>
+		</KModal>
+
+		<!-- Invite User Modal -->
+		<KModal
+			v-model="showInviteUserModal"
+			:title="$t('admin.users.inviteNew') || 'Invite User'"
+			size="medium"
+		>
+			<form @submit.prevent="inviteUser">
+				<div class="form-group">
+					<label for="invite-email">{{ $t('admin.users.email') }} *</label>
+					<input
+						id="invite-email"
+						v-model="newUser.email"
+						type="email"
+						required
+						placeholder="user@example.com"
+					>
+				</div>
+				<div class="form-group">
+					<label for="invite-name">{{ $t('admin.users.name') }}</label>
+					<input
+						id="invite-name"
+						v-model="newUser.name"
+						type="text"
+						placeholder="John Doe"
+					>
+				</div>
+				<div class="form-group">
+					<label for="invite-role">{{ $t('admin.users.role') }} *</label>
+					<select id="invite-role" v-model="newUser.role" required>
+						<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+							{{ role.label }}
+						</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="invite-mansion">{{ $t('admin.users.building') }}</label>
+					<select id="invite-mansion" v-model="newUser.mansionId">
+						<option :value="null">{{ $t('common.none') || '-- None --' }}</option>
+						<option v-for="building in buildings" :key="building.id" :value="building.id">
+							{{ building.name }}
+						</option>
+					</select>
+				</div>
+				<p class="help-text">
+					{{ $t('admin.users.inviteHelp') || 'An email with a magic link will be sent to this address.' }}
+				</p>
+			</form>
+
+			<template #footer>
+				<KButton variant="secondary" @click="showInviteUserModal = false">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="primary" :loading="isInvitingUser" @click="inviteUser">
+					{{ $t('admin.users.sendInvite') || 'Send Invitation' }}
+				</KButton>
+			</template>
+		</KModal>
+
+		<!-- Delete Confirmation Modal -->
+		<KModal
+			v-model="showDeleteConfirm"
+			:title="$t('common.confirmDelete') || 'Confirm Delete'"
+			size="small"
+		>
+			<p v-if="deleteType === 'building'">
+				{{ $t('admin.buildings.deleteConfirm') || 'Are you sure you want to delete this building?' }}
+				<strong>{{ deleteTarget?.name }}</strong>
+			</p>
+			<p v-else-if="deleteType === 'user'">
+				{{ $t('admin.users.deleteConfirm') || 'Are you sure you want to remove this user?' }}
+				<strong>{{ deleteTarget?.email }}</strong>
+			</p>
+
+			<template #footer>
+				<KButton variant="secondary" @click="cancelDelete">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="danger" :loading="isDeletingItem" @click="confirmDelete">
+					{{ $t('common.delete') }}
+				</KButton>
+			</template>
+		</KModal>
 	</DashboardLayout>
 </template>
 
 <script>
 import { ADMIN_MENU_ITEMS } from '../constants/dashboardMenus'
-import * as MockData from '../services/MockData'
+import backend from '../services/SupabaseBackend'
 import * as store from '../store'
 
 export default {
@@ -395,8 +582,21 @@ export default {
 	data() {
 		return {
 			activeSection: 'overview',
+			// Loading states
+			isLoading: false,
+			isLoadingBuildings: false,
+			isLoadingUsers: false,
+			// Modal states
 			showAddBuildingModal: false,
+			showEditBuildingModal: false,
+			showInviteUserModal: false,
+			showDeleteConfirm: false,
+			// Form states
 			isAddingBuilding: false,
+			isEditingBuilding: false,
+			isInvitingUser: false,
+			isDeletingItem: false,
+			// Building form
 			newBuilding: {
 				name: '',
 				address: '',
@@ -406,11 +606,27 @@ export default {
 				facilities: [],
 				rules: ''
 			},
+			editingBuilding: null,
+			// User invitation form
+			newUser: {
+				email: '',
+				name: '',
+				role: 'mansion_admin',
+				mansionId: null
+			},
+			// Delete confirmation
+			deleteTarget: null,
+			deleteType: null,
+			// Menu config
 			menuItems: ADMIN_MENU_ITEMS,
-			buildings: MockData.getBuildings(),
-			users: MockData.getUsers(),
-			maintenanceRequests: MockData.getAdminMaintenanceRequests(),
-			buildingPayments: MockData.getBuildingPayments()
+			// Data
+			buildings: [],
+			users: [],
+			maintenanceRequests: [],
+			buildingPayments: [],
+			systemStats: null,
+			// Error handling
+			error: null
 		}
 	},
 	computed: {
@@ -425,16 +641,66 @@ export default {
 				...item,
 				translationKey: `admin.menu.${item.id}`
 			} ) )
+		},
+		roleOptions() {
+			return [
+				{ value: 'admin', label: this.$t( 'roles.admin' ) || 'System Admin' },
+				{ value: 'mansion_admin', label: this.$t( 'roles.mansionAdmin' ) || 'Building Admin' },
+				{ value: 'manager', label: this.$t( 'roles.manager' ) || 'Manager' },
+				{ value: 'resident', label: this.$t( 'roles.resident' ) || 'Resident' }
+			]
+		},
+		overviewStats() {
+			if ( !this.systemStats ) {
+				return {
+					buildings: this.buildings.length,
+					residents: this.users.filter( u => u.role === 'resident' ).length,
+					maintenance: 0,
+					revenue: 0
+				}
+			}
+			return {
+				buildings: this.systemStats.buildings?.total || this.buildings.length,
+				residents: this.systemStats.users?.residents || 0,
+				maintenance: this.systemStats.maintenance?.pending || 0,
+				revenue: this.systemStats.revenue?.total || 0
+			}
+		},
+		recentActivities() {
+			// Combine recent data into activity items
+			const activities = []
+			// Add recent buildings
+			this.buildings.slice( 0, 2 ).forEach( b => {
+				activities.push( {
+					id: `building-${b.id}`,
+					icon: '🏢',
+					text: `Building "${b.name}" registered`,
+					time: this.formatTimeAgo( b.createdAt )
+				} )
+			} )
+			// Add recent users
+			this.users.slice( 0, 2 ).forEach( u => {
+				activities.push( {
+					id: `user-${u.id}`,
+					icon: '👤',
+					text: `${u.name || u.email} joined as ${u.role}`,
+					time: this.formatTimeAgo( u.createdAt )
+				} )
+			} )
+			return activities.slice( 0, 5 )
 		}
 	},
 	watch: {
-		activeSection() {
+		activeSection( newSection ) {
 			this.$nextTick( () => {
 				document.querySelector( '#app' )?.scrollTo( 0, 0 )
 			} )
+			// Load data for the section
+			if ( newSection === 'buildings' ) this.fetchBuildings()
+			if ( newSection === 'users' ) this.fetchUsers()
 		}
 	},
-	mounted() {
+	async mounted() {
 		document.querySelector( '#app' )?.scrollTo( 0, 0 )
 
 		// Security: Verify user has admin role
@@ -449,36 +715,305 @@ export default {
 			} else {
 				this.$router.push( '/dashboard' )
 			}
+			return
 		}
+
+		// Load initial data
+		await this.loadInitialData()
 	},
 	methods: {
 		navigateToSection( section ) {
 			this.activeSection = section
 		},
-		closeAddBuildingModal() {
-			this.showAddBuildingModal = false
+
+		// ==========================================
+		// DATA LOADING
+		// ==========================================
+
+		async loadInitialData() {
+			this.isLoading = true
+			try {
+				await Promise.all( [
+					this.fetchBuildings(),
+					this.fetchUsers(),
+					this.fetchSystemStats()
+				] )
+			} catch ( error ) {
+				console.error( 'Failed to load initial data:', error )
+				this.error = 'Failed to load data'
+			} finally {
+				this.isLoading = false
+			}
 		},
+
+		async fetchBuildings() {
+			this.isLoadingBuildings = true
+			try {
+				const response = await backend.getMansions()
+				if ( response.success ) {
+					this.buildings = response.data.map( b => ( {
+						...b,
+						units: b.totalUnits || 0,
+						status: 'active',
+						occupancy: 85 // TODO: Calculate from actual resident count
+					} ) )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch buildings:', error )
+			} finally {
+				this.isLoadingBuildings = false
+			}
+		},
+
+		async fetchUsers() {
+			this.isLoadingUsers = true
+			try {
+				const response = await backend.getUsers()
+				if ( response.success ) {
+					this.users = response.data.map( u => ( {
+						...u,
+						building: u.mansionName || '-',
+						status: 'active'
+					} ) )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch users:', error )
+			} finally {
+				this.isLoadingUsers = false
+			}
+		},
+
+		async fetchSystemStats() {
+			try {
+				const response = await backend.getSystemStats()
+				if ( response.success ) {
+					this.systemStats = response.data
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch system stats:', error )
+			}
+		},
+
+		// ==========================================
+		// BUILDING CRUD
+		// ==========================================
+
+		resetBuildingForm() {
+			this.newBuilding = {
+				name: '',
+				address: '',
+				description: '',
+				units: null,
+				floors: null,
+				facilities: [],
+				rules: ''
+			}
+		},
+
 		async addBuilding() {
 			this.isAddingBuilding = true
 			try {
-				// TODO: Implement backend call
-				console.log( 'Adding building:', this.newBuilding )
-				this.showAddBuildingModal = false
-				// Reset form
-				this.newBuilding = {
-					name: '',
-					address: '',
-					description: '',
-					units: null,
-					floors: null,
-					facilities: [],
-					rules: ''
+				const payload = {
+					name: this.newBuilding.name,
+					address: this.newBuilding.address,
+					totalUnits: this.newBuilding.units || 0,
+					settings: {
+						description: this.newBuilding.description,
+						floors: this.newBuilding.floors,
+						rules: this.newBuilding.rules
+					},
+					metadata: {
+						facilities: this.newBuilding.facilities
+					}
+				}
+
+				const response = await backend.create( 'mansions', payload )
+				if ( response.success ) {
+					this.showAddBuildingModal = false
+					this.resetBuildingForm()
+					await this.fetchBuildings()
 				}
 			} catch ( error ) {
 				console.error( 'Failed to add building:', error )
+				this.error = error.error?.message || 'Failed to add building'
 			} finally {
 				this.isAddingBuilding = false
 			}
+		},
+
+		openEditBuildingModal( building ) {
+			this.editingBuilding = {
+				id: building.id,
+				name: building.name,
+				address: building.address,
+				description: building.settings?.description || '',
+				units: building.totalUnits || building.units,
+				floors: building.settings?.floors || null,
+				facilities: building.metadata?.facilities || [],
+				rules: building.settings?.rules || ''
+			}
+			this.showEditBuildingModal = true
+		},
+
+		async updateBuilding() {
+			if ( !this.editingBuilding ) return
+			this.isEditingBuilding = true
+			try {
+				const payload = {
+					name: this.editingBuilding.name,
+					address: this.editingBuilding.address,
+					totalUnits: this.editingBuilding.units || 0,
+					settings: {
+						description: this.editingBuilding.description,
+						floors: this.editingBuilding.floors,
+						rules: this.editingBuilding.rules
+					},
+					metadata: {
+						facilities: this.editingBuilding.facilities
+					}
+				}
+
+				const response = await backend.update( 'mansions', this.editingBuilding.id, payload )
+				if ( response.success ) {
+					this.showEditBuildingModal = false
+					this.editingBuilding = null
+					await this.fetchBuildings()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update building:', error )
+				this.error = error.error?.message || 'Failed to update building'
+			} finally {
+				this.isEditingBuilding = false
+			}
+		},
+
+		confirmDeleteBuilding( building ) {
+			this.deleteTarget = building
+			this.deleteType = 'building'
+			this.showDeleteConfirm = true
+		},
+
+		async deleteBuilding() {
+			if ( !this.deleteTarget ) return
+			this.isDeletingItem = true
+			try {
+				const response = await backend.delete( 'mansions', this.deleteTarget.id )
+				if ( response.success ) {
+					this.showDeleteConfirm = false
+					this.deleteTarget = null
+					this.deleteType = null
+					await this.fetchBuildings()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to delete building:', error )
+				this.error = error.error?.message || 'Failed to delete building'
+			} finally {
+				this.isDeletingItem = false
+			}
+		},
+
+		// ==========================================
+		// USER MANAGEMENT
+		// ==========================================
+
+		openInviteUserModal() {
+			this.newUser = {
+				email: '',
+				name: '',
+				role: 'mansion_admin',
+				mansionId: this.buildings[0]?.id || null
+			}
+			this.showInviteUserModal = true
+		},
+
+		async inviteUser() {
+			this.isInvitingUser = true
+			try {
+				const response = await backend.inviteUser( {
+					email: this.newUser.email,
+					name: this.newUser.name,
+					role: this.newUser.role,
+					mansionId: this.newUser.mansionId
+				} )
+				if ( response.success ) {
+					this.showInviteUserModal = false
+					this.newUser = { email: '', name: '', role: 'mansion_admin', mansionId: null }
+					// User will appear after they accept invitation
+					alert( this.$t( 'admin.users.inviteSent' ) || 'Invitation sent successfully!' )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to invite user:', error )
+				this.error = error.error?.message || 'Failed to send invitation'
+				alert( this.error )
+			} finally {
+				this.isInvitingUser = false
+			}
+		},
+
+		async updateUserRole( userId, newRole ) {
+			try {
+				const response = await backend.updateUser( userId, { role: newRole } )
+				if ( response.success ) {
+					await this.fetchUsers()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update user role:', error )
+			}
+		},
+
+		confirmDeleteUser( user ) {
+			this.deleteTarget = user
+			this.deleteType = 'user'
+			this.showDeleteConfirm = true
+		},
+
+		async deleteUser() {
+			if ( !this.deleteTarget ) return
+			this.isDeletingItem = true
+			try {
+				const response = await backend.deleteUser( this.deleteTarget.id )
+				if ( response.success ) {
+					this.showDeleteConfirm = false
+					this.deleteTarget = null
+					this.deleteType = null
+					await this.fetchUsers()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to delete user:', error )
+				this.error = error.error?.message || 'Failed to delete user'
+			} finally {
+				this.isDeletingItem = false
+			}
+		},
+
+		cancelDelete() {
+			this.showDeleteConfirm = false
+			this.deleteTarget = null
+			this.deleteType = null
+		},
+
+		async confirmDelete() {
+			if ( this.deleteType === 'building' ) {
+				await this.deleteBuilding()
+			} else if ( this.deleteType === 'user' ) {
+				await this.deleteUser()
+			}
+		},
+
+		formatTimeAgo( dateString ) {
+			if ( !dateString ) return 'Recently'
+			const date = new Date( dateString )
+			const now = new Date()
+			const diffMs = now - date
+			const diffMins = Math.floor( diffMs / 60000 )
+			const diffHours = Math.floor( diffMs / 3600000 )
+			const diffDays = Math.floor( diffMs / 86400000 )
+
+			if ( diffMins < 1 ) return 'Just now'
+			if ( diffMins < 60 ) return `${diffMins} min ago`
+			if ( diffHours < 24 ) return `${diffHours} hours ago`
+			if ( diffDays < 7 ) return `${diffDays} days ago`
+			return date.toLocaleDateString()
 		}
 	}
 }
@@ -544,6 +1079,15 @@ export default {
 		background #E8F5E9
 		color #4CAF50
 
+// Loading and empty states
+.loading-state, .empty-state
+	text-align center
+	padding 3rem
+	color #666
+
+	p
+		margin-bottom 1rem
+
 // Users table
 .users-table
 	overflow-x auto
@@ -583,6 +1127,26 @@ export default {
 		&.active
 			background #E8F5E9
 			color #4CAF50
+
+.role-select
+	padding 0.5rem
+	border 1px solid #e0e0e0
+	border-radius 8px
+	background white
+	font-size 0.9rem
+	cursor pointer
+
+	&:focus
+		outline none
+		border-color $color-primary
+
+.help-text
+	color #666
+	font-size 0.9rem
+	margin-top 1rem
+	padding 0.75rem
+	background #f5f5f5
+	border-radius 8px
 
 // Requests list
 .requests-list

@@ -197,7 +197,6 @@ export default {
 	gap 1.5rem
 .mobile-user-info
 	background #f9f9f9
-	padding 1rem
 	border-radius 10px
 	.user-email
 		font-weight 600

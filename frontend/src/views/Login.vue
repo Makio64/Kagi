@@ -5,7 +5,7 @@
 			<div class="blob blob-2" />
 		</div>
 		<div class="language-switcher-container">
-			<LanguageSwitcher />
+			<LanguageSwitcher variant="compact" />
 		</div>
 		<div v-if="checkingSession" class="loading-overlay">
 			<div class="loader" />

@@ -249,7 +249,7 @@ For parking permits or questions, contact management office.`
 	display flex
 	align-items center
 	justify-content center
-	background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
+	background linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%)
 	border-radius 10px
 
 .document-content
@@ -268,7 +268,7 @@ For parking permits or questions, contact management office.`
 
 .document-action
 	.view-btn
-		color #1976D2
+		color #FFB300
 		font-weight 500
 		font-size 0.95rem
 		white-space nowrap

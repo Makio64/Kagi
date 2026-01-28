@@ -164,4 +164,15 @@ export default defineConfig( {
 		port: 3000,
 		strictPort: false
 	},
+	test: {
+		globals: true,
+		environment: 'happy-dom',
+		include: ['src/**/*.{test,spec}.{js,ts}'],
+		exclude: ['node_modules', 'dist'],
+		setupFiles: ['./src/tests/setup.js'],
+		env: {
+			VITE_SUPABASE_URL: 'https://test.supabase.co',
+			VITE_SUPABASE_ANON_KEY: 'test-anon-key'
+		}
+	},
 } )
