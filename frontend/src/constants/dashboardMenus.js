@@ -5,8 +5,7 @@ export const ADMIN_MENU_ITEMS = [
 	{ id: 'buildings', icon: '🏢' },
 	{ id: 'users', icon: '👥' },
 	{ id: 'maintenance', icon: '🔧' },
-	{ id: 'financial', icon: '💰' },
-	{ id: 'settings', icon: '⚙️' }
+	{ id: 'financial', icon: '💰' }
 ]
 
 export const MANSION_ADMIN_MENU_ITEMS = [

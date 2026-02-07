@@ -14,6 +14,7 @@ declare module 'vue' {
     AdminOverviewSection: typeof import('./src/components/kagi/admin/AdminOverviewSection.vue')['default']
     BillDetails: typeof import('./src/components/kagi/shared/bills/BillDetails.vue')['default']
     BookingsSection: typeof import('./src/components/kagi/resident/BookingsSection.vue')['default']
+    BuildingDetailSection: typeof import('./src/components/kagi/admin/BuildingDetailSection.vue')['default']
     BurgerButton: typeof import('./src/components/ui/BurgerButton.vue')['default']
     ButtonFX: typeof import('./src/components/ui/ButtonFX.vue')['default']
     ContactManager: typeof import('./src/components/kagi/shared/contacts/ContactManager.vue')['default']

@@ -211,11 +211,49 @@ class SupabaseBackend {
 			name: m.name,
 			address: m.address,
 			totalUnits: m.total_units,
+			subscriptionTier: m.subscription_tier || 'standard',
 			settings: m.settings,
 			metadata: m.metadata,
 			createdAt: m.created_at,
 			updatedAt: m.updated_at
 		} ) ), { total: count || 0 } )
+	}
+
+	/**
+	 * Get a user by email address
+	 * @param {string} email - The email to look up
+	 * @returns {Object} Response with user data or null if not found
+	 */
+	async getUserByEmail( email ) {
+		if ( !email ) {
+			return this.createResponse( null )
+		}
+
+		const { data, error } = await this.supabase
+			.from( 'profiles' )
+			.select( '*, mansions(name)' )
+			.eq( 'email', email.toLowerCase().trim() )
+			.single()
+
+		if ( error && error.code !== 'PGRST116' ) { // PGRST116 = no rows returned
+			throw this.createError( error.message, 500 )
+		}
+
+		if ( !data ) {
+			return this.createResponse( null )
+		}
+
+		return this.createResponse( {
+			id: data.id,
+			email: data.email,
+			name: data.name,
+			phone: data.phone,
+			unit: data.unit,
+			role: data.role,
+			mansionId: data.mansion_id,
+			mansionName: data.mansions?.name || null,
+			createdAt: data.created_at
+		} )
 	}
 
 	/**
@@ -350,40 +388,71 @@ class SupabaseBackend {
 	 * Get system-wide stats for admin dashboard
 	 */
 	async getSystemStats() {
+		// Subscription tier rates (JPY per unit per month)
+		const TIER_RATES = {
+			standard: 100,
+			professional: 300
+		}
+
 		// Calculate date ranges for "this month" and "last month"
 		const now = new Date()
 		const thisMonthStart = new Date( now.getFullYear(), now.getMonth(), 1 ).toISOString()
-		const lastMonthStart = new Date( now.getFullYear(), now.getMonth() - 1, 1 ).toISOString()
-		const lastMonthEnd = new Date( now.getFullYear(), now.getMonth(), 0, 23, 59, 59 ).toISOString()
 
-		const [mansionsRes, mansionsThisMonthRes, usersRes, usersThisMonthRes, maintenanceRes, billsRes, billsLastMonthRes] = await Promise.all( [
-			this.supabase.from( 'mansions' ).select( 'id', { count: 'exact' } ),
+		const [mansionsRes, mansionsThisMonthRes, usersRes, usersThisMonthRes, maintenanceRes] = await Promise.all( [
+			this.supabase.from( 'mansions' ).select( 'id, total_units, subscription_tier, created_at', { count: 'exact' } ),
 			this.supabase.from( 'mansions' ).select( 'id', { count: 'exact' } ).gte( 'created_at', thisMonthStart ),
 			this.supabase.from( 'profiles' ).select( 'id, role, created_at', { count: 'exact' } ),
 			this.supabase.from( 'profiles' ).select( 'id, role', { count: 'exact' } ).eq( 'role', 'resident' ).gte( 'created_at', thisMonthStart ),
-			this.supabase.from( 'maintenance_requests' ).select( 'id, status, priority', { count: 'exact' } ),
-			this.supabase.from( 'bills' ).select( 'id, amount, status, paid_at', { count: 'exact' } ),
-			this.supabase.from( 'bills' ).select( 'id, amount', { count: 'exact' } ).eq( 'status', 'paid' ).gte( 'paid_at', lastMonthStart ).lte( 'paid_at', lastMonthEnd )
+			this.supabase.from( 'maintenance_requests' ).select( 'id, status, priority', { count: 'exact' } )
 		] )
 
+		const mansions = mansionsRes.data || []
 		const users = usersRes.data || []
 		const maintenance = maintenanceRes.data || []
-		const bills = billsRes.data || []
-		const billsLastMonth = billsLastMonthRes.data || []
 
-		// Calculate revenue for this month and last month for percentage change
-		const revenueThisMonth = bills
-			.filter( b => b.status === 'paid' && b.paid_at && new Date( b.paid_at ) >= new Date( thisMonthStart ) )
-			.reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 )
-		const revenueLastMonth = billsLastMonth.reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 )
-		const percentChange = revenueLastMonth > 0
-			? Math.round( ( ( revenueThisMonth - revenueLastMonth ) / revenueLastMonth ) * 100 )
-			: ( revenueThisMonth > 0 ? 100 : 0 )
+		// Calculate platform revenue based on subscription tiers
+		// Revenue = SUM(building.total_units × tier_rate) for all buildings
+		const platformRevenue = mansions.reduce( ( total, m ) => {
+			const tier = m.subscription_tier || 'standard'
+			const rate = TIER_RATES[tier] || TIER_RATES.standard
+			return total + ( m.total_units || 0 ) * rate
+		}, 0 )
+
+		// Calculate revenue by tier for breakdown
+		const revenueByTier = mansions.reduce( ( acc, m ) => {
+			const tier = m.subscription_tier || 'standard'
+			const rate = TIER_RATES[tier] || TIER_RATES.standard
+			const revenue = ( m.total_units || 0 ) * rate
+			acc[tier] = ( acc[tier] || 0 ) + revenue
+			return acc
+		}, {} )
+
+		// Calculate last month's revenue (buildings that existed before this month)
+		const mansionsLastMonth = mansions.filter( m =>
+			new Date( m.created_at ) < new Date( thisMonthStart )
+		)
+		const platformRevenueLastMonth = mansionsLastMonth.reduce( ( total, m ) => {
+			const tier = m.subscription_tier || 'standard'
+			const rate = TIER_RATES[tier] || TIER_RATES.standard
+			return total + ( m.total_units || 0 ) * rate
+		}, 0 )
+
+		// Calculate percent change from last month
+		const percentChange = platformRevenueLastMonth > 0
+			? Math.round( ( ( platformRevenue - platformRevenueLastMonth ) / platformRevenueLastMonth ) * 100 )
+			: ( platformRevenue > 0 ? 100 : 0 )
+
+		// Count buildings by tier
+		const buildingsByTier = {
+			standard: mansions.filter( m => ( m.subscription_tier || 'standard' ) === 'standard' ).length,
+			professional: mansions.filter( m => m.subscription_tier === 'professional' ).length
+		}
 
 		return this.createResponse( {
 			buildings: {
 				total: mansionsRes.count || 0,
-				thisMonth: mansionsThisMonthRes.count || 0
+				thisMonth: mansionsThisMonthRes.count || 0,
+				byTier: buildingsByTier
 			},
 			users: {
 				total: usersRes.count || 0,
@@ -399,10 +468,11 @@ class SupabaseBackend {
 				urgent: maintenance.filter( m => m.priority === 'urgent' ).length
 			},
 			revenue: {
-				total: bills.filter( b => b.status === 'paid' ).reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 ),
-				pending: bills.filter( b => b.status === 'pending' ).reduce( ( sum, b ) => sum + Number( b.amount || 0 ), 0 ),
-				thisMonth: revenueThisMonth,
-				lastMonth: revenueLastMonth,
+				total: platformRevenue,
+				byTier: revenueByTier,
+				totalUnits: mansions.reduce( ( sum, m ) => sum + ( m.total_units || 0 ), 0 ),
+				thisMonth: platformRevenue,
+				lastMonth: platformRevenueLastMonth,
 				percentChange
 			}
 		} )

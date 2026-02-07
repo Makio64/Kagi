@@ -296,9 +296,9 @@ export default {
 
 .section-title
 	margin 0
-	font-size 1.75rem
-	font-weight 600
-	color #333
+	font-size var(--text-2xl)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
 	display flex
 	align-items center
 	gap 0.5rem

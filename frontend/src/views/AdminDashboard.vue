@@ -49,6 +49,9 @@
 						:title="building.name"
 						variant="default"
 						outlined
+						hoverable
+						clickable
+						@click="openBuildingDetail(building)"
 					>
 						<template #badge>
 							<span class="building-status" :class="building.status">{{ building.status }}</span>
@@ -60,10 +63,10 @@
 						</div>
 						<template #footer>
 							<div class="building-actions">
-								<KButton size="sm" variant="secondary" @click="openEditBuildingModal(building)">
+								<KButton size="sm" variant="secondary" @click.stop="openEditBuildingModal(building)">
 									{{ $t('common.edit') }}
 								</KButton>
-								<KButton size="sm" variant="danger" @click="confirmDeleteBuilding(building)">
+								<KButton size="sm" variant="danger" @click.stop="confirmDeleteBuilding(building)">
 									{{ $t('common.delete') }}
 								</KButton>
 							</div>
@@ -337,65 +340,25 @@
 				</KCard>
 			</section>
 
-			<!-- Settings -->
-			<section v-if="activeSection === 'settings'" class="section">
-				<SectionHeader
-					:title="$t('admin.settings.title')"
-					icon="⚙️"
+			<!-- Building Detail Section -->
+			<section v-if="activeSection === 'building-detail'" class="section">
+				<BuildingDetailSection
+					v-if="selectedBuilding"
+					:building="selectedBuilding"
+					:users="buildingUsers"
+					:loading="isLoadingBuildingUsers"
+					:role-options="roleOptions"
+					:is-saving="isEditingBuilding"
+					:is-inviting="isInvitingUser"
+					:is-adding-user="isAddingExistingUser"
+					@back="goBackToBuildings"
+					@update-building="handleUpdateBuilding"
+					@invite-user="handleInviteUserToBuilding"
+					@add-existing-user="handleAddExistingUser"
+					@update-user="handleUpdateBuildingUser"
+					@edit-user="openEditUserModal"
+					@delete-user="confirmDeleteUser"
 				/>
-
-				<div class="settings-sections">
-					<KCard
-						:title="$t('admin.settings.notifications')"
-						icon="🔔"
-						outlined
-					>
-						<div class="setting-item">
-							<label>
-								<input type="checkbox" checked>
-								{{ $t('admin.settings.emailNotifications') }}
-							</label>
-						</div>
-						<div class="setting-item">
-							<label>
-								<input type="checkbox" checked>
-								{{ $t('admin.settings.dailyReports') }}
-							</label>
-						</div>
-					</KCard>
-
-					<KCard
-						:title="$t('admin.settings.security')"
-						icon="🔐"
-						outlined
-					>
-						<div class="setting-item">
-							<label>{{ $t('admin.settings.twoFactor') }}</label>
-							<KButton size="sm" variant="primary">
-								{{ $t('admin.settings.enable') }}
-							</KButton>
-						</div>
-						<div class="setting-item">
-							<label>{{ $t('admin.settings.sessionTimeout') }}</label>
-							<select>
-								<option>30 minutes</option>
-								<option>1 hour</option>
-								<option>2 hours</option>
-							</select>
-						</div>
-					</KCard>
-
-					<KCard
-						:title="$t('admin.settings.appearance')"
-						icon="🎨"
-						outlined
-					>
-						<div class="setting-item">
-							<label>{{ $t('common.language') }}</label>
-							<LanguageSwitcher />
-						</div>
-					</KCard>
-				</div>
 			</section>
 
 		</div>
@@ -457,6 +420,13 @@
 							placeholder="15"
 						>
 					</div>
+				</div>
+				<div class="form-group">
+					<label for="building-tier">{{ $t('admin.buildings.subscriptionTier') }}</label>
+					<select id="building-tier" v-model="newBuilding.subscriptionTier">
+						<option value="standard">{{ $t('admin.buildings.standard') }} (¥100/unit)</option>
+						<option value="professional">{{ $t('admin.buildings.professional') }} (¥300/unit)</option>
+					</select>
 				</div>
 				<div class="form-group">
 					<label>{{ $t('admin.buildings.facilities') }}</label>
@@ -560,6 +530,13 @@
 							min="1"
 						>
 					</div>
+				</div>
+				<div class="form-group">
+					<label for="edit-building-tier">{{ $t('admin.buildings.subscriptionTier') }}</label>
+					<select id="edit-building-tier" v-model="editingBuilding.subscriptionTier">
+						<option value="standard">{{ $t('admin.buildings.standard') }} (¥100/unit)</option>
+						<option value="professional">{{ $t('admin.buildings.professional') }} (¥300/unit)</option>
+					</select>
 				</div>
 			</form>
 
@@ -755,7 +732,8 @@ export default {
 				units: null,
 				floors: null,
 				facilities: [],
-				rules: ''
+				rules: '',
+				subscriptionTier: 'standard'
 			},
 			editingBuilding: null,
 			// User invitation form
@@ -799,7 +777,12 @@ export default {
 			userSort: '-createdAt',
 			searchTimeout: null,
 			// Error handling
-			error: null
+			error: null,
+			// Building detail section
+			selectedBuilding: null,
+			buildingUsers: [],
+			isLoadingBuildingUsers: false,
+			isAddingExistingUser: false
 		}
 	},
 	computed: {
@@ -928,6 +911,7 @@ export default {
 			// Load data for the section
 			if ( newSection === 'buildings' ) this.fetchBuildings()
 			if ( newSection === 'users' ) this.fetchUsers()
+			// Note: building-detail data is loaded via openBuildingDetail()
 		}
 	},
 	async mounted() {
@@ -989,6 +973,7 @@ export default {
 					this.buildings = response.data.map( b => ( {
 						...b,
 						units: b.totalUnits || 0,
+						subscriptionTier: b.subscriptionTier || 'standard',
 						status: 'active',
 						occupancy: 85 // TODO: Calculate from actual resident count
 					} ) )
@@ -1101,7 +1086,8 @@ export default {
 				units: null,
 				floors: null,
 				facilities: [],
-				rules: ''
+				rules: '',
+				subscriptionTier: 'standard'
 			}
 		},
 
@@ -1112,6 +1098,7 @@ export default {
 					name: this.newBuilding.name,
 					address: this.newBuilding.address,
 					totalUnits: this.newBuilding.units || 0,
+					subscriptionTier: this.newBuilding.subscriptionTier || 'standard',
 					settings: {
 						description: this.newBuilding.description,
 						floors: this.newBuilding.floors,
@@ -1145,7 +1132,8 @@ export default {
 				units: building.totalUnits || building.units,
 				floors: building.settings?.floors || null,
 				facilities: building.metadata?.facilities || [],
-				rules: building.settings?.rules || ''
+				rules: building.settings?.rules || '',
+				subscriptionTier: building.subscriptionTier || 'standard'
 			}
 			this.showEditBuildingModal = true
 		},
@@ -1158,6 +1146,7 @@ export default {
 					name: this.editingBuilding.name,
 					address: this.editingBuilding.address,
 					totalUnits: this.editingBuilding.units || 0,
+					subscriptionTier: this.editingBuilding.subscriptionTier || 'standard',
 					settings: {
 						description: this.editingBuilding.description,
 						floors: this.editingBuilding.floors,
@@ -1186,6 +1175,130 @@ export default {
 			this.deleteTarget = building
 			this.deleteType = 'building'
 			this.showDeleteConfirm = true
+		},
+
+		// ==========================================
+		// BUILDING DETAIL SECTION
+		// ==========================================
+
+		openBuildingDetail( building ) {
+			this.selectedBuilding = building
+			this.activeSection = 'building-detail'
+			this.fetchBuildingUsers( building.id )
+		},
+
+		async fetchBuildingUsers( mansionId ) {
+			this.isLoadingBuildingUsers = true
+			try {
+				const response = await backend.getUsers( { mansionId } )
+				if ( response.success ) {
+					this.buildingUsers = response.data.map( u => ( {
+						...u,
+						building: u.mansionName || '-',
+						status: 'active'
+					} ) )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch building users:', error )
+			} finally {
+				this.isLoadingBuildingUsers = false
+			}
+		},
+
+		goBackToBuildings() {
+			this.selectedBuilding = null
+			this.buildingUsers = []
+			this.activeSection = 'buildings'
+		},
+
+		async handleUpdateBuilding( buildingData ) {
+			this.isEditingBuilding = true
+			try {
+				const payload = {
+					name: buildingData.name,
+					address: buildingData.address,
+					totalUnits: buildingData.units || 0,
+					subscriptionTier: buildingData.subscriptionTier || 'standard',
+					settings: {
+						description: buildingData.description,
+						floors: buildingData.floors,
+						rules: buildingData.rules
+					},
+					metadata: {
+						facilities: buildingData.facilities
+					}
+				}
+				const response = await backend.update( 'mansions', buildingData.id, payload )
+				if ( response.success ) {
+					// Update the selected building with new data
+					this.selectedBuilding = {
+						...this.selectedBuilding,
+						name: buildingData.name,
+						address: buildingData.address,
+						totalUnits: buildingData.units,
+						units: buildingData.units,
+						subscriptionTier: buildingData.subscriptionTier,
+						settings: payload.settings,
+						metadata: payload.metadata
+					}
+					await this.fetchBuildings() // Refresh buildings list
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update building:', error )
+				this.error = error.error?.message || 'Failed to update building'
+				alert( this.error )
+			} finally {
+				this.isEditingBuilding = false
+			}
+		},
+
+		async handleInviteUserToBuilding( userData ) {
+			this.isInvitingUser = true
+			try {
+				const response = await backend.inviteUser( {
+					email: userData.email,
+					name: userData.name,
+					role: userData.role,
+					mansionId: userData.mansionId,
+					unit: userData.unit
+				} )
+				if ( response.success ) {
+					alert( this.$t( 'admin.users.inviteSent' ) || 'Invitation sent successfully!' )
+					// Note: User will appear in list after they accept the invitation
+				}
+			} catch ( error ) {
+				console.error( 'Failed to invite user:', error )
+				alert( error.error?.message || 'Failed to send invitation' )
+			} finally {
+				this.isInvitingUser = false
+			}
+		},
+
+		async handleUpdateBuildingUser( updateData ) {
+			try {
+				const response = await backend.updateUser( updateData.userId, { role: updateData.role } )
+				if ( response.success ) {
+					await this.fetchBuildingUsers( this.selectedBuilding.id )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update user:', error )
+			}
+		},
+
+		async handleAddExistingUser( data ) {
+			this.isAddingExistingUser = true
+			try {
+				const response = await backend.updateUser( data.userId, { mansionId: data.mansionId } )
+				if ( response.success ) {
+					alert( this.$t( 'admin.users.addedToBuilding' ) || 'User added to building successfully!' )
+					await this.fetchBuildingUsers( this.selectedBuilding.id )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to add user to building:', error )
+				alert( error.error?.message || 'Failed to add user to building' )
+			} finally {
+				this.isAddingExistingUser = false
+			}
 		},
 
 		async deleteBuilding() {
@@ -1692,32 +1805,6 @@ export default {
 		margin 0
 		color #666
 		font-size 0.9rem
-
-// Settings sections
-.settings-sections
-	display grid
-	gap 1.5rem
-
-.setting-item
-	display flex
-	justify-content space-between
-	align-items center
-	padding 1rem 0
-	border-bottom 1px solid #f0f0f0
-
-	&:last-child
-		border-bottom none
-
-	label
-		color #666
-		display flex
-		align-items center
-		gap 0.5rem
-
-	select
-		padding 0.5rem
-		border 1px solid #e0e0e0
-		border-radius 8px
 
 // Modal Styles
 .modal-overlay

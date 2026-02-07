@@ -30,6 +30,7 @@ async function seed() {
 			name: 'Dresser Tower',
 			address: '1-2-3 Shibuya, Shibuya-ku, Tokyo',
 			total_units: 120,
+			subscription_tier: 'professional',
 			settings: { timezone: 'Asia/Tokyo' },
 			metadata: { floors: 30, yearBuilt: 2018 }
 		} )
