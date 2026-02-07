@@ -3,8 +3,6 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { config } from 'dotenv'
-import { transform } from 'esbuild'
-
 // Load .env file for SENTRY_* variables (Vite only auto-loads VITE_* prefixed vars)
 config()
 import vue from '@vitejs/plugin-vue'
