@@ -169,7 +169,7 @@ export default {
 				console.log( '[Login] Verifying magic token...' )
 				await store.verifyMagicLink( magicToken )
 				console.log( '[Login] Verification successful, redirecting to dashboard' )
-				this.$router.push( '/dashboard' )
+				this.redirectToDashboard()
 			} catch ( err ) {
 				console.error( '[Login] Verification failed:', err )
 				this.error = this.$t( 'login.errors.invalidLink' )
@@ -184,13 +184,23 @@ export default {
 			const hasSession = await store.checkSession()
 			if ( hasSession ) {
 				console.log( '[Login] Active session found, redirecting to dashboard' )
-				this.$router.push( '/dashboard' )
+				this.redirectToDashboard()
 			} else {
 				this.checkingSession = false // Show form
 			}
 		}
 	},
 	methods: {
+		redirectToDashboard() {
+			const role = store.userRole.value
+			if ( role === 'admin' ) {
+				this.$router.push( '/admin-dashboard' )
+			} else if ( role === 'manager' || role === 'mansion_admin' ) {
+				this.$router.push( '/mansion-dashboard' )
+			} else {
+				this.$router.push( '/dashboard' )
+			}
+		},
 		async requestMagicLink() {
 			this.loading = true
 			this.error = ''
@@ -199,8 +209,7 @@ export default {
 
 				// In mock mode, immediately redirect to appropriate dashboard
 				if ( result.mockLogin ) {
-					// Resident tab always goes to /dashboard
-					this.$router.push( '/dashboard' )
+					this.redirectToDashboard()
 					return
 				}
 
