@@ -90,6 +90,7 @@
 			"baseline-browser-mapping": "latest"
 		},
 		"onlyBuiltDependencies": [
+			"@sentry/cli",
 			"esbuild",
 			"sharp"
 		]
