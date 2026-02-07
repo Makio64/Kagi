@@ -20,7 +20,7 @@
 					required
 					rows="6"
 					:placeholder="$t('mansion.announcements.form.contentPlaceholder')"
-				></textarea>
+				/>
 			</div>
 
 			<div class="form-row">
@@ -39,7 +39,7 @@
 								:value="p.value"
 								class="sr-only"
 							>
-							<span class="priority-dot" :class="'priority-dot--' + p.value"></span>
+							<span class="priority-dot" :class="'priority-dot--' + p.value" />
 							{{ $t(p.labelKey) }}
 						</label>
 					</div>

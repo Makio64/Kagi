@@ -165,14 +165,12 @@ export default {
 	computed: {
 		announcementsStats() {
 			const all = this.announcements
-			const published = all.filter( a => a.status === 'published' )
 			return {
 				total: this.announcementPagination.total || all.length,
 				drafts: all.filter( a => a.status === 'draft' ).length,
 				inReview: all.filter( a => a.status === 'in_review' ).length,
-				published: published.length,
-				scheduled: all.filter( a => a.status === 'scheduled' ).length,
-				avgReadRate: this._calculateAvgReadRate( published )
+				published: all.filter( a => a.status === 'published' ).length,
+				scheduled: all.filter( a => a.status === 'scheduled' ).length
 			}
 		},
 		todayDate() {
@@ -574,16 +572,6 @@ export default {
 		// HELPERS
 		// ==========================================
 
-		_calculateAvgReadRate( publishedAnnouncements ) {
-			if ( !publishedAnnouncements ) return 0
-			const withTracking = publishedAnnouncements.filter( a => a.metadata?.readTracking?.totalResidents )
-			if ( withTracking.length === 0 ) return 0
-			const total = withTracking.reduce( ( sum, a ) => {
-				const t = a.metadata.readTracking
-				return sum + Math.round( ( t.readCount / t.totalResidents ) * 100 )
-			}, 0 )
-			return Math.round( total / withTracking.length )
-		}
 	}
 }
 </script>

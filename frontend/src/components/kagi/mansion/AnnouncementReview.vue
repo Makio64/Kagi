@@ -29,7 +29,7 @@
 			</div>
 			<p class="preview-description">{{ announcement.description }}</p>
 			<div class="preview-meta">
-				<span class="priority-dot" :class="'priority-dot--' + (announcement.priority || 'medium')"></span>
+				<span class="priority-dot" :class="'priority-dot--' + (announcement.priority || 'medium')" />
 				<span>{{ priorityLabel }}</span>
 				<span v-if="announcement.tags && announcement.tags.length" class="preview-tags">
 					<span v-for="tag in announcement.tags" :key="tag" class="tag-pill">{{ tag }}</span>
@@ -52,7 +52,7 @@
 			</div>
 
 			<div v-if="aiLoading" class="ai-loading">
-				<div class="ai-loading-spinner"></div>
+				<div class="ai-loading-spinner" />
 				<span>{{ $t('mansion.announcements.review.aiLoading') }}</span>
 			</div>
 
@@ -140,7 +140,7 @@
 					v-model="newComment"
 					rows="2"
 					:placeholder="$t('mansion.announcements.review.addComment')"
-				></textarea>
+				/>
 				<KButton
 					variant="primary"
 					size="sm"
@@ -171,14 +171,11 @@
 			</div>
 		</div>
 
-		<!-- Read rate for published -->
-		<div v-if="announcement.status === 'published' && readRate !== null" class="published-stats">
-			<div class="read-rate-big">
-				<div class="read-rate-value">{{ readRate }}%</div>
-				<div class="read-rate-label">{{ $t('mansion.announcements.stats.avgReadRate') }}</div>
-			</div>
-			<div class="read-rate-bar-big">
-				<div class="read-rate-fill" :style="{ width: readRate + '%' }"></div>
+		<!-- Views for published -->
+		<div v-if="announcement.status === 'published' && readCount !== null" class="published-stats">
+			<div class="views-big">
+				<div class="views-value">{{ readCount }}</div>
+				<div class="views-label">{{ $t('mansion.announcements.stats.views') }}</div>
 			</div>
 		</div>
 	</section>
@@ -258,10 +255,10 @@ export default {
 		hasCurrentUserApproved() {
 			return this.approvals.some( a => a.userId === this.currentUser?.id )
 		},
-		readRate() {
+		readCount() {
 			const tracking = this.announcement.metadata?.readTracking
-			if ( !tracking || !tracking.totalResidents ) return null
-			return Math.round( ( tracking.readCount / tracking.totalResidents ) * 100 )
+			if ( !tracking ) return null
+			return tracking.readCount || 0
 		}
 	},
 	methods: {
@@ -655,27 +652,17 @@ export default {
 	margin-bottom 1.5rem
 	text-align center
 
-.read-rate-big
-	margin-bottom 1rem
+.views-big
+	display flex
+	flex-direction column
+	align-items center
 
-.read-rate-value
+.views-value
 	font-size 2.5rem
 	font-weight 700
 	color $color-text-primary
 
-.read-rate-label
+.views-label
 	font-size 0.85rem
 	color $color-text-secondary
-
-.read-rate-bar-big
-	height 10px
-	background #e0e0e0
-	border-radius 5px
-	overflow hidden
-
-.read-rate-fill
-	height 100%
-	background linear-gradient(90deg, #4caf50, #66bb6a)
-	border-radius 5px
-	transition width 0.5s ease
 </style>

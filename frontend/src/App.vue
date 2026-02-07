@@ -67,6 +67,10 @@ export default {
 					path: '/mansion-dashboard',
 					component: MansionAdminDashboard,
 				},
+				{
+					path: '/mansion-dashboard/:section',
+					component: MansionAdminDashboard,
+				},
 			]
 		},
 		redirects() {

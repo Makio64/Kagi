@@ -27,8 +27,8 @@
 			/>
 			<StatCard
 				icon="📊"
-				:label="$t('mansion.announcements.stats.avgReadRate')"
-				:value="stats.avgReadRate + '%'"
+				:label="$t('mansion.announcements.stats.totalViews')"
+				:value="totalViews"
 				variant="info"
 			/>
 		</div>
@@ -75,7 +75,7 @@
 						<StatusBadge :status="statusLabel(ann.status)" :variant="statusVariant(ann.status)" />
 					</div>
 					<div class="announcement-card-meta">
-						<span class="priority-dot" :class="'priority-dot--' + (ann.priority || 'medium')"></span>
+						<span class="priority-dot" :class="'priority-dot--' + (ann.priority || 'medium')" />
 						<span class="announcement-date">{{ formatRelativeDate(ann.dates?.created || ann.createdAt) }}</span>
 						<span v-if="ann.creator?.name || ann.creatorName" class="announcement-author">
 							{{ $t('mansion.announcements.createdBy', { name: ann.creator?.name || ann.creatorName }) }}
@@ -85,12 +85,10 @@
 
 				<p class="announcement-card-description">{{ truncate(ann.description, 120) }}</p>
 
-				<!-- Read Rate Bar (published only) -->
-				<div v-if="ann.status === 'published' && getReadRate(ann) !== null" class="read-rate">
-					<div class="read-rate-bar">
-						<div class="read-rate-fill" :style="{ width: getReadRate(ann) + '%' }"></div>
-					</div>
-					<span class="read-rate-text">{{ $t('mansion.announcements.readRate', { percent: getReadRate(ann) }) }}</span>
+				<!-- Views count (published only) -->
+				<div v-if="ann.status === 'published' && getReadCount(ann) !== null" class="views-count">
+					<span class="views-icon">👁</span>
+					<span class="views-text">{{ $t('mansion.announcements.views', { count: getReadCount(ann) }) }}</span>
 				</div>
 
 				<!-- Scheduled info -->
@@ -164,6 +162,14 @@ export default {
 				{ value: 'published', labelKey: 'mansion.announcements.filter.published', count: this.stats.published },
 				{ value: 'scheduled', labelKey: 'mansion.announcements.filter.scheduled', count: this.stats.scheduled }
 			]
+		},
+		totalViews() {
+			let sum = 0
+			for ( const ann of this.announcements ) {
+				const count = ann.metadata?.readTracking?.readCount
+				if ( count ) sum += count
+			}
+			return sum
 		}
 	},
 	methods: {
@@ -187,10 +193,10 @@ export default {
 			}
 			return map[status] || 'secondary'
 		},
-		getReadRate( ann ) {
+		getReadCount( ann ) {
 			const tracking = ann.metadata?.readTracking
-			if ( !tracking || !tracking.totalResidents ) return null
-			return Math.round( ( tracking.readCount / tracking.totalResidents ) * 100 )
+			if ( !tracking ) return null
+			return tracking.readCount || 0
 		},
 		truncate( text, maxLen ) {
 			if ( !text ) return ''
@@ -352,30 +358,19 @@ export default {
 	line-height 1.5
 	margin 0 0 0.75rem 0
 
-// Read rate
-.read-rate
+// Views count
+.views-count
 	display flex
 	align-items center
-	gap 0.75rem
+	gap 0.35rem
 	margin-bottom 0.5rem
 
-.read-rate-bar
-	flex 1
-	height 6px
-	background #e0e0e0
-	border-radius 3px
-	overflow hidden
+.views-icon
+	font-size 0.85rem
 
-.read-rate-fill
-	height 100%
-	background linear-gradient(90deg, #4caf50, #66bb6a)
-	border-radius 3px
-	transition width 0.3s ease
-
-.read-rate-text
+.views-text
 	font-size 0.8rem
 	color $color-text-secondary
-	white-space nowrap
 
 // Scheduled info
 .scheduled-info

@@ -388,9 +388,7 @@ class Backend {
 						aiSuggestions: [],
 						aiReviewedAt: new Date( now - 5 * 24 * 60 * 60 * 1000 ).toISOString()
 					},
-					approvals: [
-						{ userId: 'usr_admin_001', userName: 'Admin User', approvedAt: new Date( now - 4 * 24 * 60 * 60 * 1000 ).toISOString() }
-					],
+					approvals: [{ userId: 'usr_admin_001', userName: 'Admin User', approvedAt: new Date( now - 4 * 24 * 60 * 60 * 1000 ).toISOString() }],
 					comments: [],
 					readTracking: { totalResidents: 45, readCount: 32 },
 					publishedAt: new Date( now - 4 * 24 * 60 * 60 * 1000 ).toISOString(),
