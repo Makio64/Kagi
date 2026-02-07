@@ -36,7 +36,7 @@
 				</div>
 
 				<div v-else-if="buildings.length === 0" class="empty-state">
-					<p>{{ $t('admin.buildings.empty') || 'No buildings yet. Add your first building!' }}</p>
+					<p>{{ $t('admin.buildings.empty') }}</p>
 					<KButton variant="primary" @click="showAddBuildingModal = true">
 						{{ $t('admin.buildings.add') }}
 					</KButton>

@@ -390,6 +390,7 @@
   "admin.buildings.subscriptionTier": "契約プラン",
   "admin.buildings.standard": "スタンダード",
   "admin.buildings.professional": "プロフェッショナル",
+  "admin.buildings.empty": "建物がまだありません。最初の建物を追加してください！",
   "admin.users.title": "ユーザー管理",
   "admin.users.invite": "ユーザーを招待",
   "admin.users.inviteNew": "新しいユーザーを招待",

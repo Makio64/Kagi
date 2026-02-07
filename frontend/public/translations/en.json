@@ -400,6 +400,7 @@
   "admin.buildings.subscriptionTier": "Subscription Tier",
   "admin.buildings.standard": "Standard",
   "admin.buildings.professional": "Professional",
+  "admin.buildings.empty": "No buildings yet. Add your first building!",
   "admin.users.title": "Users Management",
   "admin.users.invite": "Invite User",
   "admin.users.inviteNew": "Invite New User",
