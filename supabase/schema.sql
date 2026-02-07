@@ -153,7 +153,7 @@ CREATE TABLE announcements (
 	creator_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 	title TEXT NOT NULL,
 	description TEXT,
-	status TEXT DEFAULT 'active' CHECK (status IN ('active', 'draft', 'expired')),
+	status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'in_review', 'published', 'scheduled', 'expired')),
 	priority TEXT DEFAULT 'medium',
 	tags JSONB DEFAULT '[]'::jsonb,
 	expires_at TIMESTAMPTZ,

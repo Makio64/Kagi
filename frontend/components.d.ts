@@ -12,6 +12,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminOverviewSection: typeof import('./src/components/kagi/admin/AdminOverviewSection.vue')['default']
+    AnnouncementComposer: typeof import('./src/components/kagi/mansion/AnnouncementComposer.vue')['default']
+    AnnouncementReview: typeof import('./src/components/kagi/mansion/AnnouncementReview.vue')['default']
+    AnnouncementsSection: typeof import('./src/components/kagi/mansion/AnnouncementsSection.vue')['default']
     BillDetails: typeof import('./src/components/kagi/shared/bills/BillDetails.vue')['default']
     BookingsSection: typeof import('./src/components/kagi/resident/BookingsSection.vue')['default']
     BuildingDetailSection: typeof import('./src/components/kagi/admin/BuildingDetailSection.vue')['default']
@@ -47,8 +50,10 @@ declare module 'vue' {
     LanguageSwitcher: typeof import('./src/components/kagi/shared/brand/LanguageSwitcher.vue')['default']
     MaintenanceRequestsSection: typeof import('./src/components/kagi/mansion/MaintenanceRequestsSection.vue')['default']
     MaintenanceSection: typeof import('./src/components/kagi/resident/MaintenanceSection.vue')['default']
+    MansionAnnouncementsManager: typeof import('./src/components/kagi/mansion/MansionAnnouncementsManager.vue')['default']
     MansionBookingsSection: typeof import('./src/components/kagi/mansion/MansionBookingsSection.vue')['default']
     MansionOverviewSection: typeof import('./src/components/kagi/mansion/MansionOverviewSection.vue')['default']
+    MansionResidentsManager: typeof import('./src/components/kagi/mansion/MansionResidentsManager.vue')['default']
     MansionResidentsSection: typeof import('./src/components/kagi/mansion/MansionResidentsSection.vue')['default']
     MobileMenu: typeof import('./src/components/kagi/navigation/MobileMenu.vue')['default']
     MobileSettingsMenu: typeof import('./src/components/kagi/dashboard/MobileSettingsMenu.vue')['default']

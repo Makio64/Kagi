@@ -8,4 +8,7 @@ export const ADMIN_MENU_ITEMS = [
 	{ id: 'financial', icon: '💰' }
 ]
 
-export const MANSION_ADMIN_MENU_ITEMS = [{ id: 'residents', icon: '👥' }]
+export const MANSION_ADMIN_MENU_ITEMS = [
+	{ id: 'residents', icon: '👥' },
+	{ id: 'announcements', icon: '📢' }
+]

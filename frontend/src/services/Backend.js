@@ -372,19 +372,98 @@ class Backend {
 				id: 'ann_001',
 				type: 'announcement',
 				title: 'Elevator Maintenance Notice',
-				description: 'The main elevator will be under maintenance on December 15th from 9:00 to 17:00',
-				status: 'active',
+				description: 'The main elevator will be under maintenance on December 15th from 9:00 to 17:00. Please use the secondary elevator or stairs during this period. We apologize for any inconvenience.',
+				status: 'published',
 				priority: 'high',
 				tags: ['maintenance', 'elevator'],
 				creator: users[1],
 				dates: {
-					created: now - 2 * 24 * 60 * 60 * 1000,
-					updated: now - 2 * 24 * 60 * 60 * 1000,
-					expires: now + 5 * 24 * 60 * 60 * 1000
+					created: now - 5 * 24 * 60 * 60 * 1000,
+					updated: now - 4 * 24 * 60 * 60 * 1000,
+					expires: now + 10 * 24 * 60 * 60 * 1000
 				},
 				metadata: {
-					affectedFloors: ['all'],
-					alternativeRoute: 'Please use the emergency stairs or secondary elevator'
+					review: {
+						submittedAt: new Date( now - 5 * 24 * 60 * 60 * 1000 ).toISOString(),
+						aiSuggestions: [],
+						aiReviewedAt: new Date( now - 5 * 24 * 60 * 60 * 1000 ).toISOString()
+					},
+					approvals: [
+						{ userId: 'usr_admin_001', userName: 'Admin User', approvedAt: new Date( now - 4 * 24 * 60 * 60 * 1000 ).toISOString() }
+					],
+					comments: [],
+					readTracking: { totalResidents: 45, readCount: 32 },
+					publishedAt: new Date( now - 4 * 24 * 60 * 60 * 1000 ).toISOString(),
+					publishedBy: 'usr_manager_001'
+				}
+			},
+			{
+				id: 'ann_002',
+				type: 'announcement',
+				title: 'Pool Cleaning Schedule Update',
+				description: 'The pool cleaning schedule has been updated for January. Pool will be cleaned every Monday and Thursday morning.',
+				status: 'draft',
+				priority: 'medium',
+				tags: ['pool', 'schedule'],
+				creator: users[1],
+				dates: {
+					created: now - 1 * 24 * 60 * 60 * 1000,
+					updated: now - 1 * 24 * 60 * 60 * 1000
+				},
+				metadata: {
+					review: null,
+					approvals: [],
+					comments: [],
+					readTracking: null
+				}
+			},
+			{
+				id: 'ann_003',
+				type: 'announcement',
+				title: 'New Year Party Invitation',
+				description: 'Join us for the annual New Year celebration in the party room! Food and drinks will be provide. All residents are welcome to attend with their familys. The event starts at 7 PM.',
+				status: 'in_review',
+				priority: 'medium',
+				tags: ['event', 'community'],
+				creator: users[1],
+				dates: {
+					created: now - 3 * 24 * 60 * 60 * 1000,
+					updated: now - 2 * 24 * 60 * 60 * 1000
+				},
+				metadata: {
+					review: {
+						submittedAt: new Date( now - 2 * 24 * 60 * 60 * 1000 ).toISOString(),
+						aiSuggestions: [
+							{
+								id: 'sug_1',
+								type: 'grammar',
+								original: 'will be provide',
+								suggested: 'will be provided',
+								applied: false,
+								dismissedAt: null
+							},
+							{
+								id: 'sug_2',
+								type: 'grammar',
+								original: 'their familys',
+								suggested: 'their families',
+								applied: false,
+								dismissedAt: null
+							}
+						],
+						aiReviewedAt: new Date( now - 2 * 24 * 60 * 60 * 1000 ).toISOString()
+					},
+					approvals: [],
+					comments: [
+						{
+							id: 'cmt_1',
+							authorId: 'usr_admin_001',
+							authorName: 'Admin User',
+							text: 'Should we add a note about the dress code?',
+							createdAt: new Date( now - 1 * 24 * 60 * 60 * 1000 ).toISOString()
+						}
+					],
+					readTracking: null
 				}
 			}
 		]
