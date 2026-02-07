@@ -7,50 +7,23 @@
 		:active-section="activeSection"
 		@navigate="navigateToSection"
 		@logout="handleLogout"
-		@logo-click="navigateToSection('overview')"
+		@logo-click="navigateToSection('residents')"
 	>
-		<!-- Overview Section -->
-		<MansionOverviewSection
-			v-if="activeSection === 'overview'"
-			:stats="dashboardStats"
-			:recent-activities="recentActivities"
-			:loading="isLoading"
-		/>
-
 		<!-- Residents Section -->
-		<ResidentsSection
-			v-else-if="activeSection === 'residents'"
+		<MansionResidentsSection
 			:residents="residents"
 			:loading="isLoadingResidents"
+			:stats="residentsStats"
+			:pagination="residentPagination"
+			:sort="residentSort"
+			:search="residentFilters.search"
 			@add="openInviteResidentModal"
-			@edit="editResident"
-			@message="messageResident"
+			@edit="openEditResidentModal"
+			@delete="confirmDeleteResident"
+			@search="handleResidentSearch"
+			@sort="handleResidentSort"
+			@page-change="handleResidentPageChange"
 		/>
-
-		<!-- Maintenance Section -->
-		<MaintenanceRequestsSection
-			v-else-if="activeSection === 'maintenance'"
-			:requests="maintenanceRequests"
-			:loading="isLoadingMaintenance"
-			@view="viewMaintenanceRequest"
-			@update="updateMaintenanceStatus"
-		/>
-
-		<!-- Bookings Section -->
-		<MansionBookingsSection
-			v-else-if="activeSection === 'bookings'"
-			:bookings="bookings"
-			:facilities="facilities"
-			:loading="isLoadingBookings"
-			@approve="approveBooking"
-			@reject="rejectBooking"
-		/>
-
-		<!-- Placeholder sections -->
-		<div v-else class="section placeholder-section">
-			<h2>{{ $t(`mansion.${activeSection}.title`) || activeSection }}</h2>
-			<p>{{ $t('dashboard.comingSoon') || 'Coming soon...' }}</p>
-		</div>
 
 		<!-- Invite Resident Modal -->
 		<KModal
@@ -111,24 +84,87 @@
 				</KButton>
 			</template>
 		</KModal>
+
+		<!-- Edit Resident Modal -->
+		<KModal
+			v-model="showEditResidentModal"
+			:title="$t('mansion.residents.editResident') || 'Edit Resident'"
+		>
+			<form class="modal-form" @submit.prevent="saveEditResident">
+				<div class="form-group">
+					<label>{{ $t('common.email') || 'Email' }}</label>
+					<input
+						type="email"
+						:value="editingResident?.email"
+						disabled
+						class="input-disabled"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-name">{{ $t('common.name') || 'Name' }}</label>
+					<input
+						id="edit-name"
+						v-model="editResidentForm.name"
+						type="text"
+						:placeholder="$t('common.name') || 'Name'"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-unit">{{ $t('mansion.residents.unit') || 'Unit Number' }}</label>
+					<input
+						id="edit-unit"
+						v-model="editResidentForm.unit"
+						type="text"
+						placeholder="e.g. 1201"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-phone">{{ $t('common.phone') || 'Phone' }}</label>
+					<input
+						id="edit-phone"
+						v-model="editResidentForm.phone"
+						type="tel"
+						placeholder="+81-90-1234-5678"
+					>
+				</div>
+			</form>
+
+			<template #footer>
+				<KButton variant="secondary" @click="showEditResidentModal = false">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="primary" :loading="isEditingResident" @click="saveEditResident">
+					{{ $t('common.save') || 'Save' }}
+				</KButton>
+			</template>
+		</KModal>
+
+		<!-- Delete Confirmation Modal -->
+		<KModal
+			v-model="showDeleteConfirm"
+			:title="$t('common.confirmDelete') || 'Confirm Delete'"
+			size="small"
+		>
+			<p>
+				{{ $t('mansion.residents.deleteConfirm') || 'Are you sure you want to remove this resident?' }}
+				<strong>{{ deleteTarget?.email }}</strong>
+			</p>
+
+			<template #footer>
+				<KButton variant="secondary" @click="cancelDelete">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="danger" :loading="isDeletingResident" @click="deleteResident">
+					{{ $t('common.delete') || 'Delete' }}
+				</KButton>
+			</template>
+		</KModal>
 	</DashboardLayout>
 </template>
 <script>
+import { MANSION_ADMIN_MENU_ITEMS } from '../constants/dashboardMenus'
 import backend from '../services/SupabaseBackend'
 import * as store from '../store'
-
-const MENU_ITEMS = [
-	{ id: 'overview', icon: '📊' },
-	{ id: 'residents', icon: '👥' },
-	{ id: 'maintenance', icon: '🔧' },
-	{ id: 'bookings', icon: '📅' },
-	{ id: 'announcements', icon: '📢' },
-	{ id: 'documents', icon: '📄' },
-	{ id: 'financial', icon: '💰' },
-	{ id: 'reports', icon: '📈' },
-	{ id: 'services', icon: '🛎️' },
-	{ id: 'settings', icon: '⚙️' }
-]
 
 export default {
 	name: 'MansionAdminDashboard',
@@ -137,26 +173,47 @@ export default {
 	},
 	data() {
 		return {
+			// Menu
+			menuItems: MANSION_ADMIN_MENU_ITEMS,
 			// Loading states
 			isLoading: false,
 			isLoadingResidents: false,
-			isLoadingMaintenance: false,
-			isLoadingBookings: false,
 			isInvitingResident: false,
+			isEditingResident: false,
+			isDeletingResident: false,
 			// Data
 			residents: [],
-			maintenanceRequests: [],
-			bookings: [],
-			facilities: [],
-			dashboardData: null,
-			// Modals
+			// Filtering / sorting / pagination
+			residentFilters: {
+				search: ''
+			},
+			residentPagination: {
+				page: 1,
+				limit: 25,
+				total: 0,
+				totalPages: 0
+			},
+			residentSort: '-createdAt',
+			searchTimeout: null,
+			// Invite modal
 			showInviteResidentModal: false,
 			newResident: {
 				email: '',
 				name: '',
 				unit: '',
 				phone: ''
-			}
+			},
+			// Edit modal
+			showEditResidentModal: false,
+			editingResident: null,
+			editResidentForm: {
+				name: '',
+				unit: '',
+				phone: ''
+			},
+			// Delete modal
+			showDeleteConfirm: false,
+			deleteTarget: null
 		}
 	},
 	computed: {
@@ -170,51 +227,27 @@ export default {
 			return this.user?.mansionName || 'Building Dashboard'
 		},
 		activeSection() {
-			return this.routeParams?.section || 'overview'
+			return this.routeParams?.section || 'residents'
 		},
 		menuItemsWithLabels() {
-			return MENU_ITEMS.map( item => ( {
+			return this.menuItems.map( item => ( {
 				...item,
 				label: this.$t( `mansion.menu.${item.id}` )
 			} ) )
 		},
-		dashboardStats() {
+		residentsStats() {
+			const now = new Date()
+			const thirtyDaysAgo = new Date()
+			thirtyDaysAgo.setDate( now.getDate() - 30 )
+
 			return {
-				residents: this.residents.length,
-				maintenance: this.maintenanceRequests.filter( m => m.status === 'pending' ).length,
-				bookings: this.bookings.filter( b => b.status === 'pending' ).length,
-				facilities: this.facilities.length
+				total: this.residentPagination.total,
+				active: this.residents.filter( r => r.status === 'active' ).length,
+				recent: this.residents.filter( r => {
+					if ( !r.createdAt ) return false
+					return new Date( r.createdAt ) > thirtyDaysAgo
+				} ).length
 			}
-		},
-		recentActivities() {
-			const activities = []
-			// Recent maintenance requests
-			this.maintenanceRequests.slice( 0, 3 ).forEach( m => {
-				activities.push( {
-					id: `maint-${m.id}`,
-					icon: '🔧',
-					text: `${m.title} - Unit ${m.unit || 'N/A'}`,
-					time: this.formatTimeAgo( m.createdAt || m.dates?.created )
-				} )
-			} )
-			// Recent bookings
-			this.bookings.slice( 0, 2 ).forEach( b => {
-				activities.push( {
-					id: `book-${b.id}`,
-					icon: '📅',
-					text: `Booking request for ${b.facilityName || 'facility'}`,
-					time: this.formatTimeAgo( b.createdAt || b.dates?.created )
-				} )
-			} )
-			return activities.slice( 0, 5 )
-		}
-	},
-	watch: {
-		activeSection( newSection ) {
-			this.$nextTick( () => {
-				document.querySelector( '#app' )?.scrollTo( 0, 0 )
-			} )
-			this.loadSectionData( newSection )
 		}
 	},
 	async mounted() {
@@ -250,12 +283,7 @@ export default {
 		async loadInitialData() {
 			this.isLoading = true
 			try {
-				await Promise.all( [
-					this.fetchResidents(),
-					this.fetchMaintenanceRequests(),
-					this.fetchBookings(),
-					this.fetchFacilities()
-				] )
+				await this.fetchResidents()
 			} catch ( error ) {
 				console.error( 'Failed to load initial data:', error )
 			} finally {
@@ -263,30 +291,25 @@ export default {
 			}
 		},
 
-		async loadSectionData( section ) {
-			switch ( section ) {
-				case 'residents':
-					await this.fetchResidents()
-					break
-				case 'maintenance':
-					await this.fetchMaintenanceRequests()
-					break
-				case 'bookings':
-					await this.fetchBookings()
-					break
-			}
-		},
-
 		async fetchResidents() {
 			this.isLoadingResidents = true
 			try {
-				const response = await backend.getUsers( this.mansionId )
+				const response = await backend.getUsers( {
+					mansionId: this.mansionId,
+					role: 'resident',
+					search: this.residentFilters.search || undefined,
+					page: this.residentPagination.page,
+					limit: this.residentPagination.limit,
+					sort: this.residentSort
+				} )
 				if ( response.success ) {
-					this.residents = response.data.filter( u => u.role === 'resident' ).map( r => ( {
+					this.residents = response.data.map( r => ( {
 						...r,
 						status: 'active',
 						moveInDate: r.createdAt
 					} ) )
+					this.residentPagination.total = response.meta.total
+					this.residentPagination.totalPages = response.meta.totalPages
 				}
 			} catch ( error ) {
 				console.error( 'Failed to fetch residents:', error )
@@ -295,50 +318,39 @@ export default {
 			}
 		},
 
-		async fetchMaintenanceRequests() {
-			this.isLoadingMaintenance = true
-			try {
-				const response = await backend.maintenance().get()
-				if ( response.success ) {
-					this.maintenanceRequests = response.data.map( m => ( {
-						...m,
-						created: m.dates?.created
-					} ) )
-				}
-			} catch ( error ) {
-				console.error( 'Failed to fetch maintenance requests:', error )
-			} finally {
-				this.isLoadingMaintenance = false
+		// ==========================================
+		// SEARCH / SORT / PAGINATION
+		// ==========================================
+
+		handleResidentSearch( value ) {
+			this.residentFilters.search = value
+			if ( this.searchTimeout ) {
+				clearTimeout( this.searchTimeout )
 			}
+			this.searchTimeout = setTimeout( () => {
+				this.residentPagination.page = 1
+				this.fetchResidents()
+			}, 300 )
 		},
 
-		async fetchBookings() {
-			this.isLoadingBookings = true
-			try {
-				const response = await backend.bookings().get()
-				if ( response.success ) {
-					this.bookings = response.data
-				}
-			} catch ( error ) {
-				console.error( 'Failed to fetch bookings:', error )
-			} finally {
-				this.isLoadingBookings = false
+		handleResidentSort( field ) {
+			if ( this.residentSort === field ) {
+				this.residentSort = `-${field}`
+			} else if ( this.residentSort === `-${field}` ) {
+				this.residentSort = field
+			} else {
+				this.residentSort = `-${field}`
 			}
+			this.fetchResidents()
 		},
 
-		async fetchFacilities() {
-			try {
-				const response = await backend.facilities().get()
-				if ( response.success ) {
-					this.facilities = response.data
-				}
-			} catch ( error ) {
-				console.error( 'Failed to fetch facilities:', error )
-			}
+		handleResidentPageChange( page ) {
+			this.residentPagination.page = page
+			this.fetchResidents()
 		},
 
 		// ==========================================
-		// RESIDENT MANAGEMENT
+		// INVITE RESIDENT
 		// ==========================================
 
 		openInviteResidentModal() {
@@ -359,6 +371,7 @@ export default {
 				if ( response.success ) {
 					this.showInviteResidentModal = false
 					alert( this.$t( 'mansion.residents.inviteSent' ) || 'Invitation sent successfully!' )
+					await this.fetchResidents()
 				}
 			} catch ( error ) {
 				console.error( 'Failed to invite resident:', error )
@@ -368,100 +381,78 @@ export default {
 			}
 		},
 
-		editResident( resident ) {
-			// TODO: Implement edit resident modal
-			console.log( 'Edit resident:', resident )
-		},
-
-		messageResident( resident ) {
-			// TODO: Implement messaging
-			console.log( 'Message resident:', resident )
-		},
-
 		// ==========================================
-		// MAINTENANCE MANAGEMENT
+		// EDIT RESIDENT
 		// ==========================================
 
-		viewMaintenanceRequest( request ) {
-			// TODO: Implement view/detail modal
-			console.log( 'View request:', request )
+		openEditResidentModal( resident ) {
+			this.editingResident = resident
+			this.editResidentForm = {
+				name: resident.name || '',
+				unit: resident.unit || '',
+				phone: resident.phone || ''
+			}
+			this.showEditResidentModal = true
 		},
 
-		async updateMaintenanceStatus( requestId, newStatus ) {
+		async saveEditResident() {
+			if ( !this.editingResident ) return
+			this.isEditingResident = true
 			try {
-				const response = await backend.maintenance().update( requestId, { status: newStatus } )
+				const response = await backend.updateUser( this.editingResident.id, {
+					name: this.editResidentForm.name,
+					unit: this.editResidentForm.unit,
+					phone: this.editResidentForm.phone
+				} )
 				if ( response.success ) {
-					await this.fetchMaintenanceRequests()
+					this.showEditResidentModal = false
+					this.editingResident = null
+					await this.fetchResidents()
 				}
 			} catch ( error ) {
-				console.error( 'Failed to update maintenance status:', error )
+				console.error( 'Failed to update resident:', error )
+				alert( error.error?.message || 'Failed to update resident' )
+			} finally {
+				this.isEditingResident = false
 			}
 		},
 
 		// ==========================================
-		// BOOKING MANAGEMENT
+		// DELETE RESIDENT
 		// ==========================================
 
-		async approveBooking( bookingId ) {
+		confirmDeleteResident( resident ) {
+			this.deleteTarget = resident
+			this.showDeleteConfirm = true
+		},
+
+		async deleteResident() {
+			if ( !this.deleteTarget ) return
+			this.isDeletingResident = true
 			try {
-				const response = await backend.bookings().update( bookingId, { status: 'confirmed' } )
+				const response = await backend.deleteUser( this.deleteTarget.id )
 				if ( response.success ) {
-					await this.fetchBookings()
+					this.showDeleteConfirm = false
+					this.deleteTarget = null
+					await this.fetchResidents()
 				}
 			} catch ( error ) {
-				console.error( 'Failed to approve booking:', error )
+				console.error( 'Failed to delete resident:', error )
+				alert( error.error?.message || 'Failed to delete resident' )
+			} finally {
+				this.isDeletingResident = false
 			}
 		},
 
-		async rejectBooking( bookingId ) {
-			try {
-				const response = await backend.bookings().update( bookingId, { status: 'cancelled' } )
-				if ( response.success ) {
-					await this.fetchBookings()
-				}
-			} catch ( error ) {
-				console.error( 'Failed to reject booking:', error )
-			}
-		},
-
-		// ==========================================
-		// HELPERS
-		// ==========================================
-
-		formatTimeAgo( dateString ) {
-			if ( !dateString ) return 'Recently'
-			const date = new Date( dateString )
-			const now = new Date()
-			const diffMs = now - date
-			const diffMins = Math.floor( diffMs / 60000 )
-			const diffHours = Math.floor( diffMs / 3600000 )
-			const diffDays = Math.floor( diffMs / 86400000 )
-
-			if ( diffMins < 1 ) return 'Just now'
-			if ( diffMins < 60 ) return `${diffMins} min ago`
-			if ( diffHours < 24 ) return `${diffHours} hours ago`
-			if ( diffDays < 7 ) return `${diffDays} days ago`
-			return date.toLocaleDateString()
+		cancelDelete() {
+			this.showDeleteConfirm = false
+			this.deleteTarget = null
 		}
 	}
 }
 </script>
 <style lang="stylus" scoped>
-.section
-	padding 2rem
-	background white
-	border-radius 12px
-	h2
-		margin-bottom 1rem
-
-.placeholder-section
-	text-align center
-	color #666
-	min-height 300px
-	display flex
-	flex-direction column
-	justify-content center
-	align-items center
+@import '../styles/tokens.styl'
 
 .form-group
 	margin-bottom 1.2rem
@@ -483,8 +474,13 @@ export default {
 
 		&:focus
 			outline none
-			border-color #FFC107
+			border-color $color-primary
 			box-shadow 0 0 0 3px rgba(255, 193, 7, 0.1)
+
+.input-disabled
+	background #f5f5f5
+	color #999
+	cursor not-allowed
 
 .help-text
 	color #666

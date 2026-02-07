@@ -49,6 +49,7 @@ declare module 'vue' {
     MaintenanceSection: typeof import('./src/components/kagi/resident/MaintenanceSection.vue')['default']
     MansionBookingsSection: typeof import('./src/components/kagi/mansion/MansionBookingsSection.vue')['default']
     MansionOverviewSection: typeof import('./src/components/kagi/mansion/MansionOverviewSection.vue')['default']
+    MansionResidentsSection: typeof import('./src/components/kagi/mansion/MansionResidentsSection.vue')['default']
     MobileMenu: typeof import('./src/components/kagi/navigation/MobileMenu.vue')['default']
     MobileSettingsMenu: typeof import('./src/components/kagi/dashboard/MobileSettingsMenu.vue')['default']
     ProfileSection: typeof import('./src/components/kagi/resident/ProfileSection.vue')['default']
