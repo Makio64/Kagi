@@ -1192,11 +1192,13 @@ export default {
 			try {
 				const response = await backend.getUsers( { mansionId } )
 				if ( response.success ) {
-					this.buildingUsers = response.data.map( u => ( {
-						...u,
-						building: u.mansionName || '-',
-						status: 'active'
-					} ) )
+					this.buildingUsers = response.data
+						.filter( u => u.role !== 'admin' )
+						.map( u => ( {
+							...u,
+							building: u.mansionName || '-',
+							status: 'active'
+						} ) )
 				}
 			} catch ( error ) {
 				console.error( 'Failed to fetch building users:', error )
