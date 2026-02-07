@@ -48,6 +48,19 @@ async function init() {
 	}
 
 	app.use( TranslatePlugin )
+
+	// Add interpolation support to $t (vue-tiny-translation doesn't support it natively)
+	const originalT = app.config.globalProperties.$t
+	app.config.globalProperties.$t = ( key, params = null ) => {
+		let translation = originalT( key )
+		if ( params && typeof params === 'object' ) {
+			Object.keys( params ).forEach( k => {
+				translation = translation.replace( new RegExp( `\\{${k}\\}`, 'g' ), params[k] )
+			} )
+		}
+		return translation
+	}
+
 	app.use( TinyRouterInstall )
 	app.mount( '#app' )
 

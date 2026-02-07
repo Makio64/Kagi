@@ -173,7 +173,7 @@
 									class="role-select"
 									@change="updateUserRole(u.id, $event.target.value)"
 								>
-									<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+									<option v-for="role in buildingRoleOptions" :key="role.value" :value="role.value">
 										{{ role.label }}
 									</option>
 								</select>
@@ -247,7 +247,7 @@
 					<div class="form-group">
 						<label for="invite-role">{{ $t('admin.users.role') }} *</label>
 						<select id="invite-role" v-model="inviteForm.role" required>
-							<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+							<option v-for="role in buildingRoleOptions" :key="role.value" :value="role.value">
 								{{ role.label }}
 							</option>
 						</select>
@@ -356,6 +356,9 @@ export default {
 	computed: {
 		showUnitField() {
 			return this.inviteForm.role === 'resident' || this.inviteForm.role === 'landlord'
+		},
+		buildingRoleOptions() {
+			return this.roleOptions.filter( r => r.value === 'resident' || r.value === 'mansion_admin' )
 		}
 	},
 	watch: {
