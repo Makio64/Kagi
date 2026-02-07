@@ -288,6 +288,7 @@ class SupabaseBackend {
 		// Apply mansion filter
 		if ( mansionId ) {
 			query = query.eq( 'mansion_id', mansionId )
+			query = query.neq( 'role', 'admin' )
 		}
 
 		// Apply role filter
