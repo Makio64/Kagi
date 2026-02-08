@@ -11,28 +11,6 @@
 			</template>
 		</SectionHeader>
 
-		<!-- Overview Stats -->
-		<div class="stats-grid">
-			<StatCard
-				icon="👥"
-				:label="$t('mansion.stats.total') || 'Total Residents'"
-				:value="stats.total"
-				variant="primary"
-			/>
-			<StatCard
-				icon="✅"
-				:label="$t('mansion.stats.active') || 'Active'"
-				:value="stats.active"
-				variant="success"
-			/>
-			<StatCard
-				icon="🆕"
-				:label="$t('mansion.stats.recentlyJoined') || 'Joined This Month'"
-				:value="stats.recent"
-				variant="info"
-			/>
-		</div>
-
 		<!-- Search Bar -->
 		<div class="residents-filter-bar">
 			<div class="filter-search">
@@ -148,10 +126,6 @@ export default {
 			type: Boolean,
 			default: false
 		},
-		stats: {
-			type: Object,
-			default: () => ( { total: 0, active: 0, recent: 0 } )
-		},
 		pagination: {
 			type: Object,
 			default: () => ( { page: 1, total: 0, totalPages: 0 } )
@@ -189,12 +163,6 @@ export default {
 	to
 		opacity 1
 		transform translateY(0)
-
-.stats-grid
-	display grid
-	grid-template-columns repeat(auto-fit, minmax(220px, 1fr))
-	gap 1.5rem
-	margin-bottom 2rem
 
 .loading-state, .empty-state
 	text-align center

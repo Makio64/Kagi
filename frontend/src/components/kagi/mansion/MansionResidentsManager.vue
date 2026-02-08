@@ -3,7 +3,6 @@
 		<MansionResidentsSection
 			:residents="residents"
 			:loading="isLoadingResidents"
-			:stats="residentsStats"
 			:pagination="residentPagination"
 			:sort="residentSort"
 			:search="residentFilters.search"
@@ -203,22 +202,6 @@ export default {
 			// Delete modal
 			showDeleteConfirm: false,
 			deleteTarget: null
-		}
-	},
-	computed: {
-		residentsStats() {
-			const now = new Date()
-			const thirtyDaysAgo = new Date()
-			thirtyDaysAgo.setDate( now.getDate() - 30 )
-
-			return {
-				total: this.residentPagination.total,
-				active: this.residents.filter( r => r.status === 'active' ).length,
-				recent: this.residents.filter( r => {
-					if ( !r.createdAt ) return false
-					return new Date( r.createdAt ) > thirtyDaysAgo
-				} ).length
-			}
 		}
 	},
 	async mounted() {

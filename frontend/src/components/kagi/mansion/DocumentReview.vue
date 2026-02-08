@@ -1,13 +1,13 @@
 <template>
-	<section class="announcement-review">
+	<section class="document-review">
 		<!-- Header -->
 		<div class="review-header">
 			<button class="back-btn" @click="$emit('back')">
-				← {{ $t('mansion.announcements.review.back') }}
+				← {{ $t('mansion.documents.review.back') }}
 			</button>
 			<div class="review-header-actions">
 				<KButton
-					v-if="announcement.status === 'draft'"
+					v-if="document.status === 'draft'"
 					variant="secondary"
 					size="sm"
 					@click="$emit('edit')"
@@ -22,78 +22,41 @@
 
 		<!-- Preview Card -->
 		<div class="preview-card">
-			<div class="preview-label">{{ $t('mansion.announcements.review.preview') }}</div>
+			<div class="preview-label">{{ $t('mansion.documents.review.preview') }}</div>
 			<div class="preview-header">
-				<h2 class="preview-title">{{ announcement.title }}</h2>
+				<h2 class="preview-title">{{ document.title }}</h2>
 				<StatusBadge :status="statusLabel" :variant="statusVariant" />
 			</div>
-			<p class="preview-description">{{ announcement.description }}</p>
-			<div v-if="announcement.tags && announcement.tags.length" class="preview-tags">
-				<span v-for="tag in announcement.tags" :key="tag" class="tag-pill">{{ tag }}</span>
+			<p v-if="document.description" class="preview-description">{{ document.description }}</p>
+			<div class="preview-meta">
+				<span v-if="document.category" class="category-tag">{{ getCategoryLabel(document.category) }}</span>
+				<span v-if="document.tags && document.tags.length" class="preview-tags">
+					<span v-for="tag in document.tags" :key="tag" class="tag-pill">{{ tag }}</span>
+				</span>
+			</div>
+
+			<!-- Rendered Markdown Content -->
+			<div v-if="document.content" class="markdown-content">
+				<div class="markdown-body" v-html="renderedContent" />
 			</div>
 		</div>
 
 		<!-- Submit for Review button (draft only) -->
-		<div v-if="announcement.status === 'draft'" class="action-panel">
+		<div v-if="document.status === 'draft'" class="action-panel">
 			<KButton variant="primary" @click="$emit('submit-for-review')">
-				{{ $t('mansion.announcements.submitReview') }}
+				{{ $t('mansion.documents.submitReview') }}
 			</KButton>
 		</div>
 
-		<!-- AI Writing Assistant Panel -->
-		<div v-if="announcement.status === 'in_review' || aiLoading" class="ai-panel">
-			<div class="panel-header">
-				<span class="panel-icon">✨</span>
-				<h3>{{ $t('mansion.announcements.review.aiTitle') }}</h3>
-			</div>
-
-			<div v-if="aiLoading" class="ai-loading">
-				<div class="ai-loading-spinner" />
-				<span>{{ $t('mansion.announcements.review.aiLoading') }}</span>
-			</div>
-
-			<div v-else-if="aiSuggestions.length === 0" class="ai-empty">
-				<span class="ai-check">✓</span>
-				{{ $t('mansion.announcements.review.noSuggestions') }}
-			</div>
-
-			<div v-else class="ai-suggestions">
-				<div
-					v-for="sug in aiSuggestions"
-					:key="sug.id"
-					class="suggestion-card"
-					:class="{ 'suggestion-card--applied': sug.applied, 'suggestion-card--dismissed': sug.dismissedAt }"
-				>
-					<div class="suggestion-type">{{ sug.type }}</div>
-					<div class="suggestion-content">
-						<span class="suggestion-original">{{ sug.original }}</span>
-						<span class="suggestion-arrow">→</span>
-						<span class="suggestion-replacement">{{ sug.suggested }}</span>
-					</div>
-					<div v-if="!sug.applied && !sug.dismissedAt" class="suggestion-actions">
-						<button class="sug-btn sug-btn--apply" @click="$emit('apply-suggestion', sug.id)">
-							{{ $t('mansion.announcements.review.apply') }}
-						</button>
-						<button class="sug-btn sug-btn--dismiss" @click="$emit('dismiss-suggestion', sug.id)">
-							{{ $t('mansion.announcements.review.dismiss') }}
-						</button>
-					</div>
-					<div v-else class="suggestion-resolved">
-						{{ sug.applied ? $t('mansion.announcements.review.applied') : $t('mansion.announcements.review.dismissed') }}
-					</div>
-				</div>
-			</div>
-		</div>
-
 		<!-- Approvals Panel -->
-		<div v-if="announcement.status === 'in_review'" class="approvals-panel">
+		<div v-if="document.status === 'ready_to_review'" class="approvals-panel">
 			<div class="panel-header">
 				<span class="panel-icon">👍</span>
-				<h3>{{ $t('mansion.announcements.review.approvalsTitle') }}</h3>
+				<h3>{{ $t('mansion.documents.review.approvalsTitle') }}</h3>
 			</div>
 
 			<div v-if="approvals.length === 0" class="approvals-empty">
-				{{ $t('mansion.announcements.review.needsApproval') }}
+				{{ $t('mansion.documents.review.needsApproval') }}
 			</div>
 
 			<div v-for="appr in approvals" :key="appr.userId" class="approval-item">
@@ -108,19 +71,19 @@
 				class="approve-btn"
 				@click="$emit('approve')"
 			>
-				👍 {{ $t('mansion.announcements.review.approveBtn') }}
+				👍 {{ $t('mansion.documents.review.approveBtn') }}
 			</KButton>
 		</div>
 
 		<!-- Comments Section -->
-		<div v-if="announcement.status !== 'draft'" class="comments-panel">
+		<div v-if="document.status !== 'draft'" class="comments-panel">
 			<div class="panel-header">
 				<span class="panel-icon">💬</span>
-				<h3>{{ $t('mansion.announcements.review.commentsTitle') }}</h3>
+				<h3>{{ $t('mansion.documents.review.commentsTitle') }}</h3>
 			</div>
 
 			<div v-if="comments.length === 0" class="comments-empty">
-				{{ $t('mansion.announcements.review.noComments') }}
+				{{ $t('mansion.documents.review.noComments') }}
 			</div>
 
 			<div v-for="c in comments" :key="c.id" class="comment-item">
@@ -135,7 +98,7 @@
 				<textarea
 					v-model="newComment"
 					rows="2"
-					:placeholder="$t('mansion.announcements.review.addComment')"
+					:placeholder="$t('mansion.documents.review.addComment')"
 				/>
 				<KButton
 					variant="primary"
@@ -143,54 +106,57 @@
 					:disabled="!newComment.trim()"
 					@click="postComment"
 				>
-					{{ $t('mansion.announcements.review.postComment') }}
+					{{ $t('mansion.documents.review.postComment') }}
 				</KButton>
 			</div>
 		</div>
 
 		<!-- Publish Actions -->
 		<div
-			v-if="announcement.status === 'in_review' && approvals.length > 0"
+			v-if="document.status === 'ready_to_publish'"
 			class="publish-panel"
 		>
 			<div class="panel-header">
 				<span class="panel-icon">🚀</span>
-				<h3>{{ $t('mansion.announcements.publish.title') }}</h3>
+				<h3>{{ $t('mansion.documents.publish.title') }}</h3>
 			</div>
 			<div class="publish-actions">
 				<KButton variant="primary" :loading="publishing" @click="$emit('publish')">
-					{{ $t('mansion.announcements.publish.now') }}
-				</KButton>
-				<KButton variant="secondary" @click="$emit('schedule')">
-					{{ $t('mansion.announcements.publish.schedule') }}
+					{{ $t('mansion.documents.publish.now') }}
 				</KButton>
 			</div>
 		</div>
 
-		<!-- Views for published -->
-		<div v-if="announcement.status === 'published' && readCount !== null" class="published-stats">
-			<div class="views-big">
-				<div class="views-value">{{ readCount }}</div>
-				<div class="views-label">{{ $t('mansion.announcements.stats.views') }}</div>
+		<!-- Read stats for published -->
+		<div v-if="document.status === 'published'" class="published-stats">
+			<div class="read-rate-big">
+				<div class="read-rate-value">{{ document.readsCount || 0 }}</div>
+				<div class="read-rate-label">{{ $t('mansion.documents.stats.totalReads') }}</div>
 			</div>
+		</div>
+
+		<!-- Archive action for non-archived -->
+		<div v-if="document.status !== 'archived' && document.status !== 'draft'" class="archive-panel">
+			<KButton variant="danger" size="sm" @click="$emit('archive')">
+				{{ $t('mansion.documents.archive') }}
+			</KButton>
 		</div>
 	</section>
 </template>
 <script>
+import DOMPurify from 'dompurify'
+import { marked } from 'marked'
+
 export default {
-	name: 'AnnouncementReview',
+	name: 'DocumentReview',
 	props: {
-		announcement: {
+		document: {
 			type: Object,
 			required: true
 		},
 		currentUser: {
 			type: Object,
 			required: true
-		},
-		aiLoading: {
-			type: Boolean,
-			default: false
 		},
 		publishing: {
 			type: Boolean,
@@ -200,12 +166,10 @@ export default {
 	emits: [
 		'back',
 		'submit-for-review',
-		'apply-suggestion',
-		'dismiss-suggestion',
-		'add-comment',
 		'approve',
+		'add-comment',
 		'publish',
-		'schedule',
+		'archive',
 		'edit',
 		'delete'
 	],
@@ -217,43 +181,46 @@ export default {
 	computed: {
 		statusLabel() {
 			const map = {
-				draft: this.$t( 'mansion.announcements.status.draft' ),
-				in_review: this.$t( 'mansion.announcements.status.inReview' ),
-				published: this.$t( 'mansion.announcements.status.published' ),
-				scheduled: this.$t( 'mansion.announcements.status.scheduled' ),
-				expired: this.$t( 'mansion.announcements.status.expired' )
+				draft: this.$t( 'mansion.documents.status.draft' ),
+				ready_to_review: this.$t( 'mansion.documents.status.readyToReview' ),
+				ready_to_publish: this.$t( 'mansion.documents.status.readyToPublish' ),
+				published: this.$t( 'mansion.documents.status.published' ),
+				archived: this.$t( 'mansion.documents.status.archived' )
 			}
-			return map[this.announcement.status] || this.announcement.status
+			return map[this.document.status] || this.document.status
 		},
 		statusVariant() {
 			const map = {
 				draft: 'secondary',
-				in_review: 'warning',
+				ready_to_review: 'warning',
+				ready_to_publish: 'info',
 				published: 'success',
-				scheduled: 'info',
-				expired: 'danger'
+				archived: 'danger'
 			}
-			return map[this.announcement.status] || 'secondary'
+			return map[this.document.status] || 'secondary'
 		},
-		aiSuggestions() {
-			return this.announcement.metadata?.review?.aiSuggestions || []
+		renderedContent() {
+			const html = marked( this.document.content || '' )
+			return DOMPurify.sanitize( html )
 		},
 		approvals() {
-			return this.announcement.metadata?.approvals || []
+			return this.document.metadata?.approvals || []
 		},
 		comments() {
-			return this.announcement.metadata?.comments || []
+			return this.document.metadata?.comments || []
 		},
 		hasCurrentUserApproved() {
 			return this.approvals.some( a => a.userId === this.currentUser?.id )
-		},
-		readCount() {
-			const tracking = this.announcement.metadata?.readTracking
-			if ( !tracking ) return null
-			return tracking.readCount || 0
 		}
 	},
+	created() {
+		marked.setOptions( { breaks: true, gfm: true } )
+	},
 	methods: {
+		getCategoryLabel( category ) {
+			const key = `mansion.documents.category.${category}`
+			return this.$t( key )
+		},
 		postComment() {
 			if ( !this.newComment.trim() ) return
 			this.$emit( 'add-comment', this.newComment.trim() )
@@ -280,7 +247,7 @@ export default {
 <style lang="stylus" scoped>
 @import '../../../styles/tokens.styl'
 
-.announcement-review
+.document-review
 	animation fadeIn 0.3s ease
 	max-width 800px
 
@@ -348,12 +315,28 @@ export default {
 	line-height 1.6
 	color $color-text-secondary
 	margin 0 0 1rem 0
-	white-space pre-wrap
+
+.preview-meta
+	display flex
+	align-items center
+	gap 0.5rem
+	font-size 0.85rem
+	color $color-text-secondary
+	flex-wrap wrap
+	margin-bottom 1rem
+
+.category-tag
+	padding 0.15rem 0.6rem
+	font-size 0.75rem
+	background rgba(255, 193, 7, 0.1)
+	color #E65100
+	border-radius 12px
+	font-weight 500
 
 .preview-tags
 	display flex
 	gap 0.3rem
-	margin-top 0.75rem
+	margin-left 0.5rem
 
 .tag-pill
 	padding 0.15rem 0.6rem
@@ -361,6 +344,69 @@ export default {
 	background $color-bg-tertiary
 	color $color-text-secondary
 	border-radius 12px
+
+// Markdown content
+.markdown-content
+	border-top 1px solid #f0f0f0
+	padding-top 1.5rem
+
+.markdown-body
+	color #333
+	line-height 1.8
+	font-size 1rem
+
+	:deep(h1), :deep(h2), :deep(h3)
+		color #333
+		margin-top 1.5rem
+		margin-bottom 0.75rem
+		font-weight 600
+
+	:deep(h1)
+		font-size 1.5rem
+
+	:deep(h2)
+		font-size 1.25rem
+
+	:deep(h3)
+		font-size 1.1rem
+
+	:deep(p)
+		margin-bottom 1rem
+		line-height 1.8
+
+	:deep(ul), :deep(ol)
+		margin-bottom 1rem
+		padding-left 1.5rem
+
+	:deep(li)
+		margin-bottom 0.5rem
+		line-height 1.6
+
+	:deep(strong)
+		font-weight 600
+
+	:deep(code)
+		background rgba(255, 193, 7, 0.1)
+		padding 0.2rem 0.4rem
+		border-radius 4px
+		font-size 0.9rem
+
+	:deep(pre)
+		background #f5f5f5
+		padding 1rem
+		border-radius 8px
+		overflow-x auto
+		margin 1rem 0
+
+		code
+			background none
+			padding 0
+
+	:deep(blockquote)
+		border-left 3px solid $color-primary
+		padding 0.5rem 1rem
+		margin 1rem 0
+		color $color-text-secondary
 
 // Action panel (draft submit)
 .action-panel
@@ -381,123 +427,6 @@ export default {
 
 .panel-icon
 	font-size 1.1rem
-
-// AI Panel
-.ai-panel
-	background white
-	border-radius 12px
-	padding 1.5rem
-	box-shadow 0 2px 8px rgba(0, 0, 0, 0.06)
-	margin-bottom 1.5rem
-
-.ai-loading
-	display flex
-	align-items center
-	gap 0.75rem
-	color $color-text-secondary
-	padding 1rem 0
-
-.ai-loading-spinner
-	width 20px
-	height 20px
-	border 2px solid #e0e0e0
-	border-top-color $color-primary
-	border-radius 50%
-	animation spin 0.8s linear infinite
-
-@keyframes spin
-	to
-		transform rotate(360deg)
-
-.ai-empty
-	color #4caf50
-	display flex
-	align-items center
-	gap 0.5rem
-
-.ai-check
-	font-weight bold
-
-.ai-suggestions
-	display flex
-	flex-direction column
-	gap 0.75rem
-
-.suggestion-card
-	border 1px solid #e0e0e0
-	border-radius 8px
-	padding 0.75rem 1rem
-	transition all 0.2s
-
-	&--applied
-		border-color #c8e6c9
-		background #f1f8e9
-
-	&--dismissed
-		opacity 0.5
-		border-color #eee
-
-.suggestion-type
-	font-size 0.7rem
-	text-transform uppercase
-	letter-spacing 0.05em
-	color $color-text-tertiary
-	margin-bottom 0.35rem
-
-.suggestion-content
-	display flex
-	align-items center
-	gap 0.5rem
-	flex-wrap wrap
-	margin-bottom 0.5rem
-
-.suggestion-original
-	text-decoration line-through
-	color #d32f2f
-	background rgba(211, 47, 47, 0.06)
-	padding 0.1rem 0.4rem
-	border-radius 4px
-
-.suggestion-arrow
-	color $color-text-tertiary
-
-.suggestion-replacement
-	color #2e7d32
-	background rgba(46, 125, 50, 0.06)
-	padding 0.1rem 0.4rem
-	border-radius 4px
-	font-weight 500
-
-.suggestion-actions
-	display flex
-	gap 0.5rem
-
-.sug-btn
-	padding 0.3rem 0.7rem
-	border-radius 6px
-	border 1px solid #ddd
-	background white
-	font-size 0.8rem
-	cursor pointer
-	transition all 0.2s
-
-	&--apply
-		color #2e7d32
-		border-color #c8e6c9
-
-		&:hover
-			background #e8f5e9
-
-	&--dismiss
-		color #666
-
-		&:hover
-			background #f5f5f5
-
-.suggestion-resolved
-	font-size 0.8rem
-	color $color-text-tertiary
-	font-style italic
 
 // Approvals
 .approvals-panel
@@ -621,17 +550,19 @@ export default {
 	margin-bottom 1.5rem
 	text-align center
 
-.views-big
-	display flex
-	flex-direction column
-	align-items center
+.read-rate-big
+	margin-bottom 1rem
 
-.views-value
+.read-rate-value
 	font-size 2.5rem
 	font-weight 700
 	color $color-text-primary
 
-.views-label
+.read-rate-label
 	font-size 0.85rem
 	color $color-text-secondary
+
+// Archive
+.archive-panel
+	padding 1rem 0
 </style>

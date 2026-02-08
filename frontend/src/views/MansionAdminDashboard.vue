@@ -15,6 +15,13 @@
 			@residents-loaded="totalResidents = $event"
 		/>
 
+		<MansionDocumentsManager
+			v-if="activeSection === 'documents'"
+			:mansion-id="mansionId"
+			:user="user"
+			:total-residents="totalResidents"
+		/>
+
 		<MansionAnnouncementsManager
 			v-if="activeSection === 'announcements'"
 			:mansion-id="mansionId"

@@ -1,7 +1,7 @@
 <template>
 	<transition name="modal">
 		<div v-if="modelValue" class="modal-overlay" @click.self="close">
-			<div class="modal-content">
+			<div class="modal-content" :class="'modal-content--' + size">
 				<div class="modal-header">
 					<h3>{{ title }}</h3>
 					<button class="modal-close" @click="close">✕</button>
@@ -21,7 +21,8 @@ export default {
 	name: 'KModal',
 	props: {
 		modelValue: { type: Boolean, required: true },
-		title: { type: String, required: true }
+		title: { type: String, required: true },
+		size: { type: String, default: 'medium' }
 	},
 	emits: ['update:modelValue'],
 	methods: {
@@ -63,6 +64,12 @@ export default {
 	max-height 90vh
 	overflow-y auto
 	box-shadow 0 10px 40px rgba(0, 0, 0, 0.2)
+	&--small
+		max-width 400px
+	&--medium
+		max-width 600px
+	&--large
+		max-width 900px
 .modal-header
 	display flex
 	justify-content space-between

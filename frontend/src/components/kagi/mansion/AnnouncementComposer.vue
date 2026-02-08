@@ -23,42 +23,19 @@
 				/>
 			</div>
 
-			<div class="form-row">
-				<div class="form-group form-group--half">
-					<label>{{ $t('mansion.announcements.form.priority') }}</label>
-					<div class="priority-options">
-						<label
-							v-for="p in priorities"
-							:key="p.value"
-							class="priority-option"
-							:class="{ 'priority-option--selected': form.priority === p.value }"
-						>
-							<input
-								v-model="form.priority"
-								type="radio"
-								:value="p.value"
-								class="sr-only"
-							>
-							<span class="priority-dot" :class="'priority-dot--' + p.value" />
-							{{ $t(p.labelKey) }}
-						</label>
-					</div>
-				</div>
-
-				<div class="form-group form-group--half">
-					<label for="ann-tags">{{ $t('mansion.announcements.form.tags') }}</label>
-					<input
-						id="ann-tags"
-						v-model="tagsInput"
-						type="text"
-						:placeholder="$t('mansion.announcements.form.tagsPlaceholder')"
-					>
-					<div v-if="form.tags.length" class="tags-preview">
-						<span v-for="(tag, i) in form.tags" :key="i" class="tag-pill">
-							{{ tag }}
-							<button type="button" class="tag-remove" @click="removeTag(i)">&times;</button>
-						</span>
-					</div>
+			<div class="form-group">
+				<label for="ann-tags">{{ $t('mansion.announcements.form.tags') }}</label>
+				<input
+					id="ann-tags"
+					v-model="tagsInput"
+					type="text"
+					:placeholder="$t('mansion.announcements.form.tagsPlaceholder')"
+				>
+				<div v-if="form.tags.length" class="tags-preview">
+					<span v-for="(tag, i) in form.tags" :key="i" class="tag-pill">
+						{{ tag }}
+						<button type="button" class="tag-remove" @click="removeTag(i)">&times;</button>
+					</span>
 				</div>
 			</div>
 		</form>
@@ -83,16 +60,9 @@ export default {
 			form: {
 				title: '',
 				description: '',
-				priority: 'medium',
 				tags: []
 			},
-			tagsInput: '',
-			priorities: [
-				{ value: 'low', labelKey: 'mansion.announcements.priority.low' },
-				{ value: 'medium', labelKey: 'mansion.announcements.priority.medium' },
-				{ value: 'high', labelKey: 'mansion.announcements.priority.high' },
-				{ value: 'urgent', labelKey: 'mansion.announcements.priority.urgent' }
-			]
+			tagsInput: ''
 		}
 	},
 	watch: {
@@ -102,7 +72,6 @@ export default {
 				if ( ann ) {
 					this.form.title = ann.title || ''
 					this.form.description = ann.description || ''
-					this.form.priority = ann.priority || 'medium'
 					this.form.tags = Array.isArray( ann.tags ) ? [...ann.tags] : []
 					this.tagsInput = ''
 				} else {
@@ -143,7 +112,6 @@ export default {
 			this.form = {
 				title: '',
 				description: '',
-				priority: 'medium',
 				tags: []
 			}
 			this.tagsInput = ''
@@ -193,69 +161,6 @@ export default {
 		textarea
 			resize vertical
 			line-height 1.6
-
-	.form-group--half
-		flex 1
-		min-width 200px
-
-.form-row
-	display flex
-	gap 1.5rem
-
-	@media (max-width: 640px)
-		flex-direction column
-		gap 0
-
-// Priority options
-.priority-options
-	display flex
-	gap 0.5rem
-	flex-wrap wrap
-
-.priority-option
-	display flex
-	align-items center
-	gap 0.4rem
-	padding 0.45rem 0.8rem
-	border 1px solid #e0e0e0
-	border-radius 20px
-	cursor pointer
-	font-size 0.85rem
-	color #666
-	transition all 0.2s
-
-	&:hover
-		border-color #ccc
-
-	&--selected
-		border-color $color-primary
-		background rgba(255, 193, 7, 0.08)
-		color #333
-
-.priority-dot
-	width 8px
-	height 8px
-	border-radius 50%
-	flex-shrink 0
-
-	&--low
-		background #4caf50
-	&--medium
-		background #ff9800
-	&--high
-		background #f44336
-	&--urgent
-		background #d32f2f
-
-.sr-only
-	position absolute
-	width 1px
-	height 1px
-	margin -1px
-	padding 0
-	overflow hidden
-	clip rect(0, 0, 0, 0)
-	border 0
 
 // Tags
 .tags-preview

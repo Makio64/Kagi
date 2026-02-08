@@ -9,17 +9,28 @@
 				</h2>
 			</div>
 
-			<div class="documents-grid">
+			<!-- Loading State -->
+			<div v-if="loading" class="loading-state">
+				<p>{{ $t('common.loading') }}</p>
+			</div>
+
+			<!-- Empty State -->
+			<div v-else-if="documents.length === 0" class="empty-state">
+				<p>{{ $t('mansion.documents.empty') }}</p>
+			</div>
+
+			<!-- Documents Grid -->
+			<div v-else class="documents-grid">
 				<div
-					v-for="doc in mockDocuments"
+					v-for="doc in documents"
 					:key="doc.id"
 					class="document-card"
-					@click="viewDocument(doc.id)"
+					@click="viewDocument(doc)"
 				>
-					<div class="document-icon">{{ doc.icon }}</div>
+					<div class="document-icon">{{ getCategoryIcon(doc.category) }}</div>
 					<div class="document-content">
 						<h3>{{ doc.title }}</h3>
-						<p class="document-updated">{{ $t('dashboard.documents.lastUpdated') }}: {{ doc.lastUpdated }}</p>
+						<p class="document-updated">{{ $t('dashboard.documents.lastUpdated') }}: {{ formatDate(doc.updatedAt) }}</p>
 					</div>
 					<div class="document-action">
 						<span class="view-btn">{{ $t('dashboard.documents.view') }} →</span>
@@ -33,7 +44,7 @@
 			<DocumentViewer
 				:title="selectedDocument.title"
 				:content="selectedDocument.content"
-				:last-updated="selectedDocument.lastUpdated"
+				:last-updated="formatDate(selectedDocument.updatedAt)"
 				:document-id="selectedDocument.id"
 				@close="selectedDocument = null"
 			/>
@@ -42,154 +53,63 @@
 </template>
 
 <script>
+import backend from '../../../services/SupabaseBackend'
+
 export default {
 	name: 'DocumentsSection',
 	data() {
 		return {
 			selectedDocument: null,
-			// Mock documents data - in the future this will come from API
-			mockDocuments: [
-				{
-					id: 'management',
-					icon: '📋',
-					title: this.$t( 'dashboard.documents.managementRules' ),
-					lastUpdated: '2024/01',
-					content: `# Building Management Rules
-
-## General Rules
-
-1. **Quiet Hours**: 10:00 PM - 7:00 AM
-   - Please keep noise to a minimum during these hours
-   - No construction or renovation work allowed
-
-2. **Common Areas**
-   - Keep common areas clean and tidy
-   - Report any damage or maintenance issues immediately
-   - No storage of personal items in hallways
-
-3. **Pets**
-   - All pets must be registered with management
-   - Dogs must be on a leash in common areas
-   - Owners are responsible for cleaning up after pets
-
-## Security
-
-- Do not prop open entrance doors
-- Report suspicious activity to management
-- Ensure all guests are registered at reception
-
-## Waste Management
-
-- Separate recyclables from general waste
-- Dispose of large items by arrangement with management
-- Use designated waste disposal times
-
-For questions, please contact building management.`
-				},
-				{
-					id: 'facility',
-					icon: '🏢',
-					title: this.$t( 'dashboard.documents.facilityRules' ),
-					lastUpdated: '2024/03',
-					content: `# Facility Usage Rules
-
-## Party Room
-
-- Maximum capacity: 30 people
-- Booking required 48 hours in advance
-- Clean and return furniture to original positions
-- No smoking or vaping
-- Security deposit may be required
-
-## Guest Room
-
-- Maximum 2 guests per night
-- Check-in after 3:00 PM
-- Check-out before 11:00 AM
-- Residents are responsible for guest behavior
-- Report any damages immediately
-
-## Fitness Gym
-
-- Operating hours: 6:00 AM - 10:00 PM
-- Age restriction: 16 years and above
-- Wipe down equipment after use
-- Return weights to proper storage
-- Appropriate footwear required
-
-## Rooftop Garden
-
-- Respect plants and garden equipment
-- No BBQ without prior permission
-- Clean up after use
-- Children must be supervised
-
-## General
-
-- Reservations can be cancelled up to 24 hours before
-- Failure to show up may result in booking restrictions
-- Be considerate of other residents
-
-Contact management for bookings and inquiries.`
-				},
-				{
-					id: 'parking',
-					icon: '🚗',
-					title: this.$t( 'dashboard.documents.parkingRules' ),
-					lastUpdated: '2023/12',
-					content: `# Parking Rules & Regulations
-
-## Assigned Parking
-
-- Each unit is allocated specific parking space(s)
-- Parking space numbers must match unit registration
-- Unauthorized vehicles will be towed at owner's expense
-
-## Visitor Parking
-
-- Limited to 2 hours for short-term visitors
-- Register at reception for extended stays
-- Overnight parking requires prior approval
-- Maximum 3 consecutive nights
-
-## General Rules
-
-1. **Speed Limit**: 10 km/h maximum
-2. **No Parking Zones**:
-   - Fire lanes
-   - Loading zones
-   - Handicapped spaces (without permit)
-
-3. **Vehicle Maintenance**:
-   - No major repairs in parking area
-   - No washing vehicles in parking garage
-   - Oil leaks must be cleaned immediately
-
-4. **Motorcycles & Bicycles**:
-   - Use designated areas only
-   - Secure with proper locks
-   - No blocking walkways
-
-## Electric Vehicle Charging
-
-- Use designated EV charging stations
-- Maximum 4 hours during peak times
-- Report malfunctioning chargers to management
-
-## Violations
-
-First offense: Warning
-Second offense: Fine (¥10,000)
-Third offense: Parking privileges revoked
-
-For parking permits or questions, contact management office.`
-				}
-			]
+			documents: [],
+			loading: true
 		}
 	},
+	async mounted() {
+		await this.fetchDocuments()
+	},
 	methods: {
-		viewDocument( docId ) {
-			this.selectedDocument = this.mockDocuments.find( doc => doc.id === docId )
+		async fetchDocuments() {
+			this.loading = true
+			try {
+				const response = await backend.query( 'documents', { status: 'published', sort: '-updatedAt' } )
+				if ( response.success ) {
+					this.documents = response.data
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch documents:', error )
+			} finally {
+				this.loading = false
+			}
+		},
+
+		viewDocument( doc ) {
+			this.selectedDocument = doc
+			this.recordRead( doc.id )
+		},
+
+		async recordRead( documentId ) {
+			try {
+				await backend.create( 'document_reads', { documentId } )
+			} catch {
+				// Silently fail - read tracking is non-critical
+			}
+		},
+
+		getCategoryIcon( category ) {
+			const icons = {
+				rules: '📋',
+				safety: '🛡️',
+				financial: '💰',
+				minutes: '📝',
+				general: '📄'
+			}
+			return icons[category] || '📄'
+		},
+
+		formatDate( dateStr ) {
+			if ( !dateStr ) return ''
+			const d = new Date( dateStr )
+			return `${d.getFullYear()}/${String( d.getMonth() + 1 ).padStart( 2, '0' )}`
 		}
 	}
 }
@@ -284,4 +204,14 @@ For parking permits or questions, contact management office.`
 	position relative
 	min-height 600px
 	padding 0
+
+.loading-state
+	text-align center
+	padding 3rem
+	color #888
+
+.empty-state
+	text-align center
+	padding 3rem
+	color #888
 </style>

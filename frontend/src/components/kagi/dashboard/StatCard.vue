@@ -100,131 +100,183 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-@import '../../../styles/tokens.styl'
+@import '../../../styles/tokens-modern.styl'
+
 .stat-card
-	background white
-	border-radius $radius-lg
-	padding $spacing-lg
+	background rgba(255, 255, 255, 0.8)
+	backdrop-filter blur(20px)
+	-webkit-backdrop-filter blur(20px)
+	border-radius var(--radius-xl)
+	padding var(--space-4)
 	position relative
-	transition $transition-base
-	min-height 140px
+	transition all var(--transition-base)
 	display flex
-	flex-direction column
-	// Variants with gradient borders
+	flex-direction row
+	align-items center
+	gap var(--space-4)
+	border 1px solid rgba(255, 255, 255, 0.6)
+	box-shadow 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)
+
 	&--default
-		background white
-		box-shadow $shadow-sm
+		background rgba(255, 255, 255, 0.8)
+
 	&--primary
-		background $gradient-light
-		border-top 4px solid $color-primary
+		border-left 3px solid var(--color-primary-500)
+		.stat-card__icon
+			background var(--color-primary-50)
+			color var(--color-primary-700)
+
 	&--secondary
-		background linear-gradient(135deg, #F5F5F5 0%, #EEEEEE 100%)
-		border-top 4px solid $color-text-secondary
+		border-left 3px solid var(--color-gray-400)
+		.stat-card__icon
+			background var(--color-gray-100)
+			color var(--color-gray-600)
+
 	&--success
-		background linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)
-		border-top 4px solid $color-success
+		border-left 3px solid var(--color-success-500)
+		.stat-card__icon
+			background var(--color-success-50)
+			color var(--color-success-700)
+
 	&--warning
-		background linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)
-		border-top 4px solid $color-warning
+		border-left 3px solid var(--color-warning-500)
+		.stat-card__icon
+			background var(--color-warning-50)
+			color var(--color-warning-700)
+
 	&--danger
-		background linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%)
-		border-top 4px solid $color-danger
+		border-left 3px solid var(--color-danger-500)
+		.stat-card__icon
+			background var(--color-danger-50)
+			color var(--color-danger-700)
+
 	&--info
-		background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
-		border-top 4px solid $color-info
+		border-left 3px solid var(--color-info-500)
+		.stat-card__icon
+			background var(--color-info-50)
+			color var(--color-info-700)
+
 	&--clickable
 		cursor pointer
 		&:hover
 			transform translateY(-2px)
-			box-shadow $shadow-hover
+			background rgba(255, 255, 255, 0.95)
+			box-shadow 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)
+
 .stat-card__header
-	display flex
-	justify-content space-between
-	align-items flex-start
-	margin-bottom $spacing-md
+	flex-shrink 0
+
 .stat-card__icon
-	font-size 2.5rem
+	width 40px
+	height 40px
+	border-radius var(--radius-lg)
+	display flex
+	align-items center
+	justify-content center
+	font-size 1.25rem
 	line-height 1
-	opacity 0.9
+	background var(--color-gray-50)
+	color var(--color-gray-600)
+	transition all var(--transition-base)
+
 .stat-card__badge
-	padding $spacing-xs $spacing-sm
-	border-radius $radius-pill
-	font-size $font-xs
-	font-weight $font-semibold
+	position absolute
+	top var(--space-3)
+	right var(--space-3)
+	padding var(--space-1) var(--space-2)
+	border-radius var(--radius-full)
+	font-size var(--text-xs)
+	font-weight var(--font-semibold)
 	text-transform uppercase
 	letter-spacing 0.5px
+
 	&.badge--default
-		background $color-background-light
-		color $color-text-secondary
+		background var(--color-gray-100)
+		color var(--color-gray-600)
 	&.badge--primary
-		background $color-primary
+		background var(--color-primary-500)
 		color white
 	&.badge--success
-		background $color-success
+		background var(--color-success-500)
 		color white
 	&.badge--warning
-		background $color-warning
+		background var(--color-warning-500)
 		color white
 	&.badge--danger
-		background $color-danger
+		background var(--color-danger-500)
 		color white
 	&.badge--info
-		background $color-info
+		background var(--color-info-500)
 		color white
+
 .stat-card__body
 	flex 1
+	min-width 0
+
 .stat-card__label
-	margin 0 0 $spacing-sm 0
-	font-size $font-sm
-	font-weight $font-medium
-	color $color-text-secondary
-	text-transform uppercase
-	letter-spacing 0.5px
+	margin 0 0 var(--space-1) 0
+	font-size var(--text-xs)
+	font-weight var(--font-medium)
+	color var(--color-gray-500)
+	letter-spacing 0.02em
+
 .stat-card__value
-	margin 0 0 $spacing-md 0
-	font-size $font-xxl
-	font-weight $font-bold
-	color $color-text
-	line-height 1.2
+	margin 0
+	font-size var(--text-xl)
+	font-weight var(--font-bold)
+	color var(--color-gray-900)
+	line-height var(--leading-tight)
+
 .stat-card__footer
 	display flex
 	align-items center
-	gap $spacing-sm
+	gap var(--space-2)
+	margin-top var(--space-1)
+
 .stat-card__trend
 	display inline-flex
 	align-items center
-	gap $spacing-xs
-	font-size $font-sm
-	font-weight $font-semibold
-	padding $spacing-xs $spacing-sm
-	border-radius $radius-pill
+	gap var(--space-1)
+	font-size var(--text-xs)
+	font-weight var(--font-semibold)
+	padding var(--space-1) var(--space-2)
+	border-radius var(--radius-full)
+
 	&.positive
-		color $color-success
-		background rgba(76, 175, 80, 0.1)
+		color var(--color-success-700)
+		background var(--color-success-50)
 		.trend-arrow
-			color $color-success
+			color var(--color-success-700)
 	&.negative
-		color $color-danger
-		background rgba(255, 82, 82, 0.1)
+		color var(--color-danger-700)
+		background var(--color-danger-50)
 		.trend-arrow
-			color $color-danger
+			color var(--color-danger-700)
+
 .trend-arrow
-	font-size $font-lg
-	font-weight $font-bold
+	font-size var(--text-sm)
+	font-weight var(--font-bold)
+
 .stat-card__subtext
-	font-size $font-sm
-	color $color-text-secondary
+	font-size var(--text-xs)
+	color var(--color-gray-500)
+
 .stat-card__actions
-	margin-top $spacing-md
-	padding-top $spacing-md
-	border-top 1px solid $color-border-light
+	margin-top var(--space-3)
+	padding-top var(--space-3)
+	border-top 1px solid var(--color-gray-100)
+
 // Responsive
-@media (max-width: $breakpoint-sm)
+@media (max-width: 480px)
 	.stat-card
-		padding $spacing-md
-		min-height 120px
-	.stat-card__value
-		font-size $font-xl
+		padding var(--space-3)
+		gap var(--space-3)
+
 	.stat-card__icon
-		font-size 2rem
+		width 36px
+		height 36px
+		font-size 1.1rem
+
+	.stat-card__value
+		font-size var(--text-lg)
 </style>

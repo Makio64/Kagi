@@ -133,7 +133,9 @@ CREATE TABLE documents (
 	creator_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
 	title TEXT NOT NULL,
 	description TEXT,
-	status TEXT DEFAULT 'active',
+	content TEXT,
+	status TEXT DEFAULT 'draft'
+		CHECK (status IN ('draft', 'ready_to_review', 'ready_to_publish', 'published', 'archived')),
 	category TEXT,
 	tags JSONB DEFAULT '[]'::jsonb,
 	file_type TEXT,
@@ -141,9 +143,22 @@ CREATE TABLE documents (
 	pages INTEGER,
 	storage_path TEXT,
 	version TEXT DEFAULT '1.0',
+	approved_by JSONB DEFAULT '[]'::jsonb,
+	reads_count INTEGER DEFAULT 0,
+	published_at TIMESTAMPTZ,
+	archived_at TIMESTAMPTZ,
 	metadata JSONB DEFAULT '{}'::jsonb,
 	created_at TIMESTAMPTZ DEFAULT NOW(),
 	updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 7b. DOCUMENT READS (tracks which users have read each document)
+CREATE TABLE document_reads (
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+	document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+	user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+	read_at TIMESTAMPTZ DEFAULT NOW(),
+	UNIQUE(document_id, user_id)
 );
 
 -- 8. ANNOUNCEMENTS
@@ -191,6 +206,9 @@ CREATE INDEX idx_bills_assignee ON bills(assignee_id);
 CREATE INDEX idx_bills_mansion ON bills(mansion_id);
 CREATE INDEX idx_bills_status ON bills(status);
 CREATE INDEX idx_documents_mansion ON documents(mansion_id);
+CREATE INDEX idx_documents_status ON documents(status);
+CREATE INDEX idx_document_reads_document ON document_reads(document_id);
+CREATE INDEX idx_document_reads_user ON document_reads(user_id);
 CREATE INDEX idx_announcements_mansion ON announcements(mansion_id);
 CREATE INDEX idx_announcements_expires ON announcements(expires_at);
 CREATE INDEX idx_notifications_user ON notifications(user_id);
@@ -239,6 +257,7 @@ ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE maintenance_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bills ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE document_reads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
@@ -386,6 +405,16 @@ CREATE POLICY documents_delete ON documents
 		OR get_user_role() = 'admin'
 	);
 
+-- DOCUMENT READS
+CREATE POLICY document_reads_insert ON document_reads
+	FOR INSERT WITH CHECK (user_id = auth.uid());
+CREATE POLICY document_reads_select_own ON document_reads
+	FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY document_reads_select_admin ON document_reads
+	FOR SELECT USING (
+		get_user_role() IN ('admin', 'manager', 'mansion_admin')
+	);
+
 -- ANNOUNCEMENTS
 CREATE POLICY announcements_select ON announcements
 	FOR SELECT USING (
@@ -413,6 +442,18 @@ CREATE POLICY notifications_select ON notifications
 	FOR SELECT USING (user_id = auth.uid());
 CREATE POLICY notifications_update ON notifications
 	FOR UPDATE USING (user_id = auth.uid());
+
+-- =============================================================
+-- RPC FUNCTIONS
+-- =============================================================
+
+-- Atomically increment document reads count
+CREATE OR REPLACE FUNCTION increment_document_reads(doc_id UUID)
+RETURNS VOID AS $$
+BEGIN
+	UPDATE documents SET reads_count = COALESCE(reads_count, 0) + 1 WHERE id = doc_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- =============================================================
 -- STORAGE BUCKETS (run in Supabase Dashboard > Storage)
