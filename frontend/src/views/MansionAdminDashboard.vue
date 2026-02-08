@@ -22,6 +22,11 @@
 			:total-residents="totalResidents"
 		/>
 
+		<MansionBookingsManager
+			v-if="activeSection === 'bookings'"
+			:mansion-id="mansionId"
+		/>
+
 		<MansionAnnouncementsManager
 			v-if="activeSection === 'announcements'"
 			:mansion-id="mansionId"

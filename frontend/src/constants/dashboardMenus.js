@@ -10,6 +10,7 @@ export const ADMIN_MENU_ITEMS = [
 
 export const MANSION_ADMIN_MENU_ITEMS = [
 	{ id: 'residents', icon: '👥' },
+	{ id: 'bookings', icon: '📅' },
 	{ id: 'documents', icon: '📄' },
 	{ id: 'announcements', icon: '📢' }
 ]

@@ -54,6 +54,7 @@ declare module 'vue' {
     MaintenanceRequestsSection: typeof import('./src/components/kagi/mansion/MaintenanceRequestsSection.vue')['default']
     MaintenanceSection: typeof import('./src/components/kagi/resident/MaintenanceSection.vue')['default']
     MansionAnnouncementsManager: typeof import('./src/components/kagi/mansion/MansionAnnouncementsManager.vue')['default']
+    MansionBookingsManager: typeof import('./src/components/kagi/mansion/MansionBookingsManager.vue')['default']
     MansionBookingsSection: typeof import('./src/components/kagi/mansion/MansionBookingsSection.vue')['default']
     MansionDocumentsManager: typeof import('./src/components/kagi/mansion/MansionDocumentsManager.vue')['default']
     MansionOverviewSection: typeof import('./src/components/kagi/mansion/MansionOverviewSection.vue')['default']
