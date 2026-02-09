@@ -280,14 +280,40 @@ CREATE POLICY profiles_select_own ON profiles
 CREATE POLICY profiles_select_mansion ON profiles
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('admin', 'manager', 'mansion_admin')
+		AND get_user_role() IN ('manager', 'mansion_admin')
 	);
+-- C1: Platform admins (mansion_id=NULL) need cross-mansion access
+CREATE POLICY profiles_select_admin ON profiles
+	FOR SELECT USING (get_user_role() = 'admin');
+-- C2: Users can update own profile but NOT role or mansion_id
 CREATE POLICY profiles_update_own ON profiles
-	FOR UPDATE USING (id = auth.uid());
+	FOR UPDATE USING (id = auth.uid())
+	WITH CHECK (
+		id = auth.uid()
+		AND role = (SELECT role FROM profiles WHERE id = auth.uid())
+		AND mansion_id IS NOT DISTINCT FROM (SELECT mansion_id FROM profiles WHERE id = auth.uid())
+	);
+-- C2: Mansion admins can update users but only assign non-privileged roles
 CREATE POLICY profiles_update_mansion ON profiles
 	FOR UPDATE USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('admin', 'manager', 'mansion_admin')
+		AND get_user_role() IN ('manager', 'mansion_admin')
+	)
+	WITH CHECK (
+		mansion_id = get_user_mansion_id()
+		AND role IN ('resident', 'landlord', 'guest')
+	);
+-- C1: Platform admins can update any profile (including role changes)
+CREATE POLICY profiles_update_admin ON profiles
+	FOR UPDATE USING (get_user_role() = 'admin');
+-- C1: Platform admins can delete any profile
+CREATE POLICY profiles_delete_admin ON profiles
+	FOR DELETE USING (get_user_role() = 'admin');
+-- C1: Mansion admins can delete users in their mansion
+CREATE POLICY profiles_delete_mansion ON profiles
+	FOR DELETE USING (
+		mansion_id = get_user_mansion_id()
+		AND get_user_role() IN ('manager', 'mansion_admin')
 	);
 
 -- MANSIONS
@@ -373,9 +399,11 @@ CREATE POLICY bills_select_mansion ON bills
 		mansion_id = get_user_mansion_id()
 		AND get_user_role() IN ('manager', 'mansion_admin', 'admin')
 	);
+-- H3: Bills insert must enforce mansion scope (not just role)
 CREATE POLICY bills_insert_manager ON bills
 	FOR INSERT WITH CHECK (
-		get_user_role() IN ('manager', 'mansion_admin', 'admin')
+		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
+		OR get_user_role() = 'admin'
 	);
 CREATE POLICY bills_update_manager ON bills
 	FOR UPDATE USING (
@@ -410,9 +438,16 @@ CREATE POLICY document_reads_insert ON document_reads
 	FOR INSERT WITH CHECK (user_id = auth.uid());
 CREATE POLICY document_reads_select_own ON document_reads
 	FOR SELECT USING (user_id = auth.uid());
+-- H5: Mansion admins should only see reads for documents in their mansion
 CREATE POLICY document_reads_select_admin ON document_reads
 	FOR SELECT USING (
-		get_user_role() IN ('admin', 'manager', 'mansion_admin')
+		get_user_role() = 'admin'
+		OR (
+			get_user_role() IN ('manager', 'mansion_admin')
+			AND document_id IN (
+				SELECT id FROM documents WHERE mansion_id = get_user_mansion_id()
+			)
+		)
 	);
 
 -- ANNOUNCEMENTS

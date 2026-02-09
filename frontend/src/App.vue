@@ -12,8 +12,8 @@ import { TinyRouter } from 'vue-tiny-router'
 import { loadTranslations } from 'vue-tiny-translation'
 
 import { detectLang } from '@/makio/utils/detect'
-import { listenForDeepLinks } from '@/mobile'
-import { contentLoaded, initAuth, isAdmin, isAuthenticated, isMansionAdmin, userRole } from '@/store'
+import { listenForAppStateChange, listenForDeepLinks } from '@/mobile'
+import { checkSession, contentLoaded, initAuth, initInactivityTimer, isAdmin, isAuthenticated, isMansionAdmin, setupAuthListener, userRole } from '@/store'
 
 // Configure engine with default settings
 engine.timeUnit = 's'
@@ -94,8 +94,14 @@ export default {
 		}
 	},
 	async mounted() {
-		// Initialize auth from localStorage first
+		// Initialize auth from localStorage first (instant UI)
 		initAuth()
+
+		// Set up Supabase auth state listener for automatic token refresh
+		setupAuthListener()
+
+		// M6: Start session inactivity timeout (no-op on native)
+		initInactivityTimer()
 
 		// Detect language: saved preference > browser detection > default
 		const savedLang = localStorage.getItem( 'kagi_language' )
@@ -111,27 +117,41 @@ export default {
 			this.hideInitialLoader()
 		}, 500 )
 
-		// Listen for deep links (e.g. magic link login)
+		// Listen for deep links (e.g. magic link login from kagi:// scheme)
 		listenForDeepLinks( ( url ) => {
-			// Extract token from URL if present (magic link)
-			if ( url.includes( 'token=' ) || url.includes( 'access_token=' ) ) {
-				// We can't easily push URL params to TinyRouter if it manages hash/history differently.
-				// But Supabase client reads window.location.
-				// If we update window.location, the app might reload.
-				// Best is to manually trigger navigation to /login with params
+			try {
+				// Extract auth code/token from deep link URL
+				// e.g. kagi://login?code=<pkce_code> or kagi://login#access_token=...
+				const queryStart = url.indexOf( '?' )
+				const hashStart = url.indexOf( '#' )
 
-				// Basic parsing
-				const parts = url.split( '?' )
-				// const path = parts[0].replace( /.*:\/\/.*?\//, '/' ) // Remove scheme://host
-				// For magic links it might come as query params or hash
+				if ( queryStart !== -1 ) {
+					const queryString = url.substring( queryStart + 1 )
+					const params = new URLSearchParams( queryString )
+					const code = params.get( 'code' ) || params.get( 'token' )
+					if ( code ) {
+						sessionStorage.setItem( 'kagi_deep_link_code', code )
+					}
+				} else if ( hashStart !== -1 ) {
+					const hashString = url.substring( hashStart + 1 )
+					const params = new URLSearchParams( hashString )
+					const accessToken = params.get( 'access_token' )
+					if ( accessToken ) {
+						sessionStorage.setItem( 'kagi_deep_link_code', accessToken )
+					}
+				}
 
-				// Simply redirect to login, Login.vue will check session or params (if we could pass them)
-				// Since we added checkSession() in Login.vue, if Supabase handles the session from the URL internally
-				// (which it usually does from the intent), we just need to be at the page.
-				// BUT Supabase JS client inside WebView might not see the intent URL initially.
-				// We might need to handle session manually.
-				// For now, let's navigate to Login.
-				window.location.href = '#/login'
+				window.location.hash = '#/login'
+			} catch ( e ) {
+				console.error( '[DeepLink] Failed to parse URL:', e )
+				window.location.hash = '#/login'
+			}
+		} )
+
+		// When app returns to foreground, validate/refresh session
+		listenForAppStateChange( async () => {
+			if ( isAuthenticated.value ) {
+				await checkSession()
 			}
 		} )
 	},

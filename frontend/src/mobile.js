@@ -51,3 +51,16 @@ export function listenForDeepLinks( callback ) {
 	} )
 }
 
+// Listen for app state changes (background -> foreground)
+export function listenForAppStateChange( callback ) {
+	if ( !Capacitor.isNativePlatform() ) {
+		return
+	}
+
+	App.addListener( 'appStateChange', ( state ) => {
+		if ( state.isActive ) {
+			callback()
+		}
+	} )
+}
+

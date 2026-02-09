@@ -4,6 +4,8 @@
  */
 import { createClient } from '@supabase/supabase-js'
 
+import { isNative } from '@/mobile'
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
@@ -12,6 +14,7 @@ class SupabaseBackend {
 		this.supabase = createClient( supabaseUrl, supabaseKey )
 		this.subscribers = new Map()
 		this.cache = new Map()
+		this._authAttempts = new Map() // M3: rate limiting
 	}
 
 	// ==========================================
@@ -32,8 +35,44 @@ class SupabaseBackend {
 			success: false,
 			data: null,
 			meta: { timestamp: Date.now() },
-			error: { message, code }
+			error: { message: this._sanitizeErrorMessage( message ), code }
 		}
+	}
+
+	// L2: Prevent leaking database schema details in error messages
+	_sanitizeErrorMessage( message ) {
+		if ( !message ) return 'An error occurred'
+		if ( message.includes( 'violates row-level security' ) ) return 'Permission denied'
+		if ( message.includes( 'duplicate key' ) ) return 'This record already exists'
+		if ( message.includes( 'violates foreign key' ) ) return 'Referenced record not found'
+		if ( message.includes( 'violates check constraint' ) ) return 'Invalid data provided'
+		if ( message.includes( 'PGRST' ) || message.includes( 'relation' ) ) return 'Operation failed'
+		return message
+	}
+
+	// M3: Client-side rate limiting for auth operations
+	_checkRateLimit( key, maxAttempts = 5, windowMs = 60000 ) {
+		const now = Date.now()
+		const attempts = this._authAttempts.get( key ) || []
+		const recent = attempts.filter( t => now - t < windowMs )
+		if ( recent.length >= maxAttempts ) {
+			throw this.createError( 'Too many attempts. Please try again later.', 429 )
+		}
+		recent.push( now )
+		this._authAttempts.set( key, recent )
+	}
+
+	// ==========================================
+	// AUTH STATE LISTENER
+	// ==========================================
+
+	/**
+	 * Subscribe to Supabase auth state changes (token refresh, sign-in, sign-out).
+	 * Returns the subscription object (call .unsubscribe() to stop).
+	 */
+	onAuthStateChange( callback ) {
+		const { data: { subscription } } = this.supabase.auth.onAuthStateChange( callback )
+		return subscription
 	}
 
 	// ==========================================
@@ -43,6 +82,9 @@ class SupabaseBackend {
 	async auth() {
 		return {
 			login: async ( email, password ) => {
+				// M3: Rate limit login attempts (5 per minute per email)
+				this._checkRateLimit( `login:${email}`, 5, 60000 )
+
 				const { data, error } = await this.supabase.auth.signInWithPassword( {
 					email,
 					password
@@ -127,10 +169,17 @@ class SupabaseBackend {
 			},
 
 			sendMagicLink: async ( email ) => {
+				// M3: Rate limit magic link requests (3 per 5 minutes per email)
+				this._checkRateLimit( `magic:${email}`, 3, 300000 )
+
+				// On native iOS, redirect to kagi:// scheme (registered in Info.plist)
+				// This must also be added to Supabase dashboard's Redirect URLs allowlist
+				const redirectUrl = isNative() ? 'kagi://login' : `${window.location.origin}/login`
+
 				const { error } = await this.supabase.auth.signInWithOtp( {
 					email,
 					options: {
-						emailRedirectTo: `${window.location.origin}/login`
+						emailRedirectTo: redirectUrl
 					}
 				} )
 
@@ -153,6 +202,43 @@ class SupabaseBackend {
 		if ( !email ) throw this.createError( 'Email is required', 400 )
 		if ( !role ) throw this.createError( 'Role is required', 400 )
 
+		// C3: Validate role against allowed enum values
+		const VALID_ROLES = ['resident', 'landlord', 'guest', 'manager', 'mansion_admin', 'admin']
+		if ( !VALID_ROLES.includes( role ) ) {
+			throw this.createError( 'Invalid role specified', 400 )
+		}
+
+		// C3: Validate email format
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+		if ( !emailRegex.test( email ) ) {
+			throw this.createError( 'Invalid email format', 400 )
+		}
+
+		// C3: Validate mansionId format if provided
+		if ( mansionId ) {
+			const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+			if ( !uuidRegex.test( mansionId ) ) {
+				throw this.createError( 'Invalid mansion ID format', 400 )
+			}
+		}
+
+		// C3: Authorization - only admins/managers can invite users
+		const { data: { user: caller } } = await this.supabase.auth.getUser()
+		if ( !caller ) throw this.createError( 'Not authenticated', 401 )
+
+		const callerProfile = await this._getProfile( caller.id )
+		if ( !['admin', 'manager', 'mansion_admin'].includes( callerProfile?.role ) ) {
+			throw this.createError( 'Unauthorized: insufficient permissions to invite users', 403 )
+		}
+
+		// C3: Prevent privilege escalation - only platform admins can assign admin/management roles
+		if ( role === 'admin' && callerProfile.role !== 'admin' ) {
+			throw this.createError( 'Only platform admins can assign admin role', 403 )
+		}
+		if ( ['manager', 'mansion_admin'].includes( role ) && callerProfile.role !== 'admin' ) {
+			throw this.createError( 'Only platform admins can assign management roles', 403 )
+		}
+
 		// Check if user already exists
 		const { data: existingProfile } = await this.supabase
 			.from( 'profiles' )
@@ -165,10 +251,11 @@ class SupabaseBackend {
 		}
 
 		// Send magic link with user metadata (role, mansion, etc.)
+		const redirectUrl = isNative() ? 'kagi://login' : `${window.location.origin}/login`
 		const { error } = await this.supabase.auth.signInWithOtp( {
 			email,
 			options: {
-				emailRedirectTo: `${window.location.origin}/login`,
+				emailRedirectTo: redirectUrl,
 				data: {
 					name: name || email.split( '@' )[0],
 					role,
@@ -296,9 +383,9 @@ class SupabaseBackend {
 			query = query.eq( 'role', role )
 		}
 
-		// Apply search (name, email)
+		// Apply search (name, email) -- C4: sanitize to prevent filter injection
 		if ( search && search.trim() ) {
-			const searchTerm = search.trim()
+			const searchTerm = this._sanitizeSearchTerm( search )
 			query = query.or( `name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%` )
 		}
 
@@ -520,11 +607,17 @@ class SupabaseBackend {
 			// Read invitation data from user_metadata (set during invite)
 			const metadata = user.user_metadata || {}
 
+			// H4: Only allow non-privileged roles during self-registration
+			// Admin/manager roles must be assigned by a platform admin via updateUser()
+			const SAFE_SELF_REGISTER_ROLES = ['resident', 'landlord', 'guest']
+			const requestedRole = metadata.role || 'resident'
+			const safeRole = SAFE_SELF_REGISTER_ROLES.includes( requestedRole ) ? requestedRole : 'resident'
+
 			const newProfile = {
 				id: user.id,
 				email: user.email,
 				name: metadata.name || user.email.split( '@' )[0],
-				role: metadata.role || 'resident',
+				role: safeRole,
 				mansion_id: metadata.mansion_id || null,
 				unit: metadata.unit || null
 			}
@@ -574,10 +667,11 @@ class SupabaseBackend {
 			} )
 		}
 
-		// Apply search
+		// Apply search -- C4: sanitize to prevent filter injection
 		if ( options.search ) {
+			const searchTerm = this._sanitizeSearchTerm( options.search )
 			query = query.or(
-				`title.ilike.%${options.search}%,description.ilike.%${options.search}%`
+				`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`
 			)
 		}
 
@@ -938,7 +1032,21 @@ class SupabaseBackend {
 	}
 
 	async uploadFile( file, category = 'general' ) {
-		const fileName = `${category}/${Date.now()}_${file.name}`
+		// M4: Validate file type
+		const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+		if ( !ALLOWED_TYPES.includes( file.type ) ) {
+			throw this.createError( 'Invalid file type. Allowed: JPEG, PNG, WebP, PDF', 400 )
+		}
+
+		// M4: Validate file size (50MB max)
+		const MAX_SIZE = 52428800
+		if ( file.size > MAX_SIZE ) {
+			throw this.createError( 'File too large. Maximum size: 50MB', 400 )
+		}
+
+		// M4: Sanitize filename to prevent path traversal
+		const safeName = file.name.replace( /[^a-zA-Z0-9._-]/g, '_' )
+		const fileName = `${category}/${Date.now()}_${safeName}`
 		const { error } = await this.supabase.storage
 			.from( 'kagi-files' )
 			.upload( fileName, file )
@@ -1043,6 +1151,16 @@ class SupabaseBackend {
 			maintenance: 'maintenance_requests'
 		}
 		return map[resource] || resource
+	}
+
+	// C4: Sanitize search terms to prevent PostgREST filter injection
+	_sanitizeSearchTerm( term ) {
+		return ( term || '' ).trim().substring( 0, 255 )
+			.replace( /\\/g, '\\\\' )
+			.replace( /,/g, '\\,' )
+			.replace( /\./g, '\\.' )
+			.replace( /\(/g, '\\(' )
+			.replace( /\)/g, '\\)' )
 	}
 
 	_toSnakeCase( str ) {

@@ -144,8 +144,9 @@
 	</section>
 </template>
 <script>
-import DOMPurify from 'dompurify'
 import { marked } from 'marked'
+
+import { sanitizeHtml } from '@/utils/sanitize'
 
 export default {
 	name: 'DocumentReview',
@@ -201,7 +202,7 @@ export default {
 		},
 		renderedContent() {
 			const html = marked( this.document.content || '' )
-			return DOMPurify.sanitize( html )
+			return sanitizeHtml( html )
 		},
 		approvals() {
 			return this.document.metadata?.approvals || []

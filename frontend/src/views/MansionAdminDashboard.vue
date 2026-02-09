@@ -70,7 +70,7 @@ export default {
 			} ) )
 		}
 	},
-	mounted() {
+	async mounted() {
 		document.querySelector( '#app' )?.scrollTo( 0, 0 )
 
 		// Security: Verify user has mansion admin/manager/admin role
@@ -78,6 +78,10 @@ export default {
 			this.$router.push( '/login' )
 			return
 		}
+
+		// H2: Verify role from server, not just localStorage
+		await store.refreshUserRole()
+
 		const allowedRoles = ['admin', 'manager', 'mansion_admin']
 		if ( !allowedRoles.includes( store.userRole.value ) ) {
 			this.$router.push( '/dashboard' )

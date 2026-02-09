@@ -1,5 +1,6 @@
 import { computed, ref, watch } from 'vue'
 
+import { isNative } from '@/mobile'
 import mockBackend from '@/services/Backend'
 import supabaseBackend from '@/services/SupabaseBackend'
 
@@ -36,6 +37,18 @@ export const userProfile = computed( () => ( {
 	userEmail: user.value?.email || null
 } ) )
 
+// M1: Minimize PII stored in localStorage -- only cache what's needed for quick UI render
+const _persistUser = () => {
+	if ( !user.value ) return
+	localStorage.setItem( 'kagi_user', JSON.stringify( {
+		id: user.value.id,
+		role: user.value.role,
+		mansionId: user.value.mansionId,
+		name: user.value.name,
+		email: user.value.email
+	} ) )
+}
+
 // Initialize auth from localStorage on app start
 export const initAuth = () => {
 	const storedToken = localStorage.getItem( 'kagi_token' )
@@ -48,6 +61,48 @@ export const initAuth = () => {
 		return true
 	}
 	return false
+}
+
+// Supabase auth state listener for automatic token refresh
+// Keeps kagi_token in sync when Supabase internally refreshes the session
+let _authSubscription = null
+
+export const setupAuthListener = () => {
+	if ( USE_MOCK_BACKEND ) return // Mock backend has no auth state changes
+
+	_authSubscription = backend.onAuthStateChange( async ( event, session ) => {
+		console.log( '[Auth] State change:', event )
+
+		if ( event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN' ) {
+			if ( session ) {
+				// Sync token from Supabase's refreshed session
+				token.value = session.access_token
+				localStorage.setItem( 'kagi_token', session.access_token )
+
+				// On fresh sign-in, fetch full profile
+				if ( !user.value || event === 'SIGNED_IN' ) {
+					try {
+						const auth = await backend.auth()
+						const response = await auth.getCurrentUser()
+						if ( response.success && response.data ) {
+							user.value = response.data
+							_persistUser()
+						}
+					} catch ( error ) {
+						console.error( '[Auth] Failed to fetch user on state change:', error )
+					}
+				}
+
+				isAuthenticated.value = true
+			}
+		} else if ( event === 'SIGNED_OUT' ) {
+			user.value = null
+			token.value = null
+			isAuthenticated.value = false
+			localStorage.removeItem( 'kagi_token' )
+			localStorage.removeItem( 'kagi_user' )
+		}
+	} )
 }
 
 // Auth methods
@@ -110,7 +165,7 @@ export const verifyMagicLink = async ( magicToken ) => {
 			isAuthenticated.value = true
 
 			localStorage.setItem( 'kagi_token', token.value )
-			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+			_persistUser()
 
 			return response.data
 		}
@@ -136,12 +191,32 @@ export const checkSession = async () => {
 			isAuthenticated.value = true
 
 			localStorage.setItem( 'kagi_token', token.value )
-			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+			_persistUser()
 
 			return true
 		}
 	} catch ( error ) {
-		// No session found is normal
+		// Session expired or not found -- try explicit refresh as fallback
+		// Supabase refresh tokens are valid for ~180 days by default
+		try {
+			const auth = await backend.auth()
+			const refreshResponse = await auth.refresh()
+			if ( refreshResponse.success && refreshResponse.data?.token ) {
+				token.value = refreshResponse.data.token
+				localStorage.setItem( 'kagi_token', token.value )
+
+				const userResponse = await auth.getCurrentUser()
+				if ( userResponse.success && userResponse.data ) {
+					user.value = userResponse.data
+					_persistUser()
+					isAuthenticated.value = true
+					return true
+				}
+			}
+		} catch ( refreshError ) {
+			// Truly no recoverable session
+			console.log( '[Auth] No recoverable session' )
+		}
 	} finally {
 		loading.value = false
 	}
@@ -161,7 +236,7 @@ export const adminLogin = async ( email, password ) => {
 			isAuthenticated.value = true
 
 			localStorage.setItem( 'kagi_token', token.value )
-			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+			_persistUser()
 
 			return response.data
 		}
@@ -189,7 +264,7 @@ export const checkAuth = async () => {
 
 			if ( response.success && response.data ) {
 				user.value = response.data
-				localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+				_persistUser()
 				return true
 			}
 		} catch ( error ) {
@@ -213,7 +288,7 @@ export const refreshUserRole = async () => {
 		if ( response.success && response.data ) {
 			// Update user with fresh data from backend
 			user.value = response.data
-			localStorage.setItem( 'kagi_user', JSON.stringify( user.value ) )
+			_persistUser()
 			return true
 		}
 	} catch ( error ) {
@@ -236,6 +311,34 @@ export const logout = async () => {
 	isMenuOpen.value = false
 	localStorage.removeItem( 'kagi_token' )
 	localStorage.removeItem( 'kagi_user' )
+}
+
+// M6: Session inactivity timeout
+// Mobile: disabled (sessions persist like Instagram)
+// Web: 30-minute timeout for shared terminal security
+const SESSION_TIMEOUT = 30 * 60 * 1000
+let _inactivityTimer = null
+
+export const resetInactivityTimer = () => {
+	if ( isNative() ) return
+
+	if ( _inactivityTimer ) clearTimeout( _inactivityTimer )
+	if ( isAuthenticated.value ) {
+		_inactivityTimer = setTimeout( async () => {
+			await logout()
+			window.location.hash = '#/login'
+		}, SESSION_TIMEOUT )
+	}
+}
+
+export const initInactivityTimer = () => {
+	if ( isNative() ) return
+
+	const events = ['click', 'keypress', 'scroll', 'touchstart']
+	events.forEach( event => {
+		document.addEventListener( event, resetInactivityTimer, { passive: true } )
+	} )
+	resetInactivityTimer()
 }
 
 // Watch for auth changes and close menu on logout

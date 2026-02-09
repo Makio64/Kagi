@@ -922,6 +922,10 @@ export default {
 			this.$router.push( '/login' )
 			return
 		}
+
+		// H2: Verify role from server, not just localStorage
+		await store.refreshUserRole()
+
 		if ( !store.isAdmin.value ) {
 			// Redirect to appropriate dashboard based on role
 			if ( store.isMansionAdmin.value || store.userRole.value === 'manager' ) {

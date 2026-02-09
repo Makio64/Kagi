@@ -151,14 +151,18 @@ export default {
 		// Supabase PKCE flow: code in query param
 		const code = urlParams.get( 'code' )
 
+		// Deep link: code passed via sessionStorage from App.vue deep link handler
+		const deepLinkCode = sessionStorage.getItem( 'kagi_deep_link_code' )
+		sessionStorage.removeItem( 'kagi_deep_link_code' )
+
 		// Supabase implicit flow: access_token in URL hash
 		const hashParams = new URLSearchParams( window.location.hash.replace( '#', '' ) )
 		const accessToken = hashParams.get( 'access_token' )
 		const hashType = hashParams.get( 'type' )
 
-		const magicToken = token || code || ( hashType === 'magiclink' ? accessToken : null )
+		const magicToken = token || code || deepLinkCode || ( hashType === 'magiclink' ? accessToken : null )
 
-		console.log( '[Login] URL params:', { token, code, accessToken, hashType, magicToken } )
+		console.log( '[Login] Auth params:', { token, code, deepLinkCode, accessToken, hashType, hasMagicToken: !!magicToken } )
 
 		if ( magicToken ) {
 			this.loading = true

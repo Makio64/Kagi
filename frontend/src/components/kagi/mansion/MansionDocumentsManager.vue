@@ -155,8 +155,9 @@
 	</div>
 </template>
 <script>
-import DOMPurify from 'dompurify'
 import { marked } from 'marked'
+
+import { sanitizeHtml } from '@/utils/sanitize'
 
 import backend from '../../../services/SupabaseBackend'
 
@@ -227,7 +228,7 @@ export default {
 		uploadPreview() {
 			if ( !this.uploadForm.content ) return ''
 			const html = marked( this.uploadForm.content )
-			return DOMPurify.sanitize( html )
+			return sanitizeHtml( html )
 		}
 	},
 	async mounted() {
@@ -350,7 +351,7 @@ export default {
 					this.uploadForm.content = result.value
 				} else if ( file.name.endsWith( '.pdf' ) ) {
 					const pdfjsLib = await import( 'pdfjs-dist' )
-					pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+					pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 					const pdf = await pdfjsLib.getDocument( { data: await file.arrayBuffer() } ).promise
 					let text = ''
 					for ( let i = 1; i <= pdf.numPages; i++ ) {

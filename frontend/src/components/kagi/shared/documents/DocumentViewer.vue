@@ -41,8 +41,9 @@
 	</div>
 </template>
 <script>
-import DOMPurify from 'dompurify'
 import { marked } from 'marked'
+
+import { sanitizeHtml } from '@/utils/sanitize'
 export default {
 	name: 'DocumentViewer',
 	emits: ['close', 'save'],
@@ -62,11 +63,11 @@ export default {
 	computed: {
 		renderedContent() {
 			const html = marked( this.content || '' )
-			return DOMPurify.sanitize( html )
+			return sanitizeHtml( html )
 		},
 		previewContent() {
 			const html = marked( this.editContent || '' )
-			return DOMPurify.sanitize( html )
+			return sanitizeHtml( html )
 		}
 	},
 	created() {
