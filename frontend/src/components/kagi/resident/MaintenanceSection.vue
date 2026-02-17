@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">🔧 {{ $t('dashboard.menu.maintenance') }}</h2>
+			<h2 class="section-title">
+				<Icon name="maintenance" :size="30" color="#FFC107" />
+				{{ $t('dashboard.menu.maintenance') }}
+			</h2>
 		</div>
 		<!-- Category Selection -->
 		<div v-if="!selectedCategory" class="maintenance-categories">
@@ -127,6 +130,11 @@ export default {
 	font-size 1.75rem
 	font-weight 600
 	color #333
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 .maintenance-categories
 	padding 0 2rem 3rem 2rem
 

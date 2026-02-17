@@ -12,7 +12,8 @@ import { TinyRouter } from 'vue-tiny-router'
 import { loadTranslations } from 'vue-tiny-translation'
 
 import { detectLang } from '@/makio/utils/detect'
-import { contentLoaded, initAuth } from '@/store'
+import { listenForAppStateChange, listenForDeepLinks } from '@/mobile'
+import { checkSession, contentLoaded, hasRole, initAuth, initInactivityTimer, isAuthenticated, setupAuthListener, userRoles } from '@/store'
 
 // Configure engine with default settings
 engine.timeUnit = 's'
@@ -66,6 +67,10 @@ export default {
 					path: '/mansion-dashboard',
 					component: MansionAdminDashboard,
 				},
+				{
+					path: '/mansion-dashboard/:section',
+					component: MansionAdminDashboard,
+				},
 			]
 		},
 		redirects() {
@@ -83,13 +88,20 @@ export default {
 				this.hideInitialLoader()
 			}
 		},
-		'$route'() {
+		'$route'( route ) {
 			window.scrollTo( 0, 0 )
+			this.checkRouteAccess( route )
 		}
 	},
 	async mounted() {
-		// Initialize auth from localStorage first
+		// Initialize auth from localStorage first (instant UI)
 		initAuth()
+
+		// Set up Supabase auth state listener for automatic token refresh
+		setupAuthListener()
+
+		// M6: Start session inactivity timeout (no-op on native)
+		initInactivityTimer()
 
 		// Detect language: saved preference > browser detection > default
 		const savedLang = localStorage.getItem( 'kagi_language' )
@@ -104,6 +116,44 @@ export default {
 		setTimeout( () => {
 			this.hideInitialLoader()
 		}, 500 )
+
+		// Listen for deep links (e.g. magic link login from kagi:// scheme)
+		listenForDeepLinks( ( url ) => {
+			try {
+				// Extract auth code/token from deep link URL
+				// e.g. kagi://login?code=<pkce_code> or kagi://login#access_token=...
+				const queryStart = url.indexOf( '?' )
+				const hashStart = url.indexOf( '#' )
+
+				if ( queryStart !== -1 ) {
+					const queryString = url.substring( queryStart + 1 )
+					const params = new URLSearchParams( queryString )
+					const code = params.get( 'code' ) || params.get( 'token' )
+					if ( code ) {
+						sessionStorage.setItem( 'kagi_deep_link_code', code )
+					}
+				} else if ( hashStart !== -1 ) {
+					const hashString = url.substring( hashStart + 1 )
+					const params = new URLSearchParams( hashString )
+					const accessToken = params.get( 'access_token' )
+					if ( accessToken ) {
+						sessionStorage.setItem( 'kagi_deep_link_code', accessToken )
+					}
+				}
+
+				window.location.hash = '#/login'
+			} catch ( e ) {
+				console.error( '[DeepLink] Failed to parse URL:', e )
+				window.location.hash = '#/login'
+			}
+		} )
+
+		// When app returns to foreground, validate/refresh session
+		listenForAppStateChange( async () => {
+			if ( isAuthenticated.value ) {
+				await checkSession()
+			}
+		} )
 	},
 	methods: {
 		hideInitialLoader() {
@@ -114,6 +164,46 @@ export default {
 				setTimeout( () => {
 					loader.remove()
 				}, 800 )
+			}
+		},
+		checkRouteAccess( route ) {
+			const path = route?.path || window.location.hash.replace( '#', '' )
+
+			// Admin dashboard requires admin role
+			if ( path.startsWith( '/admin-dashboard' ) ) {
+				if ( !isAuthenticated.value ) {
+					this.$router.push( '/login' )
+					return
+				}
+				if ( !hasRole( 'admin' ) ) {
+					// Redirect non-admins to their appropriate dashboard
+					if ( userRoles.value.some( r => ['mansion_admin', 'manager'].includes( r ) ) ) {
+						this.$router.push( '/mansion-dashboard' )
+					} else {
+						this.$router.push( '/dashboard' )
+					}
+					return
+				}
+			}
+
+			// Mansion dashboard requires mansion_admin, manager, or admin role
+			if ( path.startsWith( '/mansion-dashboard' ) ) {
+				if ( !isAuthenticated.value ) {
+					this.$router.push( '/login' )
+					return
+				}
+				const allowedRoles = ['admin', 'manager', 'mansion_admin']
+				if ( !userRoles.value.some( r => allowedRoles.includes( r ) ) ) {
+					this.$router.push( '/dashboard' )
+					return
+				}
+			}
+
+			// Regular dashboard requires authentication
+			if ( path.startsWith( '/dashboard' ) ) {
+				if ( !isAuthenticated.value ) {
+					this.$router.push( '/login' )
+				}
 			}
 		}
 	},

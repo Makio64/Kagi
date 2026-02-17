@@ -5,19 +5,12 @@ export const ADMIN_MENU_ITEMS = [
 	{ id: 'buildings', icon: '🏢' },
 	{ id: 'users', icon: '👥' },
 	{ id: 'maintenance', icon: '🔧' },
-	{ id: 'financial', icon: '💰' },
-	{ id: 'settings', icon: '⚙️' }
+	{ id: 'financial', icon: '💰' }
 ]
 
 export const MANSION_ADMIN_MENU_ITEMS = [
-	{ id: 'overview', icon: '📊' },
 	{ id: 'residents', icon: '👥' },
-	{ id: 'maintenance', icon: '🔧' },
 	{ id: 'bookings', icon: '📅' },
-	{ id: 'announcements', icon: '📢' },
 	{ id: 'documents', icon: '📄' },
-	{ id: 'services', icon: '🛎️' },
-	{ id: 'financial', icon: '💳' },
-	{ id: 'reports', icon: '📊' },
-	{ id: 'settings', icon: '⚙️' }
+	{ id: 'announcements', icon: '📢' }
 ]

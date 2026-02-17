@@ -5,9 +5,13 @@
 			<div class="blob blob-2" />
 		</div>
 		<div class="language-switcher-container">
-			<LanguageSwitcher />
+			<LanguageSwitcher variant="compact" />
 		</div>
-		<div class="login-container">
+		<div v-if="checkingSession" class="loading-overlay">
+			<div class="loader" />
+			<p>{{ $t('login.loading') || 'Loading...' }}</p>
+		</div>
+		<div v-else class="login-container">
 			<div class="login-card glass-card">
 				<div class="logo-section">
 					<KagiLogo :size="80" color="#333" />
@@ -134,27 +138,73 @@ export default {
 			error: '',
 			magicLinkSent: false,
 			showEmailPopup: false,
-			magicLinkToken: ''
+			magicLinkToken: '',
+			checkingSession: true // Start true to prevent flicker
 		}
 	},
 	async mounted() {
-		// Check for magic link token in URL
 		const urlParams = new URLSearchParams( window.location.search )
+
+		// Mock backend: token in query param
 		const token = urlParams.get( 'token' )
-		if ( token ) {
+
+		// Supabase PKCE flow: code in query param
+		const code = urlParams.get( 'code' )
+
+		// Deep link: code passed via sessionStorage from App.vue deep link handler
+		const deepLinkCode = sessionStorage.getItem( 'kagi_deep_link_code' )
+		sessionStorage.removeItem( 'kagi_deep_link_code' )
+
+		// Supabase implicit flow: access_token in URL hash
+		const hashParams = new URLSearchParams( window.location.hash.replace( '#', '' ) )
+		const accessToken = hashParams.get( 'access_token' )
+		const hashType = hashParams.get( 'type' )
+
+		const magicToken = token || code || deepLinkCode || ( hashType === 'magiclink' ? accessToken : null )
+
+		console.log( '[Login] Auth params:', { token, code, deepLinkCode, accessToken, hashType, hasMagicToken: !!magicToken } )
+
+		if ( magicToken ) {
 			this.loading = true
+			this.checkingSession = false // Show loader (controlled by loading state in template? No, need to adjust)
+			// Actually we want to show *nothing* or a full page loader while verifying.
+			// Let's use checkingSession to cover this case too or just render the loader.
 			try {
-				await store.verifyMagicLink( token )
-				// Magic link is only used for residents, always redirect to /dashboard
-				this.$router.push( '/dashboard' )
-			} catch {
+				console.log( '[Login] Verifying magic token...' )
+				await store.verifyMagicLink( magicToken )
+				console.log( '[Login] Verification successful, redirecting to dashboard' )
+				this.redirectToDashboard()
+			} catch ( err ) {
+				console.error( '[Login] Verification failed:', err )
 				this.error = this.$t( 'login.errors.invalidLink' )
+				this.checkingSession = false // Show form with error
 			} finally {
 				this.loading = false
+			}
+		} else {
+			// Check if Supabase already consumed the token and has a session
+			// or if the user is already logged in
+			console.log( '[Login] No token in URL, checking for active session...' )
+			const hasSession = await store.checkSession()
+			if ( hasSession ) {
+				console.log( '[Login] Active session found, redirecting to dashboard' )
+				this.redirectToDashboard()
+			} else {
+				this.checkingSession = false // Show form
 			}
 		}
 	},
 	methods: {
+		redirectToDashboard() {
+			const role = store.userRole.value
+			if ( role === 'admin' ) {
+				this.$router.push( '/admin-dashboard' )
+			} else if ( role === 'manager' || role === 'mansion_admin' ) {
+				this.$router.push( '/mansion-dashboard' )
+			} else {
+				this.$router.push( '/dashboard' )
+			}
+		},
 		async requestMagicLink() {
 			this.loading = true
 			this.error = ''
@@ -163,8 +213,7 @@ export default {
 
 				// In mock mode, immediately redirect to appropriate dashboard
 				if ( result.mockLogin ) {
-					// Resident tab always goes to /dashboard
-					this.$router.push( '/dashboard' )
+					this.redirectToDashboard()
 					return
 				}
 
@@ -187,13 +236,16 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				await store.adminLogin( this.adminEmail, this.adminPassword )
+				const result = await store.adminLogin( this.adminEmail, this.adminPassword )
 
-				// Admin login always goes to mansion dashboard, except for specific "admin" email
-				if ( this.adminEmail === 'admin' || this.adminEmail === 'admin@kagi.com' ) {
-					this.$router.push( '/admin-dashboard' )  // Only for exact "admin" email
+				// Route based on actual role from backend, not email matching
+				const role = result.user?.role || store.userRole.value
+				if ( role === 'admin' ) {
+					this.$router.push( '/admin-dashboard' )
+				} else if ( role === 'manager' || role === 'mansion_admin' ) {
+					this.$router.push( '/mansion-dashboard' )
 				} else {
-					this.$router.push( '/mansion-dashboard' )  // All other admin logins go to mansion dashboard
+					this.$router.push( '/dashboard' )
 				}
 			} catch {
 				this.error = this.$t( 'login.errors.invalidCredentials' )
@@ -206,6 +258,36 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.loading-overlay
+	position fixed
+	top 0
+	left 0
+	right 0
+	bottom 0
+	display flex
+	flex-direction column
+	justify-content center
+	align-items center
+	background rgba(255, 255, 255, 0.8)
+	z-index 100
+	color #333
+	font-weight bold
+
+	.loader
+		width 50px
+		height 50px
+		border 5px solid #f3f3f3
+		border-top 5px solid #FFC107
+		border-radius 50%
+		margin-bottom 1rem
+		animation spin 1s linear infinite
+
+@keyframes spin
+	0%
+		transform rotate(0deg)
+	100%
+		transform rotate(360deg)
+
 .login-page
 	min-height 100vh
 	display flex

@@ -10,13 +10,15 @@
 		<!-- Facilities list + bookings (default view) -->
 		<div v-else class="booking-main">
 			<div class="section-header">
-				<h2 class="section-title">📅 {{ $t('dashboard.booking.title') }}</h2>
+				<h2 class="section-title">
+					<Icon name="calendar" :size="30" color="#FFC107" />
+					{{ $t('dashboard.booking.title') }}
+				</h2>
 			</div>
 
 			<div class="booking-two-columns">
 				<!-- Left: Facilities -->
 				<div class="facilities-column">
-					<h3>{{ $t('booking.availableFacilities') }}</h3>
 					<div class="facilities-list">
 						<div class="facility-card" @click="selectFacility('party')">
 							<div class="facility-badge party" :style="{ backgroundImage: 'url(/img/facilities/party-room.png)' }" />
@@ -249,6 +251,8 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
+@import '../../../styles/tokens-modern.styl'
+
 .section
 	padding 0
 
@@ -257,9 +261,14 @@ export default {
 
 .section-title
 	margin 0
-	font-size 1.75rem
-	font-weight 600
-	color #333
+	font-size var(--text-2xl)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 
 .booking-two-columns
 	display grid
@@ -275,15 +284,6 @@ export default {
 
 	.booking-two-columns
 		padding 0 1rem 2rem 1rem
-
-.facilities-column
-	h3
-		font-size 1.1rem
-		font-weight 600
-		color #1a1a1a
-		margin-bottom 1rem
-		padding-bottom 0.75rem
-		border-bottom 2px solid #f0f0f0
 
 .facilities-list
 	display flex
@@ -328,13 +328,13 @@ export default {
 	padding 1.25rem
 	text-align center
 	h4
-		font-size 1.15rem
-		font-weight 600
-		color #1a1a1a
+		font-size var(--text-base)
+		font-weight var(--font-semibold)
+		color var(--color-gray-900)
 		margin-bottom 0.5rem
 	p
-		color #6b7280
-		font-size 0.9rem
+		color var(--color-gray-500)
+		font-size var(--text-sm)
 		margin-bottom 1rem
 		line-height 1.4
 
@@ -344,8 +344,8 @@ export default {
 	gap 0.5rem
 	margin-top auto
 	span
-		font-size 0.85rem
-		color #4b5563
+		font-size var(--text-xs)
+		color var(--color-gray-600)
 		display flex
 		align-items center
 		justify-content center
@@ -369,15 +369,15 @@ export default {
 
 .bookings-column
 	h3
-		font-size 1.1rem
-		font-weight 600
-		color #1a1a1a
+		font-size var(--text-base)
+		font-weight var(--font-semibold)
+		color var(--color-gray-900)
 		margin-bottom 1rem
 		.count
-			color #6b7280
-			font-weight 400
+			color var(--color-gray-500)
+			font-weight var(--font-normal)
 			margin-left 0.25rem
-			font-size 0.9rem
+			font-size var(--text-sm)
 
 .bookings-header
 	display flex
@@ -455,13 +455,13 @@ export default {
 .booking-info
 	flex 1
 	h4
-		font-size 1rem
-		font-weight 600
-		color #1a1a1a
+		font-size var(--text-base)
+		font-weight var(--font-semibold)
+		color var(--color-gray-900)
 		margin-bottom 0.25rem
 	.time
-		font-size 0.85rem
-		color #6b7280
+		font-size var(--text-xs)
+		color var(--color-gray-500)
 
 .icon
 	font-size 2rem
@@ -523,13 +523,13 @@ export default {
 		margin-bottom 1rem
 		opacity 0.9
 	h4
-		font-size 1.1rem
-		font-weight 600
-		color #333
+		font-size var(--text-base)
+		font-weight var(--font-semibold)
+		color var(--color-gray-900)
 		margin-bottom 0.5rem
 	p
-		color #666
-		font-size 0.95rem
+		color var(--color-gray-500)
+		font-size var(--text-sm)
 
 @keyframes fadeIn
 	from

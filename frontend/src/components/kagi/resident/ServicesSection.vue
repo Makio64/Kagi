@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">🛎️ {{ $t('dashboard.services.title') }}</h2>
+			<h2 class="section-title">
+				<Icon name="room_service" :size="30" color="#FFC107" />
+				{{ $t('dashboard.services.title') }}
+			</h2>
 		</div>
 
 		<div class="services-grid">
@@ -10,20 +13,16 @@
 				:key="service.id"
 				class="service-card"
 			>
-				<div class="service-icon-badge">{{ service.icon }}</div>
 				<div class="service-content">
-					<h3>{{ service.title }}</h3>
+					<h3><span class="service-icon">{{ service.icon }}</span> {{ service.title }}</h3>
 					<p class="service-description">{{ service.description }}</p>
 
-					<div class="service-details">
-						<div class="detail-item">
-							<span class="detail-label">{{ $t('dashboard.services.price') }}:</span>
-							<span class="detail-value">{{ service.price }}</span>
-						</div>
+					<div class="service-meta">
+						<span>💴 {{ service.price }}</span>
 					</div>
 
 					<button class="book-service-btn">
-						{{ $t('dashboard.services.book') }}
+						{{ $t('dashboard.services.book') }} →
 					</button>
 				</div>
 			</div>
@@ -87,6 +86,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import '../../../styles/tokens-modern.styl'
+
 .section
 	padding 0
 
@@ -95,9 +96,16 @@ export default {
 
 .section-title
 	margin 0
-	font-size 1.75rem
-	font-weight 600
-	color #333
+	font-size var(--text-2xl)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+	flex-wrap nowrap
+	white-space nowrap
+
 
 .services-grid
 	display grid
@@ -125,76 +133,60 @@ export default {
 		transform translateY(-4px)
 		box-shadow 0 8px 24px rgba(0,0,0,0.15)
 
-.service-icon-badge
-	width 70px
-	height 70px
-	display flex
-	align-items center
-	justify-content center
-	font-size 2.5rem
-	background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-	border-radius 12px
-	margin-bottom 1rem
-
 .service-content
 	flex 1
 	display flex
 	flex-direction column
 
 	h3
-		margin 0 0 0.75rem 0
-		font-size 1.25rem
-		color #333
-		font-weight 600
+		margin 0 0 0.3rem 0
+		font-size var(--text-lg)
+		color var(--color-gray-900)
+		font-weight var(--font-semibold)
+		display flex
+		align-items center
+		gap 0.5rem
+		justify-content center
+.service-icon
+	font-size 1.5rem
 
 .service-description
 	margin 0 0 1.25rem 0
-	color #666
-	font-size 0.95rem
+	color var(--color-gray-500)
+	font-size var(--text-sm)
 	line-height 1.6
 	flex 1
 
-.service-details
-	background #f8f9fa
-	border-radius 8px
-	padding 1rem
-	margin-bottom 1rem
-
-.detail-item
+.service-meta
 	display flex
-	justify-content space-between
-	align-items center
-	padding 0.5rem 0
-
-	&:not(:last-child)
-		border-bottom 1px solid #e9ecef
-
-.detail-label
-	color #666
-	font-size 0.9rem
-	font-weight 500
-
-.detail-value
-	color #333
-	font-size 0.9rem
-	font-weight 500
-	text-align right
+	flex-direction column
+	gap 0.5rem
+	margin-bottom 1rem
+	span
+		font-size var(--text-xs)
+		color var(--color-gray-600)
+		display flex
+		align-items center
+		justify-content center
+		gap 0.25rem
 
 .book-service-btn
 	width 100%
 	padding 0.75rem
-	background #1976D2
-	color white
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+	color #333
 	border none
-	border-radius 8px
+	border-radius 25px
 	font-size 0.95rem
-	font-weight 500
+	font-weight 600
 	cursor pointer
-	transition all 0.2s ease
+	transition all 0.25s ease
+	box-shadow 0 3px 10px rgba(255, 193, 7, 0.25)
 
 	&:hover
-		background #1565C0
-		transform translateY(-1px)
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+		transform translateY(-2px)
+		box-shadow 0 5px 15px rgba(255, 193, 7, 0.35)
 
 @media (max-width: 768px)
 	.services-grid

@@ -3,7 +3,8 @@
 		<!-- Header -->
 		<div class="booking-header">
 			<button class="back-btn" @click="$emit('close')">
-				← {{ $t('common.back') }}
+				<span class="back-arrow">←</span>
+				<span class="back-text">{{ $t('common.back') }}</span>
 			</button>
 			<h2>{{ $t(`booking.booking${facility.id.charAt(0).toUpperCase() + facility.id.slice(1)}`) }}</h2>
 		</div>
@@ -769,10 +770,18 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		cursor pointer
 		transition all 0.2s ease
 		font-size 0.9rem
+		display flex
+		align-items center
+		gap 0.25rem
 		&:hover
 			background #f9fafb
 			border-color #d1d5db
 			color #1a1a1a
+		.back-text
+			@media (max-width: 768px)
+				display none
+		@media (max-width: 768px)
+			padding 0.5rem 0.75rem
 	h2
 		margin 0
 		font-size 1.5rem
@@ -823,19 +832,19 @@ For questions or concerns, please contact building management at **info@kagi-bui
 			transition all 0.2s ease
 		.calendar-btn
 			background white
-			border 2px solid #3b82f6
-			color #3b82f6
+			border 2px solid #FFC107
+			color #FFC107
 			display flex
 			align-items center
 			gap 0.5rem
 			&:hover
-				background #eff6ff
+				background #FFF9C4
 		.new-booking-btn
-			background #3b82f6
+			background #FFC107
 			border none
-			color white
+			color #1a1a1a
 			&:hover
-				background #2563eb
+				background #FFB300
 // Main Layout
 .booking-main
 	display grid
@@ -849,6 +858,7 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		padding 1.5rem
 // Booking Form
 .booking-form
+	min-width 0
 	h3
 		margin 0 0 1.5rem
 		font-size 1.25rem
@@ -887,7 +897,7 @@ For questions or concerns, please contact building management at **info@kagi-bui
 	color #6b7280
 	text-align left
 	&:hover:not(.disabled)
-		border-color #3b82f6
+		border-color #FFC107
 		background #f9fafb
 	&.has-value
 		color #1a1a1a
@@ -929,8 +939,8 @@ For questions or concerns, please contact building management at **info@kagi-bui
 		color #6b7280
 		&:hover:not(:disabled)
 			background #f9fafb
-			border-color #3b82f6
-			color #3b82f6
+			border-color #FFC107
+			color #FFC107
 		&:disabled
 			opacity 0.4
 			cursor not-allowed
@@ -968,18 +978,18 @@ For questions or concerns, please contact building management at **info@kagi-bui
 	color #374151
 	min-height 32px
 	&:hover:not(:disabled)
-		background #eff6ff
-		border-color #3b82f6
+		background #FFF9C4
+		border-color #FFC107
 	&.other-month
 		opacity 0.3
 	&.today
 		border-color #9ca3af
 		font-weight 600
 	&.selected
-		background #3b82f6
-		color white
+		background #FFC107
+		color #1a1a1a
 		font-weight 600
-		border-color #3b82f6
+		border-color #FFC107
 	&.unavailable, &.past
 		background #f5f5f5
 		color #d1d5db
@@ -1003,14 +1013,14 @@ For questions or concerns, please contact building management at **info@kagi-bui
 			cursor pointer
 			transition all 0.2s ease
 			&:hover
-				border-color #3b82f6
-				background #eff6ff
+				border-color #FFC107
+				background #FFF9C4
 			&.selected
-				border-color #3b82f6
-				background #3b82f6
-				color white
+				border-color #FFC107
+				background #FFC107
+				color #1a1a1a
 				svg
-					color white
+					color #1a1a1a
 			svg
 				flex-shrink 0
 				color #6b7280
@@ -1040,12 +1050,12 @@ For questions or concerns, please contact building management at **info@kagi-bui
 			text-align center
 			position relative
 			&:hover:not(.unavailable)
-				border-color #3b82f6
-				background #eff6ff
+				border-color #FFC107
+				background #FFF9C4
 			&.selected
-				background #3b82f6
-				color white
-				border-color #3b82f6
+				background #FFC107
+				color #1a1a1a
+				border-color #FFC107
 			&.unavailable
 				background #f5f5f5
 				color #9ca3af
@@ -1069,9 +1079,10 @@ textarea
 	transition border-color 0.2s ease
 	&:focus
 		outline none
-		border-color #3b82f6
+		border-color #FFC107
 .terms-agreement
 	margin 1.5rem 0
+	max-width 100%
 	.checkbox-label
 		display flex
 		align-items flex-start
@@ -1080,11 +1091,18 @@ textarea
 		font-size 0.9rem
 		color #4b5563
 		line-height 1.5
+		width 100%
 		input[type="checkbox"]
+			width 18px
+			height 18px
 			margin-top 0.125rem
 			cursor pointer
 			flex-shrink 0
 			accent-color #FFA000
+		span
+			flex 1
+			min-width 0
+			word-wrap break-word
 		.terms-link
 			color #FFA000
 			text-decoration underline
@@ -1113,6 +1131,16 @@ textarea
 	&.disabled
 		opacity 0.5
 		cursor not-allowed
+	// Override GradientButton styles for harmonized look
+	:deep(.gradient-border)
+		border-radius 25px
+	:deep(span)
+		border-radius 23px
+		background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+		color #333
+		font-weight 600
+		font-size 0.95rem
+		padding 0.75rem 1.5rem
 
 .book-button
 	width 100%

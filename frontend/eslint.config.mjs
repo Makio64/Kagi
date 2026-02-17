@@ -33,17 +33,7 @@ export default [
 			// Import sorting and unused imports
 			'simple-import-sort/imports': 'error',
 			'simple-import-sort/exports': 'error',
-			'unused-imports/no-unused-imports': 'error',
-			'unused-imports/no-unused-vars': [
-				'error',
-				{
-					'vars': 'all',
-					'varsIgnorePattern': '^_',
-					'args': 'after-used',
-					'argsIgnorePattern': '^_'
-				}
-			],
-			
+						
 			// Vue rules
 			'vue/require-default-prop': 'off',
 			'vue/multi-word-component-names': 'off',

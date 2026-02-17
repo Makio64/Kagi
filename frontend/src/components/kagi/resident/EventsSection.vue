@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">📢 {{ $t('dashboard.menu.events') }}</h2>
+			<h2 class="section-title">
+				<Icon name="event" :size="30" color="#FFC107" />
+				{{ $t('dashboard.menu.events') }}
+			</h2>
 		</div>
 
 		<div class="events-list">
@@ -29,10 +32,18 @@ export default {
 	computed: {
 		monthKeys() {
 			return [
-				'calendar.january', 'calendar.february', 'calendar.march',
-				'calendar.april', 'calendar.may', 'calendar.june',
-				'calendar.july', 'calendar.august', 'calendar.september',
-				'calendar.october', 'calendar.november', 'calendar.december'
+				'calendar.january',
+				'calendar.february',
+				'calendar.march',
+				'calendar.april',
+				'calendar.may',
+				'calendar.june',
+				'calendar.july',
+				'calendar.august',
+				'calendar.september',
+				'calendar.october',
+				'calendar.november',
+				'calendar.december'
 			]
 		},
 		// Mock events data - in the future this will come from API
@@ -103,6 +114,8 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import '../../../styles/tokens-modern.styl'
+
 .section
 	padding 0
 
@@ -111,9 +124,13 @@ export default {
 
 .section-title
 	margin 0
-	font-size 1.75rem
-	font-weight 600
-	color #333
+	font-size var(--text-2xl)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
+	display flex
+	align-items center
+	justify-content center
+	gap 0.5rem
 
 .events-list
 	padding 0 2rem 3rem 2rem
@@ -128,41 +145,23 @@ export default {
 	background white
 	border-radius 16px
 	overflow hidden
-	box-shadow 0 2px 12px rgba(0,0,0,0.08)
+	box-shadow 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)
 	transition all 0.3s ease
 	cursor pointer
 
 	&:hover
 		transform translateY(-4px)
-		box-shadow 0 8px 24px rgba(0,0,0,0.15)
+		box-shadow 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02)
 
 .event-icon-col
 	display flex
 	align-items center
 	justify-content center
 	padding 1.5rem
+	background #FFFDE7
 
 .event-icon
 	font-size 3rem
-
-.event-item
-	&.christmas .event-icon-col
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-
-	&.assembly .event-icon-col
-		background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
-
-	&.maintenance .event-icon-col
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-
-	&.safety .event-icon-col
-		background linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
-
-	&.cleaning .event-icon-col
-		background linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)
-
-	&.garden .event-icon-col
-		background linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)
 
 .event-content
 	padding 1.5rem 1.5rem 1.5rem 0
@@ -171,20 +170,20 @@ export default {
 	gap 0.5rem
 
 .event-date
-	font-size 0.85rem
-	color #999
-	font-weight 500
+	font-size var(--text-xs)
+	color var(--color-gray-400)
+	font-weight var(--font-medium)
 
 h3
 	margin 0
-	font-size 1.15rem
-	color #1a1a1a
-	font-weight 600
+	font-size var(--text-base)
+	color var(--color-gray-900)
+	font-weight var(--font-semibold)
 
 p
 	margin 0
-	color #666
-	font-size 0.9rem
+	color var(--color-gray-500)
+	font-size var(--text-sm)
 	line-height 1.6
 
 @media (max-width: 768px)
@@ -209,8 +208,8 @@ p
 		padding 1rem 1rem 1rem 0
 
 	h3
-		font-size 1rem
+		font-size var(--text-sm)
 
 	p
-		font-size 0.85rem
+		font-size var(--text-xs)
 </style>

@@ -7,33 +7,37 @@
 		:active-section="activeSection"
 		@navigate="navigateToSection"
 		@logout="handleLogout"
-		@logo-click="navigateToSection('overview')"
+		@logo-click="navigateToSection('residents')"
 	>
-		<ResidentsSection v-if="activeSection === 'residents'" />
-		<MaintenanceRequestsSection v-else-if="activeSection === 'maintenance'" />
+		<MansionResidentsManager
+			v-if="activeSection === 'residents'"
+			:mansion-id="mansionId"
+			@residents-loaded="totalResidents = $event"
+		/>
 
-		<!-- Placeholder sections -->
-		<div v-else class="section">
-			<h2>{{ $t(`mansion.${activeSection}.title`) }}</h2>
-			<p>{{ $t('dashboard.comingSoon') }}</p>
-		</div>
+		<MansionDocumentsManager
+			v-if="activeSection === 'documents'"
+			:mansion-id="mansionId"
+			:user="user"
+			:total-residents="totalResidents"
+		/>
+
+		<MansionBookingsManager
+			v-if="activeSection === 'bookings'"
+			:mansion-id="mansionId"
+		/>
+
+		<MansionAnnouncementsManager
+			v-if="activeSection === 'announcements'"
+			:mansion-id="mansionId"
+			:user="user"
+			:total-residents="totalResidents"
+		/>
 	</DashboardLayout>
 </template>
 <script>
+import { MANSION_ADMIN_MENU_ITEMS } from '../constants/dashboardMenus'
 import * as store from '../store'
-
-const MENU_ITEMS = [
-	{ id: 'overview', icon: '📊' },
-	{ id: 'residents', icon: '👥' },
-	{ id: 'maintenance', icon: '🔧' },
-	{ id: 'bookings', icon: '📅' },
-	{ id: 'announcements', icon: '📢' },
-	{ id: 'documents', icon: '📄' },
-	{ id: 'financial', icon: '💰' },
-	{ id: 'reports', icon: '📈' },
-	{ id: 'services', icon: '🛎️' },
-	{ id: 'settings', icon: '⚙️' }
-]
 
 export default {
 	name: 'MansionAdminDashboard',
@@ -42,36 +46,50 @@ export default {
 	},
 	data() {
 		return {
-			buildingName: 'Dresser Tower'
+			menuItems: MANSION_ADMIN_MENU_ITEMS,
+			totalResidents: 0
 		}
 	},
 	computed: {
 		user() {
 			return store.user.value
 		},
+		mansionId() {
+			return store.mansionId.value
+		},
+		buildingName() {
+			return this.user?.mansionName || 'Building Dashboard'
+		},
 		activeSection() {
-			return this.routeParams?.section || 'overview'
+			return this.routeParams?.section || 'residents'
 		},
 		menuItemsWithLabels() {
-			return MENU_ITEMS.map( item => ( {
+			return this.menuItems.map( item => ( {
 				...item,
 				label: this.$t( `mansion.menu.${item.id}` )
 			} ) )
 		}
 	},
-	watch: {
-		activeSection() {
-			this.$nextTick( () => {
-				document.querySelector( '#app' )?.scrollTo( 0, 0 )
-			} )
-		}
-	},
-	mounted() {
+	async mounted() {
 		document.querySelector( '#app' )?.scrollTo( 0, 0 )
+
+		// Security: Verify user has mansion admin/manager/admin role
+		if ( !store.isAuthenticated.value ) {
+			this.$router.push( '/login' )
+			return
+		}
+
+		// H2: Verify role from server, not just localStorage
+		await store.refreshUserRole()
+
+		const allowedRoles = ['admin', 'manager', 'mansion_admin']
+		if ( !store.userRoles.value.some( r => allowedRoles.includes( r ) ) ) {
+			this.$router.push( '/dashboard' )
+		}
 	},
 	methods: {
 		navigateToSection( section ) {
-			this.$router.push( `/mansion-admin/${section}` )
+			this.$router.push( `/mansion-dashboard/${section}` )
 		},
 		handleLogout() {
 			store.logout()
@@ -80,11 +98,3 @@ export default {
 	}
 }
 </script>
-<style lang="stylus" scoped>
-.section
-	padding 2rem
-	background white
-	border-radius 12px
-	h2
-		margin-bottom 1rem
-</style>

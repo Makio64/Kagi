@@ -50,6 +50,7 @@ class Backend {
 					avatar: 'https://i.pravatar.cc/150?u=admin',
 					phone: '+81-3-1234-5678'
 				},
+				roles: ['admin'],
 				role: 'admin',
 				permissions: ['*'],
 				settings: { theme: 'dark', language: 'en', notifications: true },
@@ -64,7 +65,8 @@ class Backend {
 					phone: '+81-3-2345-6789',
 					unit: 'Office'
 				},
-				role: 'manager',
+				roles: ['mansion_admin', 'resident'],
+				role: 'mansion_admin',
 				permissions: ['manage_residents', 'manage_facilities', 'view_analytics'],
 				settings: { theme: 'light', language: 'ja', notifications: true },
 				metadata: { lastLogin: now - 3600000, created: now - 60 * 24 * 60 * 60 * 1000 }
@@ -77,6 +79,7 @@ class Backend {
 				unit: '2704',
 				mansionName: 'Dresser Tower',
 				avatar: 'https://i.pravatar.cc/150?u=john',
+				roles: ['resident'],
 				role: 'resident',
 				permissions: ['view_bills', 'book_facilities', 'submit_maintenance'],
 				settings: { theme: 'light', language: 'en', notifications: true },
@@ -90,6 +93,7 @@ class Backend {
 				unit: 'B-302',
 				mansionName: 'Dresser Tower',
 				avatar: 'https://i.pravatar.cc/150?u=yuki',
+				roles: ['resident'],
 				role: 'resident',
 				permissions: ['view_bills', 'book_facilities', 'submit_maintenance'],
 				settings: { theme: 'auto', language: 'ja', notifications: false },
@@ -372,19 +376,96 @@ class Backend {
 				id: 'ann_001',
 				type: 'announcement',
 				title: 'Elevator Maintenance Notice',
-				description: 'The main elevator will be under maintenance on December 15th from 9:00 to 17:00',
-				status: 'active',
+				description: 'The main elevator will be under maintenance on December 15th from 9:00 to 17:00. Please use the secondary elevator or stairs during this period. We apologize for any inconvenience.',
+				status: 'published',
 				priority: 'high',
 				tags: ['maintenance', 'elevator'],
 				creator: users[1],
 				dates: {
-					created: now - 2 * 24 * 60 * 60 * 1000,
-					updated: now - 2 * 24 * 60 * 60 * 1000,
-					expires: now + 5 * 24 * 60 * 60 * 1000
+					created: now - 5 * 24 * 60 * 60 * 1000,
+					updated: now - 4 * 24 * 60 * 60 * 1000,
+					expires: now + 10 * 24 * 60 * 60 * 1000
 				},
 				metadata: {
-					affectedFloors: ['all'],
-					alternativeRoute: 'Please use the emergency stairs or secondary elevator'
+					review: {
+						submittedAt: new Date( now - 5 * 24 * 60 * 60 * 1000 ).toISOString(),
+						aiSuggestions: [],
+						aiReviewedAt: new Date( now - 5 * 24 * 60 * 60 * 1000 ).toISOString()
+					},
+					approvals: [{ userId: 'usr_admin_001', userName: 'Admin User', approvedAt: new Date( now - 4 * 24 * 60 * 60 * 1000 ).toISOString() }],
+					comments: [],
+					readTracking: { totalResidents: 45, readCount: 32 },
+					publishedAt: new Date( now - 4 * 24 * 60 * 60 * 1000 ).toISOString(),
+					publishedBy: 'usr_manager_001'
+				}
+			},
+			{
+				id: 'ann_002',
+				type: 'announcement',
+				title: 'Pool Cleaning Schedule Update',
+				description: 'The pool cleaning schedule has been updated for January. Pool will be cleaned every Monday and Thursday morning.',
+				status: 'draft',
+				priority: 'medium',
+				tags: ['pool', 'schedule'],
+				creator: users[1],
+				dates: {
+					created: now - 1 * 24 * 60 * 60 * 1000,
+					updated: now - 1 * 24 * 60 * 60 * 1000
+				},
+				metadata: {
+					review: null,
+					approvals: [],
+					comments: [],
+					readTracking: null
+				}
+			},
+			{
+				id: 'ann_003',
+				type: 'announcement',
+				title: 'New Year Party Invitation',
+				description: 'Join us for the annual New Year celebration in the party room! Food and drinks will be provide. All residents are welcome to attend with their familys. The event starts at 7 PM.',
+				status: 'in_review',
+				priority: 'medium',
+				tags: ['event', 'community'],
+				creator: users[1],
+				dates: {
+					created: now - 3 * 24 * 60 * 60 * 1000,
+					updated: now - 2 * 24 * 60 * 60 * 1000
+				},
+				metadata: {
+					review: {
+						submittedAt: new Date( now - 2 * 24 * 60 * 60 * 1000 ).toISOString(),
+						aiSuggestions: [
+							{
+								id: 'sug_1',
+								type: 'grammar',
+								original: 'will be provide',
+								suggested: 'will be provided',
+								applied: false,
+								dismissedAt: null
+							},
+							{
+								id: 'sug_2',
+								type: 'grammar',
+								original: 'their familys',
+								suggested: 'their families',
+								applied: false,
+								dismissedAt: null
+							}
+						],
+						aiReviewedAt: new Date( now - 2 * 24 * 60 * 60 * 1000 ).toISOString()
+					},
+					approvals: [],
+					comments: [
+						{
+							id: 'cmt_1',
+							authorId: 'usr_admin_001',
+							authorName: 'Admin User',
+							text: 'Should we add a note about the dress code?',
+							createdAt: new Date( now - 1 * 24 * 60 * 60 * 1000 ).toISOString()
+						}
+					],
+					readTracking: null
 				}
 			}
 		]
@@ -492,6 +573,7 @@ class Backend {
 						unit: role === 'resident' ? '2704' : 'Office',
 						mansionName: 'Dresser Tower',
 						avatar: `https://i.pravatar.cc/150?u=${email}`,
+						roles: [role],
 						role: role,
 						permissions: role === 'admin' ? ['*'] :
 							role === 'manager' ? ['manage_residents', 'manage_facilities', 'view_analytics'] :
@@ -602,6 +684,32 @@ class Backend {
 				throw this.createError( 'Invalid or expired token', 401 )
 			}
 		}
+	}
+
+	// Switch active role for current user
+	async switchRole( newRole ) {
+		await this.delay()
+
+		const currentUser = this.getStoredData( 'currentUser' )
+		if ( !currentUser ) throw this.createError( 'Not authenticated', 401 )
+
+		const userRoles = currentUser.roles || [currentUser.role]
+		if ( !userRoles.includes( newRole ) ) {
+			throw this.createError( 'Cannot switch to a role not assigned to you', 403 )
+		}
+
+		currentUser.role = newRole
+		this.setStoredData( 'currentUser', currentUser )
+
+		// Update in users list too
+		const users = this.getStoredData( 'users' ) || []
+		const userIndex = users.findIndex( u => u.id === currentUser.id )
+		if ( userIndex !== -1 ) {
+			users[userIndex].role = newRole
+			this.setStoredData( 'users', users )
+		}
+
+		return this.createResponse( currentUser )
 	}
 
 	// Generic query method
@@ -833,7 +941,8 @@ class Backend {
 		const announcements = this.getStoredData( 'announcements' ) || []
 
 		// Filter by user if not admin/manager
-		const isAdmin = ['admin', 'manager'].includes( currentUser.role )
+		const userRoles = currentUser.roles || [currentUser.role]
+		const isAdmin = userRoles.some( r => ['admin', 'manager', 'mansion_admin'].includes( r ) )
 
 		const userBookings = isAdmin ? bookings :
 			bookings.filter( b => b.creator.id === currentUser.id )
@@ -881,7 +990,8 @@ class Backend {
 		await this.delay()
 
 		const currentUser = this.getStoredData( 'currentUser' )
-		if ( !currentUser || !['admin', 'manager'].includes( currentUser.role ) ) {
+		const analyticsRoles = currentUser?.roles || [currentUser?.role]
+		if ( !currentUser || !analyticsRoles.some( r => ['admin', 'manager', 'mansion_admin'].includes( r ) ) ) {
 			throw this.createError( 'Unauthorized', 403 )
 		}
 

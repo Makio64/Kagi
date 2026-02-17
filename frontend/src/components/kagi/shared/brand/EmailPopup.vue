@@ -2,9 +2,6 @@
 	<div v-if="show" class="email-popup-overlay">
 		<div class="email-popup">
 			<div class="email-content-wrapper">
-				<div class="email-icon">
-					📧
-				</div>
 				<h3>{{ $t('login.resident.success.title') }}</h3>
 				<p class="email-text">
 					{{ $t('login.redirecting') }}
@@ -89,18 +86,6 @@ export default {
 	flex-direction column
 	align-items center
 	text-align center
-
-.email-icon
-	font-size 3rem
-	margin-bottom 1.5rem
-	background var(--color-primary-50)
-	width 80px
-	height 80px
-	display flex
-	align-items center
-	justify-content center
-	border-radius 50%
-	box-shadow 0 4px 12px rgba(255, 193, 7, 0.15)
 
 h3
 	font-size 1.5rem

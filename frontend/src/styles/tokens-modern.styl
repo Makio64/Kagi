@@ -69,6 +69,7 @@
 	--gradient-light: linear-gradient(135deg, #FFF9C4 0%, #FFECB3 100%)
 
 	// Modern Spacing Scale (8px base)
+	--space-0: 0
 	--space-1: 0.25rem   // 4px
 	--space-2: 0.5rem    // 8px
 	--space-3: 0.75rem   // 12px
@@ -177,19 +178,6 @@
 	--aspect-portrait: 3 / 4
 	--aspect-landscape: 4 / 3
 	--aspect-ultrawide: 21 / 9
-
-// ========================================
-// Dark Mode Support (future enhancement)
-// ========================================
-@media (prefers-color-scheme: dark)
-	:root
-		--surface-base: var(--color-gray-900)
-		--surface-raised: var(--color-gray-800)
-		--surface-overlay: var(--color-gray-700)
-		--color-text: var(--color-gray-100)
-		--color-text-secondary: var(--color-gray-400)
-		--color-border: var(--color-gray-700)
-		--color-border-light: var(--color-gray-800)
 
 // ========================================
 // Stylus Variables (backward compatibility)

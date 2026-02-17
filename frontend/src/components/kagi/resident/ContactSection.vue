@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">📱 {{ $t('dashboard.menu.contact') }}</h2>
+			<h2 class="section-title">
+				<Icon name="communication" :size="30" color="#FFC107" />
+				{{ $t('dashboard.menu.contact') }}
+			</h2>
 		</div>
 
 		<div class="contact-layout">
@@ -84,17 +87,9 @@
 				<h3>{{ $t('dashboard.contact.title') }}</h3>
 
 				<div class="contact-card">
-					<div class="contact-icon">🏢</div>
-					<div class="contact-details">
-						<h4>{{ $t('contact.officeHours') }}</h4>
-						<p class="contact-value">{{ $t('contact.weekdays') }}</p>
-						<p class="contact-note">{{ $t('contact.officeTime') }}</p>
-						<p class="contact-note">{{ $t('contact.closedWeekends') }}</p>
+					<div class="contact-icon">
+						<Icon name="phone" :size="28" color="#FFC107" />
 					</div>
-				</div>
-
-				<div class="contact-card">
-					<div class="contact-icon">📞</div>
 					<div class="contact-details">
 						<h4>{{ $t('dashboard.profile.phone') }}</h4>
 						<p class="contact-value">03-1234-5678</p>
@@ -103,7 +98,9 @@
 				</div>
 
 				<div class="contact-card">
-					<div class="contact-icon">📧</div>
+					<div class="contact-icon">
+						<Icon name="email" :size="28" color="#FFC107" />
+					</div>
 					<div class="contact-details">
 						<h4>{{ $t('dashboard.profile.email') }}</h4>
 						<p class="contact-value">management@building.com</p>
@@ -111,8 +108,22 @@
 					</div>
 				</div>
 
+				<div class="contact-card">
+					<div class="contact-icon">
+						<Icon name="building" :size="28" color="#FFC107" />
+					</div>
+					<div class="contact-details">
+						<h4>{{ $t('contact.officeHours') }}</h4>
+						<p class="contact-value">{{ $t('contact.weekdays') }}</p>
+						<p class="contact-note">{{ $t('contact.officeTime') }}</p>
+						<p class="contact-note">{{ $t('contact.closedWeekends') }}</p>
+					</div>
+				</div>
+
 				<div class="contact-card emergency">
-					<div class="contact-icon">🚨</div>
+					<div class="contact-icon">
+						<Icon name="warning" :size="28" color="#FFB300" />
+					</div>
 					<div class="contact-details">
 						<h4>{{ $t('dashboard.profile.emergencyContact') }}</h4>
 						<p class="contact-value">080-9999-9999</p>
@@ -285,9 +296,14 @@ export default {
 
 .section-title
 	margin 0
-	font-size 1.75rem
-	font-weight 600
-	color #333
+	font-size var(--text-2xl)
+	font-weight var(--font-semibold)
+	color var(--color-gray-900)
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 
 .contact-layout
 	display grid
@@ -385,8 +401,8 @@ export default {
 
 	&:hover
 		background #e8e8e8
-		border-color #1976D2
-		color #1976D2
+		border-color #FFC107
+		color #FFB300
 
 .chat-input-form
 	display flex
@@ -401,12 +417,12 @@ export default {
 	outline none
 
 	&:focus
-		border-color #1976D2
+		border-color #FFC107
 
 .send-button
 	padding 0.75rem 1rem
-	background #1976D2
-	color white
+	background #FFC107
+	color #333
 	border none
 	border-radius 24px
 	cursor pointer
@@ -416,7 +432,7 @@ export default {
 	transition all 0.2s ease
 
 	&:hover
-		background #1565C0
+		background #FFB300
 
 // Conversations Modal
 .conversations-modal-overlay
@@ -487,7 +503,7 @@ export default {
 
 	&:hover
 		background #f9f9f9
-		border-color #1976D2
+		border-color #FFC107
 
 .conversation-preview
 	h4
@@ -526,26 +542,31 @@ export default {
 		font-weight 600
 
 .contact-card
+	position relative
 	display flex
-	gap 1rem
+	justify-content center
 	padding 1rem
 	background #f9f9f9
 	border-radius 8px
 	margin-bottom 1rem
 
 	&.emergency
-		background #FFF3E0
-		border 1px solid #FFB300
+		background #FFFDE7
+		border 1px solid #FFE082
 
 	&:last-child
 		margin-bottom 0
 
 .contact-icon
-	font-size 2rem
-	flex-shrink 0
+	position absolute
+	top 16px
+	left 16px
+	display flex
+	align-items center
+	justify-content center
 
 .contact-details
-	flex 1
+	text-align center
 
 	h4
 		margin 0 0 0.5rem 0
@@ -556,7 +577,7 @@ export default {
 	.contact-value
 		margin 0 0 0.25rem 0
 		font-size 1rem
-		color #1976D2
+		color #FFB300
 		font-weight 600
 
 	.contact-note

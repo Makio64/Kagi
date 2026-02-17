@@ -1,7 +1,10 @@
 <template>
 	<section class="section">
 		<div class="section-header">
-			<h2 class="section-title">🧾 {{ $t('dashboard.menu.receipts') }}</h2>
+			<h2 class="section-title">
+				<Icon name="receipt" :size="30" color="#FFC107" />
+				{{ $t('dashboard.menu.receipts') }}
+			</h2>
 		</div>
 
 		<div class="receipts-container">
@@ -10,6 +13,7 @@
 					v-for="receipt in mockReceipts"
 					:key="receipt.id"
 					class="receipt-item"
+					@click="openReceiptMobile(receipt)"
 				>
 					<div class="receipt-content">
 						<div class="receipt-main">
@@ -24,7 +28,7 @@
 							</div>
 						</div>
 						<button class="details-btn-small" @click="openReceipt(receipt)">
-							{{ $t('dashboard.receipts.details') }}
+							{{ $t('dashboard.receipts.details') }} →
 						</button>
 					</div>
 				</div>
@@ -102,6 +106,11 @@ export default {
 		openReceipt( receipt ) {
 			this.selectedReceipt = receipt
 		},
+		openReceiptMobile( receipt ) {
+			if ( window.innerWidth <= 768 ) {
+				this.selectedReceipt = receipt
+			}
+		},
 		closeReceipt() {
 			this.selectedReceipt = null
 		}
@@ -121,6 +130,11 @@ export default {
 	font-size 1.75rem
 	font-weight 600
 	color #333
+	display flex
+	align-items center
+	gap 0.5rem
+	justify-content center
+
 
 .receipts-container
 	padding 0 2rem 3rem 2rem
@@ -191,19 +205,21 @@ export default {
 
 .details-btn-small
 	padding 0.5rem 1.25rem
-	background transparent
-	color #1976D2
-	border 1px solid #e0e0e0
-	border-radius 6px
+	background linear-gradient(135deg, #FFC107 0%, #FFB300 100%)
+	color #333
+	border none
+	border-radius 25px
 	font-size 0.85rem
-	font-weight 500
+	font-weight 600
 	cursor pointer
-	transition all 0.2s ease
+	transition all 0.25s ease
 	white-space nowrap
+	box-shadow 0 3px 10px rgba(255, 193, 7, 0.25)
 
 	&:hover
-		background #f5f5f5
-		border-color #1976D2
+		background linear-gradient(135deg, #FFB300 0%, #FFA000 100%)
+		transform translateY(-2px)
+		box-shadow 0 5px 15px rgba(255, 193, 7, 0.35)
 
 // Receipt Modal
 .receipt-modal-overlay
@@ -212,7 +228,7 @@ export default {
 	left 0
 	right 0
 	bottom 0
-	background rgba(0, 0, 0, 0.5)
+	background linear-gradient(to bottom, rgba(255, 248, 225, 0.95) 0%, rgba(255, 224, 130, 0.9) 100%)
 	display flex
 	align-items center
 	justify-content center
@@ -226,7 +242,7 @@ export default {
 	width 100%
 	padding 2rem
 	position relative
-	box-shadow 0 20px 60px rgba(0, 0, 0, 0.3)
+	box-shadow 0 8px 24px rgba(0, 0, 0, 0.12)
 
 .close-modal-btn
 	position absolute
@@ -260,7 +276,7 @@ export default {
 		color #333
 
 	.receipt-number
-		color #666
+		color #FFC107
 		font-size 0.9rem
 
 .receipt-details
@@ -283,6 +299,9 @@ export default {
 				font-size 1.2rem
 				font-weight 700
 
+			.detail-value
+				color #FFC107
+
 	.detail-label
 		color #666
 		font-weight 500
@@ -290,9 +309,6 @@ export default {
 	.detail-value
 		color #333
 		font-weight 600
-
-		.total &
-			color #4CAF50
 
 .modal-fade-enter-active, .modal-fade-leave-active
 	transition all 0.3s ease
@@ -305,10 +321,13 @@ export default {
 	transform scale(0.9)
 
 @media (max-width: 768px)
+	.receipt-item
+		cursor pointer
+
 	.receipt-content
 		flex-direction column
-		align-items stretch
-		gap 0.75rem
+		align-items flex-start
+		gap 0.5rem
 
 	.receipt-info
 		flex-direction column
@@ -320,5 +339,5 @@ export default {
 		gap 0.5rem
 
 	.details-btn-small
-		width 100%
+		display none
 </style>

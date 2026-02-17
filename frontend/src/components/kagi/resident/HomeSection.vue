@@ -168,7 +168,7 @@ h3
 
 @media (max-width: 768px)
 	.home-section
-		padding var(--space-2)
+		padding var(--space-6)
 
 	.home-welcome
 		margin-bottom var(--space-6)

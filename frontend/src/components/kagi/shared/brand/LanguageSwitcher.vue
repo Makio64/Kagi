@@ -1,7 +1,8 @@
 <template>
-	<div class="language-switcher">
+	<div :class="['language-switcher', { 'language-switcher--compact': variant === 'compact' }]">
 		<button class="language-button" @click="toggleDropdown">
-			<Icon name="globe" :size="18" />
+			<Icon v-if="variant === 'compact'" name="globe" :size="18" />
+			<span v-else class="language-label">{{ currentLanguageLabel }}</span>
 			<span class="arrow">{{ isOpen ? '▲' : '▼' }}</span>
 		</button>
 		<div v-if="isOpen" class="language-dropdown">
@@ -20,6 +21,13 @@
 import { loadTranslations } from 'vue-tiny-translation'
 export default {
 	name: 'LanguageSwitcher',
+	props: {
+		variant: {
+			type: String,
+			default: 'full',
+			validator: ( value ) => ['compact', 'full'].includes( value )
+		}
+	},
 	data() {
 		return {
 			isOpen: false,
@@ -67,45 +75,82 @@ export default {
 <style lang="stylus" scoped>
 .language-switcher
 	position relative
-	display inline-block
+	width 100%
 .language-button
 	display flex
 	align-items center
-	gap 0.5rem
+	justify-content space-between
+	width 100%
 	padding 0.5rem 1rem
-	background white
-	border 2px solid #FFC107
-	border-radius 25px
+	background rgba(0, 0, 0, 0.05)
+	border none
+	border-radius 8px
 	cursor pointer
-	font-size 0.9rem
-	transition all 0.3s ease
+	font-size 0.875rem
+	font-weight 500
+	color #616161
+	transition all 0.2s ease
 	&:hover
-		background #FFF9C4
+		background rgba(0, 0, 0, 0.08)
+		color #424242
+	.language-label
+		flex 1
+		text-align center
 	.arrow
-		font-size 0.7rem
-		color #666
+		font-size 0.6rem
+		color #888
 .language-dropdown
 	position absolute
 	top calc(100% + 0.5rem)
+	left 0
 	right 0
 	background white
-	border 2px solid #FFC107
-	border-radius 10px
+	border 1px solid #e0e0e0
+	border-radius 8px
 	overflow hidden
-	box-shadow 0 4px 10px rgba(0,0,0,0.1)
-	min-width 150px
+	box-shadow 0 4px 12px rgba(0,0,0,0.1)
 	z-index 1000
 .language-option
 	width 100%
-	padding 0.75rem 1rem
+	padding 0.625rem 1rem
 	border none
 	background white
 	cursor pointer
 	text-align left
-	transition all 0.3s ease
+	font-size 0.875rem
+	color #616161
+	transition all 0.2s ease
 	&:hover
-		background #FFF9C4
+		background rgba(0, 0, 0, 0.05)
 	&.active
 		background #FFC107
+		color #333
 		font-weight 600
+
+// Compact variant (for login page)
+.language-switcher--compact
+	display inline-block
+	width auto
+	.language-button
+		gap 0.5rem
+		width auto
+		padding 0.5rem 1rem
+		background white
+		border 2px solid #FFC107
+		border-radius 25px
+		justify-content flex-start
+		&:hover
+			background #FFF9C4
+		.arrow
+			font-size 0.7rem
+			color #666
+	.language-dropdown
+		min-width 150px
+		left auto
+		border 2px solid #FFC107
+		border-radius 10px
+	.language-option
+		padding 0.75rem 1rem
+		&:hover
+			background #FFF9C4
 </style>

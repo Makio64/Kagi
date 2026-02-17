@@ -6,12 +6,17 @@
 		:menu-items="menuItemsWithLabels"
 		:active-section="activeSection"
 		@navigate="navigateToSection"
-		@logout="store.logout()"
+		@logout="handleLogout"
 		@logo-click="navigateToSection('overview')"
 	>
 		<div class="admin-dashboard-content">
 			<!-- Overview Section -->
-			<AdminOverviewSection v-if="activeSection === 'overview'" />
+			<AdminOverviewSection
+				v-if="activeSection === 'overview'"
+				:stats="overviewStats"
+				:trends="overviewTrends"
+				:recent-activities="recentActivities"
+			/>
 
 			<!-- Buildings Management -->
 			<section v-if="activeSection === 'buildings'" class="section">
@@ -26,27 +31,44 @@
 					</template>
 				</SectionHeader>
 
-				<div class="buildings-list">
+				<div v-if="isLoadingBuildings" class="loading-state">
+					<p>{{ $t('common.loading') || 'Loading...' }}</p>
+				</div>
+
+				<div v-else-if="buildings.length === 0" class="empty-state">
+					<p>{{ $t('admin.buildings.empty') }}</p>
+					<KButton variant="primary" @click="showAddBuildingModal = true">
+						{{ $t('admin.buildings.add') }}
+					</KButton>
+				</div>
+
+				<div v-else class="buildings-list">
 					<KCard
 						v-for="building in buildings"
 						:key="building.id"
 						:title="building.name"
 						variant="default"
 						outlined
+						hoverable
+						clickable
+						@click="openBuildingDetail(building)"
 					>
 						<template #badge>
 							<span class="building-status" :class="building.status">{{ building.status }}</span>
 						</template>
 						<div class="building-info">
-							<p><strong>{{ $t('admin.buildings.address') }}:</strong> {{ building.address }}</p>
-							<p><strong>{{ $t('admin.buildings.units') }}:</strong> {{ building.units }}</p>
-							<p><strong>{{ $t('admin.buildings.occupancy') }}:</strong> {{ building.occupancy }}%</p>
+							<p><strong>{{ $t('admin.buildings.address') }}:</strong> {{ building.address || '-' }}</p>
+							<p><strong>{{ $t('admin.buildings.units') }}:</strong> {{ building.units || 0 }}</p>
+							<p><strong>{{ $t('admin.buildings.occupancy') }}:</strong> {{ building.occupancy || 0 }}%</p>
 						</div>
 						<template #footer>
 							<div class="building-actions">
-								<KButton size="sm" variant="secondary">{{ $t('common.edit') }}</KButton>
-								<KButton size="sm" variant="primary">{{ $t('admin.buildings.manage') }}</KButton>
-								<KButton size="sm" variant="danger">{{ $t('common.delete') }}</KButton>
+								<KButton size="sm" variant="secondary" @click.stop="openEditBuildingModal(building)">
+									{{ $t('common.edit') }}
+								</KButton>
+								<KButton size="sm" variant="danger" @click.stop="confirmDeleteBuilding(building)">
+									{{ $t('common.delete') }}
+								</KButton>
 							</div>
 						</template>
 					</KCard>
@@ -58,43 +80,158 @@
 				<SectionHeader
 					:title="$t('admin.users.title')"
 					icon="👥"
-					searchable
-					search-placeholder="Search users..."
 				>
 					<template #actions>
-						<KButton variant="primary" icon="➕">
+						<KButton variant="primary" icon="➕" @click="openInviteUserModal">
 							{{ $t('admin.users.invite') }}
 						</KButton>
 					</template>
 				</SectionHeader>
 
-				<KCard elevated no-padding>
+				<!-- Filter Bar -->
+				<div class="users-filter-bar">
+					<div class="filter-search">
+						<input
+							v-model="userFilters.search"
+							type="search"
+							class="search-input"
+							:placeholder="$t('admin.users.searchPlaceholder')"
+							@input="handleUserSearch($event.target.value)"
+						>
+					</div>
+
+					<div class="filter-group">
+						<label class="filter-label">{{ $t('admin.users.role') }}</label>
+						<select
+							v-model="userFilters.role"
+							class="filter-select"
+							@change="handleRoleFilter(userFilters.role)"
+						>
+							<option :value="null">{{ $t('admin.users.allRoles') }}</option>
+							<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+								{{ role.label }}
+							</option>
+						</select>
+					</div>
+
+					<div class="filter-group">
+						<label class="filter-label">{{ $t('admin.users.building') }}</label>
+						<select
+							v-model="userFilters.mansionId"
+							class="filter-select"
+							@change="handleBuildingFilter(userFilters.mansionId)"
+						>
+							<option :value="null">{{ $t('admin.users.allBuildings') }}</option>
+							<option v-for="building in buildings" :key="building.id" :value="building.id">
+								{{ building.name }}
+							</option>
+						</select>
+					</div>
+
+					<KButton
+						v-if="hasActiveFilters"
+						variant="ghost"
+						size="sm"
+						@click="clearUserFilters"
+					>
+						{{ $t('admin.users.clearFilters') }}
+					</KButton>
+				</div>
+
+				<!-- Results Count -->
+				<div v-if="userPagination.total > 0" class="users-results-info">
+					<span class="results-count">
+						{{ $t('admin.users.showingResults', { start: userResultsStart, end: userResultsEnd, total: userPagination.total }) }}
+					</span>
+				</div>
+
+				<div v-if="isLoadingUsers" class="loading-state">
+					<p>{{ $t('common.loading') }}</p>
+				</div>
+
+				<div v-else-if="users.length === 0" class="empty-state">
+					<p v-if="hasActiveFilters">{{ $t('admin.users.noResults') }}</p>
+					<p v-else>{{ $t('admin.users.empty') }}</p>
+					<KButton v-if="!hasActiveFilters" variant="primary" @click="openInviteUserModal">
+						{{ $t('admin.users.invite') }}
+					</KButton>
+				</div>
+
+				<KCard v-else elevated no-padding>
 					<div class="users-table">
 						<table>
 							<thead>
 								<tr>
-									<th>{{ $t('admin.users.name') }}</th>
-									<th>{{ $t('admin.users.email') }}</th>
+									<th class="sortable-header" @click="handleUserSort('name')">
+										{{ $t('admin.users.name') }}
+										<span v-if="userSort === 'name' || userSort === '-name'" class="sort-indicator">
+											{{ userSort === 'name' ? '▲' : '▼' }}
+										</span>
+									</th>
+									<th class="sortable-header" @click="handleUserSort('email')">
+										{{ $t('admin.users.email') }}
+										<span v-if="userSort === 'email' || userSort === '-email'" class="sort-indicator">
+											{{ userSort === 'email' ? '▲' : '▼' }}
+										</span>
+									</th>
 									<th>{{ $t('admin.users.role') }}</th>
 									<th>{{ $t('admin.users.building') }}</th>
-									<th>{{ $t('admin.users.status') }}</th>
 									<th>{{ $t('admin.users.actions') }}</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr v-for="u in users" :key="u.id">
-									<td>{{ u.name }}</td>
+									<td>{{ u.name || '-' }}</td>
 									<td>{{ u.email }}</td>
-									<td><span class="role-badge" :class="u.role">{{ u.role }}</span></td>
-									<td>{{ u.building }}</td>
-									<td><span class="status-badge" :class="u.status">{{ u.status }}</span></td>
 									<td>
-										<KButton size="xs" icon="✏️" variant="ghost" />
-										<KButton size="xs" icon="🗑️" variant="ghost" />
+										<div class="roles-checkboxes">
+											<label v-for="role in roleOptions" :key="role.value" class="role-checkbox-label">
+												<input
+													type="checkbox"
+													:checked="(u.roles || [u.role]).includes(role.value)"
+													@change="toggleUserRole(u, role.value, $event.target.checked)"
+												>
+												{{ role.label }}
+											</label>
+										</div>
+									</td>
+									<td>{{ u.building }}</td>
+									<td class="actions-cell">
+										<button class="action-btn" @click="openEditUserModal(u)">
+											✏️ {{ $t('common.edit') }}
+										</button>
+										<button class="action-btn action-btn--danger" @click="confirmDeleteUser(u)">
+											🗑️ {{ $t('common.delete') }}
+										</button>
 									</td>
 								</tr>
 							</tbody>
 						</table>
+					</div>
+
+					<!-- Pagination -->
+					<div v-if="userPagination.totalPages > 1" class="pagination">
+						<KButton
+							size="sm"
+							variant="secondary"
+							:disabled="userPagination.page === 1"
+							@click="handleUserPageChange(userPagination.page - 1)"
+						>
+							{{ $t('common.previous') }}
+						</KButton>
+
+						<span class="pagination-info">
+							{{ $t('common.pageOf', { current: userPagination.page, total: userPagination.totalPages }) }}
+						</span>
+
+						<KButton
+							size="sm"
+							variant="secondary"
+							:disabled="userPagination.page >= userPagination.totalPages"
+							@click="handleUserPageChange(userPagination.page + 1)"
+						>
+							{{ $t('common.next') }}
+						</KButton>
 					</div>
 				</KCard>
 			</section>
@@ -110,25 +247,25 @@
 					<StatCard
 						icon="🚨"
 						:label="$t('admin.maintenance.urgent')"
-						:value="8"
+						:value="maintenanceStats.urgent"
 						variant="danger"
 					/>
 					<StatCard
 						icon="⏳"
 						:label="$t('admin.maintenance.pending')"
-						:value="15"
+						:value="maintenanceStats.pending"
 						variant="warning"
 					/>
 					<StatCard
 						icon="🔧"
 						:label="$t('admin.maintenance.inProgress')"
-						:value="12"
+						:value="maintenanceStats.inProgress"
 						variant="info"
 					/>
 					<StatCard
 						icon="✅"
 						:label="$t('admin.maintenance.completed')"
-						:value="142"
+						:value="maintenanceStats.completed"
 						variant="success"
 					/>
 				</div>
@@ -173,26 +310,18 @@
 					<StatCard
 						icon="💵"
 						:label="$t('admin.financial.revenue')"
-						:value="152340000"
+						:value="financialStats.revenue"
 						format="currency"
-						subtext="This Year"
+						:subtext="$t('admin.financial.collected')"
 						variant="primary"
 					/>
 					<StatCard
-						icon="💸"
-						:label="$t('admin.financial.expenses')"
-						:value="98200000"
+						icon="⏳"
+						:label="$t('admin.financial.pending')"
+						:value="financialStats.pending"
 						format="currency"
-						subtext="This Year"
-						variant="secondary"
-					/>
-					<StatCard
-						icon="💰"
-						:label="$t('admin.financial.profit')"
-						:value="54140000"
-						format="currency"
-						subtext="This Year"
-						variant="success"
+						:subtext="$t('admin.financial.outstanding')"
+						variant="warning"
 					/>
 				</div>
 
@@ -212,65 +341,25 @@
 				</KCard>
 			</section>
 
-			<!-- Settings -->
-			<section v-if="activeSection === 'settings'" class="section">
-				<SectionHeader
-					:title="$t('admin.settings.title')"
-					icon="⚙️"
+			<!-- Building Detail Section -->
+			<section v-if="activeSection === 'building-detail'" class="section">
+				<BuildingDetailSection
+					v-if="selectedBuilding"
+					:building="selectedBuilding"
+					:users="buildingUsers"
+					:loading="isLoadingBuildingUsers"
+					:role-options="roleOptions"
+					:is-saving="isEditingBuilding"
+					:is-inviting="isInvitingUser"
+					:is-adding-user="isAddingExistingUser"
+					@back="goBackToBuildings"
+					@update-building="handleUpdateBuilding"
+					@invite-user="handleInviteUserToBuilding"
+					@add-existing-user="handleAddExistingUser"
+					@update-user="handleUpdateBuildingUser"
+					@edit-user="openEditUserModal"
+					@delete-user="confirmDeleteUser"
 				/>
-
-				<div class="settings-sections">
-					<KCard
-						:title="$t('admin.settings.notifications')"
-						icon="🔔"
-						outlined
-					>
-						<div class="setting-item">
-							<label>
-								<input type="checkbox" checked>
-								{{ $t('admin.settings.emailNotifications') }}
-							</label>
-						</div>
-						<div class="setting-item">
-							<label>
-								<input type="checkbox" checked>
-								{{ $t('admin.settings.dailyReports') }}
-							</label>
-						</div>
-					</KCard>
-
-					<KCard
-						:title="$t('admin.settings.security')"
-						icon="🔐"
-						outlined
-					>
-						<div class="setting-item">
-							<label>{{ $t('admin.settings.twoFactor') }}</label>
-							<KButton size="sm" variant="primary">
-								{{ $t('admin.settings.enable') }}
-							</KButton>
-						</div>
-						<div class="setting-item">
-							<label>{{ $t('admin.settings.sessionTimeout') }}</label>
-							<select>
-								<option>30 minutes</option>
-								<option>1 hour</option>
-								<option>2 hours</option>
-							</select>
-						</div>
-					</KCard>
-
-					<KCard
-						:title="$t('admin.settings.appearance')"
-						icon="🎨"
-						outlined
-					>
-						<div class="setting-item">
-							<label>{{ $t('common.language') }}</label>
-							<LanguageSwitcher />
-						</div>
-					</KCard>
-				</div>
 			</section>
 
 		</div>
@@ -334,6 +423,13 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label for="building-tier">{{ $t('admin.buildings.subscriptionTier') }}</label>
+					<select id="building-tier" v-model="newBuilding.subscriptionTier">
+						<option value="standard">{{ $t('admin.buildings.standard') }} (¥100/unit)</option>
+						<option value="professional">{{ $t('admin.buildings.professional') }} (¥300/unit)</option>
+					</select>
+				</div>
+				<div class="form-group">
 					<label>{{ $t('admin.buildings.facilities') }}</label>
 					<div class="facilities-checkboxes">
 						<label class="checkbox-label">
@@ -382,12 +478,235 @@
 				</KButton>
 			</template>
 		</KModal>
+
+		<!-- Edit Building Modal -->
+		<KModal
+			v-model="showEditBuildingModal"
+			:title="$t('admin.buildings.edit') || 'Edit Building'"
+			size="medium"
+		>
+			<form v-if="editingBuilding" @submit.prevent="updateBuilding">
+				<div class="form-group">
+					<label for="edit-building-name">{{ $t('admin.buildings.name') }} *</label>
+					<input
+						id="edit-building-name"
+						v-model="editingBuilding.name"
+						type="text"
+						required
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-building-address">{{ $t('admin.buildings.address') }} *</label>
+					<input
+						id="edit-building-address"
+						v-model="editingBuilding.address"
+						type="text"
+						required
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-building-description">{{ $t('admin.buildings.description') }}</label>
+					<textarea
+						id="edit-building-description"
+						v-model="editingBuilding.description"
+						rows="3"
+					/>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label for="edit-building-units">{{ $t('admin.buildings.totalUnits') }}</label>
+						<input
+							id="edit-building-units"
+							v-model.number="editingBuilding.units"
+							type="number"
+							min="1"
+						>
+					</div>
+					<div class="form-group">
+						<label for="edit-building-floors">{{ $t('admin.buildings.floors') }}</label>
+						<input
+							id="edit-building-floors"
+							v-model.number="editingBuilding.floors"
+							type="number"
+							min="1"
+						>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="edit-building-tier">{{ $t('admin.buildings.subscriptionTier') }}</label>
+					<select id="edit-building-tier" v-model="editingBuilding.subscriptionTier">
+						<option value="standard">{{ $t('admin.buildings.standard') }} (¥100/unit)</option>
+						<option value="professional">{{ $t('admin.buildings.professional') }} (¥300/unit)</option>
+					</select>
+				</div>
+			</form>
+
+			<template #footer>
+				<KButton variant="secondary" @click="showEditBuildingModal = false">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="primary" :loading="isEditingBuilding" @click="updateBuilding">
+					{{ $t('common.save') }}
+				</KButton>
+			</template>
+		</KModal>
+
+		<!-- Invite User Modal -->
+		<KModal
+			v-model="showInviteUserModal"
+			:title="$t('admin.users.inviteNew') || 'Invite User'"
+			size="medium"
+		>
+			<form @submit.prevent="inviteUser">
+				<div class="form-group">
+					<label for="invite-email">{{ $t('admin.users.email') }} *</label>
+					<input
+						id="invite-email"
+						v-model="newUser.email"
+						type="email"
+						required
+						placeholder="user@example.com"
+					>
+				</div>
+				<div class="form-group">
+					<label for="invite-name">{{ $t('admin.users.name') }}</label>
+					<input
+						id="invite-name"
+						v-model="newUser.name"
+						type="text"
+						placeholder="John Doe"
+					>
+				</div>
+				<div class="form-group">
+					<label>{{ $t('admin.users.role') }} *</label>
+					<div class="roles-checkboxes">
+						<label v-for="role in roleOptions" :key="role.value" class="role-checkbox-label">
+							<input
+								type="checkbox"
+								:checked="newUser.roles.includes(role.value)"
+								@change="toggleNewUserRole(role.value, $event.target.checked)"
+							>
+							{{ role.label }}
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="invite-mansion">{{ $t('admin.users.building') }}</label>
+					<select id="invite-mansion" v-model="newUser.mansionId">
+						<option :value="null">{{ $t('common.none') || '-- None --' }}</option>
+						<option v-for="building in buildings" :key="building.id" :value="building.id">
+							{{ building.name }}
+						</option>
+					</select>
+				</div>
+				<p class="help-text">
+					{{ $t('admin.users.inviteHelp') || 'An email with a magic link will be sent to this address.' }}
+				</p>
+			</form>
+
+			<template #footer>
+				<KButton variant="secondary" @click="showInviteUserModal = false">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="primary" :loading="isInvitingUser" @click="inviteUser">
+					{{ $t('admin.users.sendInvite') || 'Send Invitation' }}
+				</KButton>
+			</template>
+		</KModal>
+
+		<!-- Edit User Modal -->
+		<KModal
+			v-model="showEditUserModal"
+			:title="$t('admin.users.editUser')"
+		>
+			<form class="modal-form" @submit.prevent="saveEditUser">
+				<div class="form-group">
+					<label>{{ $t('admin.users.email') }}</label>
+					<input
+						type="email"
+						:value="editingUser?.email"
+						disabled
+						class="input-disabled"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-name">{{ $t('admin.users.name') }}</label>
+					<input
+						id="edit-name"
+						v-model="editUserForm.name"
+						type="text"
+						:placeholder="$t('admin.users.name')"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-mansion">{{ $t('admin.users.building') }}</label>
+					<select id="edit-mansion" v-model="editUserForm.mansionId">
+						<option :value="null">{{ $t('admin.users.noBuilding') }}</option>
+						<option v-for="building in buildings" :key="building.id" :value="building.id">
+							{{ building.name }}
+						</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="edit-unit">{{ $t('admin.users.unit') }}</label>
+					<input
+						id="edit-unit"
+						v-model="editUserForm.unit"
+						type="text"
+						:placeholder="$t('admin.users.unitPlaceholder')"
+					>
+				</div>
+				<div class="form-group">
+					<label for="edit-phone">{{ $t('admin.users.phone') }}</label>
+					<input
+						id="edit-phone"
+						v-model="editUserForm.phone"
+						type="tel"
+						:placeholder="$t('admin.users.phonePlaceholder')"
+					>
+				</div>
+			</form>
+
+			<template #footer>
+				<KButton variant="secondary" @click="showEditUserModal = false">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="primary" :loading="isEditingUser" @click="saveEditUser">
+					{{ $t('common.save') }}
+				</KButton>
+			</template>
+		</KModal>
+
+		<!-- Delete Confirmation Modal -->
+		<KModal
+			v-model="showDeleteConfirm"
+			:title="$t('common.confirmDelete') || 'Confirm Delete'"
+			size="small"
+		>
+			<p v-if="deleteType === 'building'">
+				{{ $t('admin.buildings.deleteConfirm') || 'Are you sure you want to delete this building?' }}
+				<strong>{{ deleteTarget?.name }}</strong>
+			</p>
+			<p v-else-if="deleteType === 'user'">
+				{{ $t('admin.users.deleteConfirm') || 'Are you sure you want to remove this user?' }}
+				<strong>{{ deleteTarget?.email }}</strong>
+			</p>
+
+			<template #footer>
+				<KButton variant="secondary" @click="cancelDelete">
+					{{ $t('common.cancel') }}
+				</KButton>
+				<KButton variant="danger" :loading="isDeletingItem" @click="confirmDelete">
+					{{ $t('common.delete') }}
+				</KButton>
+			</template>
+		</KModal>
 	</DashboardLayout>
 </template>
 
 <script>
 import { ADMIN_MENU_ITEMS } from '../constants/dashboardMenus'
-import * as MockData from '../services/MockData'
+import backend from '../services/SupabaseBackend'
 import * as store from '../store'
 
 export default {
@@ -395,8 +714,23 @@ export default {
 	data() {
 		return {
 			activeSection: 'overview',
+			// Loading states
+			isLoading: false,
+			isLoadingBuildings: false,
+			isLoadingUsers: false,
+			// Modal states
 			showAddBuildingModal: false,
+			showEditBuildingModal: false,
+			showInviteUserModal: false,
+			showEditUserModal: false,
+			showDeleteConfirm: false,
+			// Form states
 			isAddingBuilding: false,
+			isEditingBuilding: false,
+			isInvitingUser: false,
+			isEditingUser: false,
+			isDeletingItem: false,
+			// Building form
 			newBuilding: {
 				name: '',
 				address: '',
@@ -404,13 +738,57 @@ export default {
 				units: null,
 				floors: null,
 				facilities: [],
-				rules: ''
+				rules: '',
+				subscriptionTier: 'standard'
 			},
+			editingBuilding: null,
+			// User invitation form
+			newUser: {
+				email: '',
+				name: '',
+				roles: ['mansion_admin'],
+				mansionId: null
+			},
+			// User edit form
+			editingUser: null,
+			editUserForm: {
+				name: '',
+				mansionId: null,
+				unit: '',
+				phone: ''
+			},
+			// Delete confirmation
+			deleteTarget: null,
+			deleteType: null,
+			// Menu config
 			menuItems: ADMIN_MENU_ITEMS,
-			buildings: MockData.getBuildings(),
-			users: MockData.getUsers(),
-			maintenanceRequests: MockData.getAdminMaintenanceRequests(),
-			buildingPayments: MockData.getBuildingPayments()
+			// Data
+			buildings: [],
+			users: [],
+			maintenanceRequests: [],
+			buildingPayments: [],
+			systemStats: null,
+			// User filters
+			userFilters: {
+				search: '',
+				role: null,
+				mansionId: null
+			},
+			userPagination: {
+				page: 1,
+				limit: 25,
+				total: 0,
+				totalPages: 0
+			},
+			userSort: '-createdAt',
+			searchTimeout: null,
+			// Error handling
+			error: null,
+			// Building detail section
+			selectedBuilding: null,
+			buildingUsers: [],
+			isLoadingBuildingUsers: false,
+			isAddingExistingUser: false
 		}
 	},
 	computed: {
@@ -423,48 +801,692 @@ export default {
 		menuItemsWithLabels() {
 			return this.menuItems.map( ( item ) => ( {
 				...item,
-				translationKey: `admin.menu.${item.id}`
+				label: this.$t( `admin.menu.${item.id}` )
 			} ) )
+		},
+		roleOptions() {
+			return [
+				{ value: 'admin', label: this.$t( 'roles.admin' ) },
+				{ value: 'mansion_admin', label: this.$t( 'roles.mansionAdmin' ) },
+				{ value: 'manager', label: this.$t( 'roles.manager' ) },
+				{ value: 'resident', label: this.$t( 'roles.resident' ) }
+			]
+		},
+		hasActiveFilters() {
+			return this.userFilters.search || this.userFilters.role || this.userFilters.mansionId
+		},
+		userResultsStart() {
+			return ( ( this.userPagination.page - 1 ) * this.userPagination.limit ) + 1
+		},
+		userResultsEnd() {
+			return Math.min( this.userPagination.page * this.userPagination.limit, this.userPagination.total )
+		},
+		overviewStats() {
+			if ( !this.systemStats ) {
+				return {
+					buildings: this.buildings.length,
+					residents: this.users.filter( u => u.role === 'resident' ).length,
+					maintenance: 0,
+					revenue: 0
+				}
+			}
+			return {
+				buildings: this.systemStats.buildings?.total || this.buildings.length,
+				residents: this.systemStats.users?.residents || 0,
+				maintenance: this.systemStats.maintenance?.pending || 0,
+				revenue: this.systemStats.revenue?.total || 0
+			}
+		},
+		recentActivities() {
+			// Combine recent data into activity items
+			const activities = []
+			// Add recent buildings
+			this.buildings.slice( 0, 2 ).forEach( b => {
+				activities.push( {
+					id: `building-${b.id}`,
+					icon: '🏢',
+					text: `Building "${b.name}" registered`,
+					time: this.formatTimeAgo( b.createdAt )
+				} )
+			} )
+			// Add recent users
+			this.users.slice( 0, 2 ).forEach( u => {
+				activities.push( {
+					id: `user-${u.id}`,
+					icon: '👤',
+					text: `${u.name || u.email} joined as ${u.role}`,
+					time: this.formatTimeAgo( u.createdAt )
+				} )
+			} )
+			return activities.slice( 0, 5 )
+		},
+		overviewTrends() {
+			const stats = this.systemStats
+			if ( !stats ) {
+				return {
+					buildings: { text: '', positive: true },
+					residents: { text: '', positive: true },
+					maintenance: { text: '', positive: false },
+					revenue: { text: '', positive: true }
+				}
+			}
+			const buildingsThisMonth = stats.buildings?.thisMonth || 0
+			const residentsThisMonth = stats.users?.residentsThisMonth || 0
+			const urgentCount = stats.maintenance?.urgent || 0
+			const percentChange = stats.revenue?.percentChange || 0
+
+			return {
+				buildings: {
+					text: buildingsThisMonth > 0 ? `+${buildingsThisMonth} ${this.$t( 'admin.trends.thisMonth' )}` : '',
+					positive: true
+				},
+				residents: {
+					text: residentsThisMonth > 0 ? `+${residentsThisMonth} ${this.$t( 'admin.trends.thisMonth' )}` : '',
+					positive: true
+				},
+				maintenance: {
+					text: urgentCount > 0 ? `${urgentCount} ${this.$t( 'admin.trends.urgent' )}` : '',
+					positive: false
+				},
+				revenue: {
+					text: percentChange !== 0 ? `${percentChange > 0 ? '+' : ''}${percentChange}%` : '',
+					positive: percentChange >= 0
+				}
+			}
+		},
+		maintenanceStats() {
+			return {
+				urgent: this.systemStats?.maintenance?.urgent || 0,
+				pending: this.systemStats?.maintenance?.pending || 0,
+				inProgress: this.systemStats?.maintenance?.inProgress || 0,
+				completed: this.systemStats?.maintenance?.completed || 0
+			}
+		},
+		financialStats() {
+			return {
+				revenue: this.systemStats?.revenue?.total || 0,
+				pending: this.systemStats?.revenue?.pending || 0
+			}
 		}
 	},
 	watch: {
-		activeSection() {
+		activeSection( newSection ) {
 			this.$nextTick( () => {
 				document.querySelector( '#app' )?.scrollTo( 0, 0 )
 			} )
+			// Load data for the section
+			if ( newSection === 'buildings' ) this.fetchBuildings()
+			if ( newSection === 'users' ) this.fetchUsers()
+			// Note: building-detail data is loaded via openBuildingDetail()
 		}
 	},
-	mounted() {
+	async mounted() {
 		document.querySelector( '#app' )?.scrollTo( 0, 0 )
+
+		// Security: Verify user has admin role
+		if ( !store.isAuthenticated.value ) {
+			this.$router.push( '/login' )
+			return
+		}
+
+		// H2: Verify role from server, not just localStorage
+		await store.refreshUserRole()
+
+		if ( !store.isAdmin.value ) {
+			// Redirect to appropriate dashboard based on role
+			if ( store.isMansionAdmin.value || store.userRole.value === 'manager' ) {
+				this.$router.push( '/mansion-dashboard' )
+			} else {
+				this.$router.push( '/dashboard' )
+			}
+			return
+		}
+
+		// Load initial data
+		await this.loadInitialData()
 	},
 	methods: {
 		navigateToSection( section ) {
 			this.activeSection = section
 		},
-		closeAddBuildingModal() {
-			this.showAddBuildingModal = false
+
+		async handleLogout() {
+			await store.logout()
+			this.$router.push( '/login' )
 		},
+
+		// ==========================================
+		// DATA LOADING
+		// ==========================================
+
+		async loadInitialData() {
+			this.isLoading = true
+			try {
+				await Promise.all( [
+					this.fetchBuildings(),
+					this.fetchUsers(),
+					this.fetchSystemStats()
+				] )
+			} catch ( error ) {
+				console.error( 'Failed to load initial data:', error )
+				this.error = 'Failed to load data'
+			} finally {
+				this.isLoading = false
+			}
+		},
+
+		async fetchBuildings() {
+			this.isLoadingBuildings = true
+			try {
+				const response = await backend.getMansions()
+				if ( response.success ) {
+					this.buildings = response.data.map( b => ( {
+						...b,
+						units: b.totalUnits || 0,
+						subscriptionTier: b.subscriptionTier || 'standard',
+						status: 'active',
+						occupancy: 85 // TODO: Calculate from actual resident count
+					} ) )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch buildings:', error )
+			} finally {
+				this.isLoadingBuildings = false
+			}
+		},
+
+		async fetchUsers() {
+			this.isLoadingUsers = true
+			try {
+				const response = await backend.getUsers( {
+					search: this.userFilters.search || undefined,
+					role: this.userFilters.role || undefined,
+					mansionId: this.userFilters.mansionId || undefined,
+					page: this.userPagination.page,
+					limit: this.userPagination.limit,
+					sort: this.userSort
+				} )
+				if ( response.success ) {
+					this.users = response.data.map( u => ( {
+						...u,
+						building: u.mansionName || '-',
+						status: 'active'
+					} ) )
+					// Update pagination from response
+					this.userPagination.total = response.meta.total
+					this.userPagination.totalPages = response.meta.totalPages
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch users:', error )
+			} finally {
+				this.isLoadingUsers = false
+			}
+		},
+
+		// User filter methods
+		handleUserSearch( value ) {
+			this.userFilters.search = value
+			if ( this.searchTimeout ) {
+				clearTimeout( this.searchTimeout )
+			}
+			this.searchTimeout = setTimeout( () => {
+				this.userPagination.page = 1
+				this.fetchUsers()
+			}, 300 )
+		},
+
+		handleRoleFilter( role ) {
+			this.userFilters.role = role
+			this.userPagination.page = 1
+			this.fetchUsers()
+		},
+
+		handleBuildingFilter( mansionId ) {
+			this.userFilters.mansionId = mansionId
+			this.userPagination.page = 1
+			this.fetchUsers()
+		},
+
+		handleUserSort( field ) {
+			if ( this.userSort === field ) {
+				this.userSort = `-${field}`
+			} else if ( this.userSort === `-${field}` ) {
+				this.userSort = field
+			} else {
+				this.userSort = `-${field}`
+			}
+			this.fetchUsers()
+		},
+
+		handleUserPageChange( page ) {
+			this.userPagination.page = page
+			this.fetchUsers()
+		},
+
+		clearUserFilters() {
+			this.userFilters = {
+				search: '',
+				role: null,
+				mansionId: null
+			}
+			this.userPagination.page = 1
+			this.fetchUsers()
+		},
+
+		async fetchSystemStats() {
+			try {
+				const response = await backend.getSystemStats()
+				if ( response.success ) {
+					this.systemStats = response.data
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch system stats:', error )
+			}
+		},
+
+		// ==========================================
+		// BUILDING CRUD
+		// ==========================================
+
+		resetBuildingForm() {
+			this.newBuilding = {
+				name: '',
+				address: '',
+				description: '',
+				units: null,
+				floors: null,
+				facilities: [],
+				rules: '',
+				subscriptionTier: 'standard'
+			}
+		},
+
 		async addBuilding() {
 			this.isAddingBuilding = true
 			try {
-				// TODO: Implement backend call
-				console.log( 'Adding building:', this.newBuilding )
-				this.showAddBuildingModal = false
-				// Reset form
-				this.newBuilding = {
-					name: '',
-					address: '',
-					description: '',
-					units: null,
-					floors: null,
-					facilities: [],
-					rules: ''
+				const payload = {
+					name: this.newBuilding.name,
+					address: this.newBuilding.address,
+					totalUnits: this.newBuilding.units || 0,
+					subscriptionTier: this.newBuilding.subscriptionTier || 'standard',
+					settings: {
+						description: this.newBuilding.description,
+						floors: this.newBuilding.floors,
+						rules: this.newBuilding.rules
+					},
+					metadata: {
+						facilities: this.newBuilding.facilities
+					}
+				}
+
+				const response = await backend.create( 'mansions', payload )
+				if ( response.success ) {
+					this.showAddBuildingModal = false
+					this.resetBuildingForm()
+					await this.fetchBuildings()
 				}
 			} catch ( error ) {
 				console.error( 'Failed to add building:', error )
+				this.error = error.error?.message || 'Failed to add building'
 			} finally {
 				this.isAddingBuilding = false
 			}
+		},
+
+		openEditBuildingModal( building ) {
+			this.editingBuilding = {
+				id: building.id,
+				name: building.name,
+				address: building.address,
+				description: building.settings?.description || '',
+				units: building.totalUnits || building.units,
+				floors: building.settings?.floors || null,
+				facilities: building.metadata?.facilities || [],
+				rules: building.settings?.rules || '',
+				subscriptionTier: building.subscriptionTier || 'standard'
+			}
+			this.showEditBuildingModal = true
+		},
+
+		async updateBuilding() {
+			if ( !this.editingBuilding ) return
+			this.isEditingBuilding = true
+			try {
+				const payload = {
+					name: this.editingBuilding.name,
+					address: this.editingBuilding.address,
+					totalUnits: this.editingBuilding.units || 0,
+					subscriptionTier: this.editingBuilding.subscriptionTier || 'standard',
+					settings: {
+						description: this.editingBuilding.description,
+						floors: this.editingBuilding.floors,
+						rules: this.editingBuilding.rules
+					},
+					metadata: {
+						facilities: this.editingBuilding.facilities
+					}
+				}
+
+				const response = await backend.update( 'mansions', this.editingBuilding.id, payload )
+				if ( response.success ) {
+					this.showEditBuildingModal = false
+					this.editingBuilding = null
+					await this.fetchBuildings()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update building:', error )
+				this.error = error.error?.message || 'Failed to update building'
+			} finally {
+				this.isEditingBuilding = false
+			}
+		},
+
+		confirmDeleteBuilding( building ) {
+			this.deleteTarget = building
+			this.deleteType = 'building'
+			this.showDeleteConfirm = true
+		},
+
+		// ==========================================
+		// BUILDING DETAIL SECTION
+		// ==========================================
+
+		openBuildingDetail( building ) {
+			this.selectedBuilding = building
+			this.activeSection = 'building-detail'
+			this.fetchBuildingUsers( building.id )
+		},
+
+		async fetchBuildingUsers( mansionId ) {
+			this.isLoadingBuildingUsers = true
+			try {
+				const response = await backend.getUsers( { mansionId } )
+				if ( response.success ) {
+					this.buildingUsers = response.data
+						.filter( u => u.role !== 'admin' )
+						.map( u => ( {
+							...u,
+							building: u.mansionName || '-',
+							status: 'active'
+						} ) )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to fetch building users:', error )
+			} finally {
+				this.isLoadingBuildingUsers = false
+			}
+		},
+
+		goBackToBuildings() {
+			this.selectedBuilding = null
+			this.buildingUsers = []
+			this.activeSection = 'buildings'
+		},
+
+		async handleUpdateBuilding( buildingData ) {
+			this.isEditingBuilding = true
+			try {
+				const payload = {
+					name: buildingData.name,
+					address: buildingData.address,
+					totalUnits: buildingData.units || 0,
+					subscriptionTier: buildingData.subscriptionTier || 'standard',
+					settings: {
+						description: buildingData.description,
+						floors: buildingData.floors,
+						rules: buildingData.rules
+					},
+					metadata: {
+						facilities: buildingData.facilities
+					}
+				}
+				const response = await backend.update( 'mansions', buildingData.id, payload )
+				if ( response.success ) {
+					// Update the selected building with new data
+					this.selectedBuilding = {
+						...this.selectedBuilding,
+						name: buildingData.name,
+						address: buildingData.address,
+						totalUnits: buildingData.units,
+						units: buildingData.units,
+						subscriptionTier: buildingData.subscriptionTier,
+						settings: payload.settings,
+						metadata: payload.metadata
+					}
+					await this.fetchBuildings() // Refresh buildings list
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update building:', error )
+				this.error = error.error?.message || 'Failed to update building'
+				alert( this.error )
+			} finally {
+				this.isEditingBuilding = false
+			}
+		},
+
+		async handleInviteUserToBuilding( userData ) {
+			this.isInvitingUser = true
+			try {
+				const response = await backend.inviteUser( {
+					email: userData.email,
+					name: userData.name,
+					roles: userData.roles,
+					mansionId: userData.mansionId,
+					unit: userData.unit
+				} )
+				if ( response.success ) {
+					alert( this.$t( 'admin.users.inviteSent' ) || 'Invitation sent successfully!' )
+					// Note: User will appear in list after they accept the invitation
+				}
+			} catch ( error ) {
+				console.error( 'Failed to invite user:', error )
+				alert( error.error?.message || 'Failed to send invitation' )
+			} finally {
+				this.isInvitingUser = false
+			}
+		},
+
+		async handleUpdateBuildingUser( updateData ) {
+			try {
+				const response = await backend.updateUser( updateData.userId, { roles: updateData.roles } )
+				if ( response.success ) {
+					await this.fetchBuildingUsers( this.selectedBuilding.id )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update user:', error )
+			}
+		},
+
+		async handleAddExistingUser( data ) {
+			this.isAddingExistingUser = true
+			try {
+				const response = await backend.updateUser( data.userId, { mansionId: data.mansionId } )
+				if ( response.success ) {
+					alert( this.$t( 'admin.users.addedToBuilding' ) || 'User added to building successfully!' )
+					await this.fetchBuildingUsers( this.selectedBuilding.id )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to add user to building:', error )
+				alert( error.error?.message || 'Failed to add user to building' )
+			} finally {
+				this.isAddingExistingUser = false
+			}
+		},
+
+		async deleteBuilding() {
+			if ( !this.deleteTarget ) return
+			this.isDeletingItem = true
+			try {
+				const response = await backend.delete( 'mansions', this.deleteTarget.id )
+				if ( response.success ) {
+					this.showDeleteConfirm = false
+					this.deleteTarget = null
+					this.deleteType = null
+					await this.fetchBuildings()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to delete building:', error )
+				this.error = error.error?.message || 'Failed to delete building'
+			} finally {
+				this.isDeletingItem = false
+			}
+		},
+
+		// ==========================================
+		// USER MANAGEMENT
+		// ==========================================
+
+		openInviteUserModal() {
+			this.newUser = {
+				email: '',
+				name: '',
+				role: 'mansion_admin',
+				mansionId: this.buildings[0]?.id || null
+			}
+			this.showInviteUserModal = true
+		},
+
+		async inviteUser() {
+			this.isInvitingUser = true
+			try {
+				const response = await backend.inviteUser( {
+					email: this.newUser.email,
+					name: this.newUser.name,
+					roles: this.newUser.roles,
+					mansionId: this.newUser.mansionId
+				} )
+				if ( response.success ) {
+					this.showInviteUserModal = false
+					this.newUser = { email: '', name: '', roles: ['mansion_admin'], mansionId: null }
+					// User will appear after they accept invitation
+					alert( this.$t( 'admin.users.inviteSent' ) || 'Invitation sent successfully!' )
+				}
+			} catch ( error ) {
+				console.error( 'Failed to invite user:', error )
+				this.error = error.error?.message || 'Failed to send invitation'
+				alert( this.error )
+			} finally {
+				this.isInvitingUser = false
+			}
+		},
+
+		openEditUserModal( user ) {
+			this.editingUser = user
+			this.editUserForm = {
+				name: user.name || '',
+				mansionId: user.mansionId || null,
+				unit: user.unit || '',
+				phone: user.phone || ''
+			}
+			this.showEditUserModal = true
+		},
+
+		async saveEditUser() {
+			if ( !this.editingUser ) return
+			this.isEditingUser = true
+			try {
+				const response = await backend.updateUser( this.editingUser.id, {
+					name: this.editUserForm.name,
+					mansionId: this.editUserForm.mansionId,
+					unit: this.editUserForm.unit,
+					phone: this.editUserForm.phone
+				} )
+				if ( response.success ) {
+					this.showEditUserModal = false
+					this.editingUser = null
+					await this.fetchUsers()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update user:', error )
+				this.error = error.error?.message || 'Failed to update user'
+				alert( this.error )
+			} finally {
+				this.isEditingUser = false
+			}
+		},
+
+		async toggleUserRole( user, role, checked ) {
+			const currentRoles = user.roles || [user.role]
+			let newRoles
+			if ( checked ) {
+				newRoles = [...currentRoles, role]
+			} else {
+				newRoles = currentRoles.filter( r => r !== role )
+			}
+			if ( newRoles.length === 0 ) return
+			try {
+				const response = await backend.updateUser( user.id, { roles: newRoles } )
+				if ( response.success ) {
+					await this.fetchUsers()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to update user roles:', error )
+			}
+		},
+
+		toggleNewUserRole( role, checked ) {
+			if ( checked ) {
+				if ( !this.newUser.roles.includes( role ) ) {
+					this.newUser.roles.push( role )
+				}
+			} else {
+				this.newUser.roles = this.newUser.roles.filter( r => r !== role )
+			}
+		},
+
+		confirmDeleteUser( user ) {
+			this.deleteTarget = user
+			this.deleteType = 'user'
+			this.showDeleteConfirm = true
+		},
+
+		async deleteUser() {
+			if ( !this.deleteTarget ) return
+			this.isDeletingItem = true
+			try {
+				const response = await backend.deleteUser( this.deleteTarget.id )
+				if ( response.success ) {
+					this.showDeleteConfirm = false
+					this.deleteTarget = null
+					this.deleteType = null
+					await this.fetchUsers()
+				}
+			} catch ( error ) {
+				console.error( 'Failed to delete user:', error )
+				this.error = error.error?.message || 'Failed to delete user'
+			} finally {
+				this.isDeletingItem = false
+			}
+		},
+
+		cancelDelete() {
+			this.showDeleteConfirm = false
+			this.deleteTarget = null
+			this.deleteType = null
+		},
+
+		async confirmDelete() {
+			if ( this.deleteType === 'building' ) {
+				await this.deleteBuilding()
+			} else if ( this.deleteType === 'user' ) {
+				await this.deleteUser()
+			}
+		},
+
+		formatTimeAgo( dateString ) {
+			if ( !dateString ) return 'Recently'
+			const date = new Date( dateString )
+			const now = new Date()
+			const diffMs = now - date
+			const diffMins = Math.floor( diffMs / 60000 )
+			const diffHours = Math.floor( diffMs / 3600000 )
+			const diffDays = Math.floor( diffMs / 86400000 )
+
+			if ( diffMins < 1 ) return 'Just now'
+			if ( diffMins < 60 ) return `${diffMins} min ago`
+			if ( diffHours < 24 ) return `${diffHours} hours ago`
+			if ( diffDays < 7 ) return `${diffDays} days ago`
+			return date.toLocaleDateString()
 		}
 	}
 }
@@ -497,12 +1519,9 @@ export default {
 // Financial summary
 .financial-summary
 	display grid
-	grid-template-columns repeat(3, 1fr)
+	grid-template-columns repeat(auto-fit, minmax(280px, 1fr))
 	gap 1.5rem
 	margin-bottom 2rem
-
-	@media (max-width: 768px)
-		grid-template-columns 1fr
 
 // Buildings list
 .buildings-list
@@ -529,6 +1548,88 @@ export default {
 	&.active
 		background #E8F5E9
 		color #4CAF50
+
+// Loading and empty states
+.loading-state, .empty-state
+	text-align center
+	padding 3rem
+	color #666
+
+	p
+		margin-bottom 1rem
+
+// User filter bar
+.users-filter-bar
+	display flex
+	flex-wrap wrap
+	align-items flex-end
+	gap 1rem
+	margin-bottom 1.5rem
+	padding 1rem 1.5rem
+	background $color-bg-tertiary
+	border-radius $radius-lg
+
+	@media (max-width: 768px)
+		flex-direction column
+		align-items stretch
+
+.filter-search
+	flex 1
+	min-width 250px
+
+	.search-input
+		width 100%
+		padding 0.75rem 1rem 0.75rem 2.5rem
+		border 1px solid $color-border
+		border-radius $radius-pill
+		font-size 0.95rem
+		background-image url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E")
+		background-repeat no-repeat
+		background-position 0.75rem center
+		transition border-color 0.2s
+
+		&:focus
+			outline none
+			border-color $color-primary
+			box-shadow 0 0 0 3px rgba(255, 193, 7, 0.15)
+
+		&::placeholder
+			color $color-text-tertiary
+
+.filter-group
+	display flex
+	flex-direction column
+	gap 0.25rem
+	min-width 150px
+
+.filter-label
+	font-size 0.8rem
+	color $color-text-secondary
+	font-weight 500
+
+.filter-select
+	padding 0.6rem 2rem 0.6rem 0.75rem
+	border 1px solid $color-border
+	border-radius $radius-md
+	font-size 0.95rem
+	background white
+	cursor pointer
+	appearance none
+	background-image url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+	background-repeat no-repeat
+	background-position right 0.75rem center
+	transition border-color 0.2s
+
+	&:focus
+		outline none
+		border-color $color-primary
+
+.users-results-info
+	margin-bottom 1rem
+
+	.results-count
+		font-size 0.9rem
+		color $color-text-secondary
 
 // Users table
 .users-table
@@ -569,6 +1670,88 @@ export default {
 		&.active
 			background #E8F5E9
 			color #4CAF50
+
+.roles-checkboxes
+	display flex
+	flex-wrap wrap
+	gap 0.25rem 0.75rem
+
+.role-checkbox-label
+	display flex
+	align-items center
+	gap 0.35rem
+	font-size 0.85rem
+	cursor pointer
+	white-space nowrap
+
+	input[type="checkbox"]
+		cursor pointer
+
+// Sortable headers
+.sortable-header
+	cursor pointer
+	user-select none
+	transition background 0.2s
+
+	&:hover
+		background rgba(255, 193, 7, 0.1)
+
+	.sort-indicator
+		margin-left 0.5rem
+		font-size 0.75rem
+		color $color-primary
+
+// Pagination
+.pagination
+	display flex
+	justify-content center
+	align-items center
+	gap 1rem
+	padding 1rem
+	border-top 1px solid $color-border
+
+	.pagination-info
+		font-size 0.9rem
+		color $color-text-secondary
+
+// Actions cell
+.actions-cell
+	display flex
+	gap 0.25rem
+	flex-wrap wrap
+
+.action-btn
+	padding 0.35rem 0.6rem
+	font-size 0.8rem
+	border none
+	border-radius 6px
+	background transparent
+	color #666
+	cursor pointer
+	transition all 0.2s
+	white-space nowrap
+
+	&:hover
+		background #f0f0f0
+		color #333
+
+	&--danger:hover
+		background #ffebee
+		color #d32f2f
+
+// Disabled input
+.input-disabled
+	background #f5f5f5
+	color #999
+	cursor not-allowed
+
+.help-text
+	color #666
+	font-size 0.9rem
+	margin-top 1rem
+	padding 0.75rem
+	background #f5f5f5
+	border-radius 8px
 
 // Requests list
 .requests-list
@@ -656,32 +1839,6 @@ export default {
 		margin 0
 		color #666
 		font-size 0.9rem
-
-// Settings sections
-.settings-sections
-	display grid
-	gap 1.5rem
-
-.setting-item
-	display flex
-	justify-content space-between
-	align-items center
-	padding 1rem 0
-	border-bottom 1px solid #f0f0f0
-
-	&:last-child
-		border-bottom none
-
-	label
-		color #666
-		display flex
-		align-items center
-		gap 0.5rem
-
-	select
-		padding 0.5rem
-		border 1px solid #e0e0e0
-		border-radius 8px
 
 // Modal Styles
 .modal-overlay

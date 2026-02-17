@@ -1,5 +1,6 @@
 import './styles/global-modern.styl'
 
+import * as Sentry from '@sentry/vue'
 import { createApp } from 'vue'
 import { TinyRouterInstall } from 'vue-tiny-router'
 import TranslatePlugin, { loadTranslations } from 'vue-tiny-translation'
@@ -32,7 +33,34 @@ async function init() {
 
 	const app = createApp( App )
 
+	// Initialize Sentry error monitoring
+	if ( import.meta.env.VITE_SENTRY_DSN ) {
+		Sentry.init( {
+			app,
+			dsn: import.meta.env.VITE_SENTRY_DSN,
+			environment: import.meta.env.MODE,
+			enabled: import.meta.env.PROD,
+
+			// Performance monitoring
+			integrations: [Sentry.browserTracingIntegration()],
+			tracesSampleRate: 0.1
+		} )
+	}
+
 	app.use( TranslatePlugin )
+
+	// Add interpolation support to $t (vue-tiny-translation doesn't support it natively)
+	const originalT = app.config.globalProperties.$t
+	app.config.globalProperties.$t = ( key, params = null ) => {
+		let translation = originalT( key )
+		if ( params && typeof params === 'object' ) {
+			Object.keys( params ).forEach( k => {
+				translation = translation.replace( new RegExp( `\\{${k}\\}`, 'g' ), params[k] )
+			} )
+		}
+		return translation
+	}
+
 	app.use( TinyRouterInstall )
 	app.mount( '#app' )
 

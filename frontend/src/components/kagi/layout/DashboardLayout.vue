@@ -9,11 +9,27 @@
 			<div class="header-content">
 				<div class="header-left" @click="handleLogoClick">
 					<KagiLogo :size="48" :class="['logo']" color="#333333" />
-					<h1 v-if="userProfile.residenceName" class="residence-name">{{ userProfile.residenceName }}</h1>
+					<h1 v-if="userProfile.residenceName && showsMansionName" class="residence-name">{{ userProfile.residenceName }}</h1>
 					<h1 v-else>{{ title }}</h1>
 				</div>
 				<div class="header-right">
-					<span v-if="userRole && userRole !== 'resident'" class="user-badge">{{ userRole }}</span>
+					<div v-if="canSwitchRoles" class="role-switcher" @click="showRolePicker = !showRolePicker">
+						<span class="user-badge role-switcher-trigger">
+							{{ roleLabel(userRole) }}
+							<span class="role-arrow">▼</span>
+						</span>
+						<div v-if="showRolePicker" class="role-picker">
+							<button
+								v-for="r in userRoles"
+								:key="r"
+								:class="['role-option', { active: r === userRole }]"
+								@click.stop="switchRole(r)"
+							>
+								{{ roleLabel(r) }}
+							</button>
+						</div>
+					</div>
+					<span v-else-if="userRole && userRole !== 'resident'" class="user-badge">{{ roleLabel(userRole) }}</span>
 					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
 						<span class="user-email desktop-only">{{ userProfile.userEmail }}</span>
 						<span class="user-email mobile-only">{{ $t('common.profile') }}</span>
@@ -30,13 +46,15 @@
 					<button class="close-menu-btn" @click="showMobileMenu = false">✕</button>
 				</div>
 				<div class="mobile-menu-content">
+					<div v-if="userProfile.residenceName && showsMansionName" class="mobile-mansion-name">
+						{{ userProfile.residenceName }}
+					</div>
 					<div class="mobile-user-info">
-						<div v-if="userProfile.residenceName" class="user-info-item mansion-name">{{ userProfile.residenceName }}</div>
 						<div v-if="userProfile.userName" class="user-info-item user-name">{{ userProfile.userName }}</div>
-						<div v-if="userProfile.roomNumber" class="user-info-item">
+						<div v-if="userProfile.roomNumber && isResidentRole" class="user-info-item">
 							<span class="label">{{ $t('dashboard.profile.apartment') }}:</span> {{ userProfile.roomNumber }}
 						</div>
-						<div v-if="userProfile.userPhone" class="user-info-item">
+						<div v-if="userProfile.userPhone && isResidentRole" class="user-info-item">
 							{{ userProfile.userPhone }}
 						</div>
 						<div class="user-info-item">
@@ -47,11 +65,14 @@
 						</button>
 					</div>
 					<div class="mobile-lang-section">
+						<label class="section-label">{{ $t('common.language') }}</label>
 						<LanguageSwitcher />
 					</div>
-					<button class="mobile-logout-btn" @click="handleLogout">
-						{{ $t('nav.logout') }}
-					</button>
+					<div class="mobile-logout-section">
+						<button class="mobile-logout-btn" @click="handleLogout">
+							{{ $t('nav.logout') }}
+						</button>
+					</div>
 				</div>
 			</div>
 		</transition>
@@ -112,7 +133,8 @@ export default {
 	},
 	data() {
 		return {
-			showMobileMenu: false
+			showMobileMenu: false,
+			showRolePicker: false
 		}
 	},
 	computed: {
@@ -122,13 +144,58 @@ export default {
 		userRole() {
 			return store.userRole.value
 		},
+		userRoles() {
+			return store.userRoles.value
+		},
+		canSwitchRoles() {
+			return this.userRoles.length > 1
+		},
+		isResidentRole() {
+			return this.userRole === 'resident' || this.userRole === 'landlord'
+		},
+		showsMansionName() {
+			return !store.hasRole( 'admin' ) || this.userRole !== 'admin'
+		},
 		mobileMenuItems() {
 			// Filter out documents, bills, and maintenance from mobile menu
 			const hiddenOnMobile = ['documents', 'bills', 'maintenance']
 			return this.menuItems.filter( item => !hiddenOnMobile.includes( item.id ) )
 		}
 	},
+	mounted() {
+		document.addEventListener( 'click', this.closeRolePicker )
+	},
+	beforeUnmount() {
+		document.removeEventListener( 'click', this.closeRolePicker )
+	},
 	methods: {
+		roleLabel( role ) {
+			const key = role === 'mansion_admin' ? 'mansionAdmin' : role
+			return this.$t( `roles.${key}` ) || role
+		},
+		async switchRole( newRole ) {
+			if ( newRole === this.userRole ) {
+				this.showRolePicker = false
+				return
+			}
+			const success = await store.switchActiveRole( newRole )
+			this.showRolePicker = false
+			if ( success ) {
+				// Navigate to the appropriate dashboard for the new role
+				if ( newRole === 'admin' ) {
+					this.$router.push( '/admin-dashboard' )
+				} else if ( ['manager', 'mansion_admin'].includes( newRole ) ) {
+					this.$router.push( '/mansion-dashboard' )
+				} else {
+					this.$router.push( '/dashboard' )
+				}
+			}
+		},
+		closeRolePicker( e ) {
+			if ( this.showRolePicker && !e.target.closest( '.role-switcher' ) ) {
+				this.showRolePicker = false
+			}
+		},
 		handleNavigation( sectionId ) {
 			// Scroll #app to top instantly
 			document.querySelector( '#app' ).scrollTop = 0
@@ -264,6 +331,52 @@ export default {
 	@media (max-width: 768px)
 		display none
 
+.role-switcher
+	position relative
+	@media (max-width: 768px)
+		display none
+
+.role-switcher-trigger
+	cursor pointer
+	display flex
+	align-items center
+	gap var(--space-1)
+	user-select none
+	.role-arrow
+		font-size 10px
+		opacity 0.6
+
+.role-picker
+	position absolute
+	top calc(100% + var(--space-2))
+	right 0
+	background white
+	border-radius var(--radius-lg)
+	box-shadow var(--shadow-lg)
+	border 1px solid rgba(0, 0, 0, 0.1)
+	overflow hidden
+	min-width 160px
+	z-index 200
+
+.role-option
+	display block
+	width 100%
+	padding var(--space-2) var(--space-4)
+	background transparent
+	border none
+	text-align left
+	font-size var(--text-sm)
+	color var(--color-gray-700)
+	cursor pointer
+	transition all var(--transition-base)
+	&:hover
+		background var(--color-primary-50)
+		color var(--color-gray-900)
+	&.active
+		background var(--color-primary-100)
+		color var(--color-primary-700)
+		font-weight var(--font-semibold)
+
 .user-menu-btn
 	display flex
 	align-items center
@@ -336,12 +449,22 @@ export default {
 
 .mobile-menu-content
 	padding var(--space-6)
+	max-width 240px
+	margin auto
+
+.mobile-mansion-name
+	font-size var(--text-base, 1rem)
+	font-weight var(--font-semibold, 600)
+	color var(--color-primary-600, #FFB300)
+	text-align center
+	margin-bottom var(--space-4)
+	padding-bottom var(--space-4)
+	border-bottom 1px solid rgba(0, 0, 0, 0.08)
 
 .mobile-user-info
-	padding var(--space-4)
+	padding 0
 	background rgba(255,255,255,0.5)
 	border-radius var(--radius-lg)
-	margin-bottom var(--space-6)
 	display flex
 	flex-direction column
 	gap var(--space-2)
@@ -349,10 +472,6 @@ export default {
 		font-size var(--text-sm)
 		color var(--color-gray-700)
 		line-height 1.5
-		&.mansion-name
-			font-size var(--text-base)
-			font-weight var(--font-semibold)
-			color var(--color-primary-600)
 		&.user-name
 			font-size var(--text-base)
 			font-weight var(--font-medium)
@@ -375,24 +494,40 @@ export default {
 			background var(--color-primary-400)
 
 .mobile-lang-section
-	padding var(--space-4) 0
-	border-top 1px solid rgba(0,0,0,0.05)
-	border-bottom 1px solid rgba(0,0,0,0.05)
-	margin-bottom var(--space-6)
+	margin-top var(--space-4)
+	padding-top var(--space-4)
+	border-top 1px solid rgba(0, 0, 0, 0.08)
+	.section-label
+		display block
+		font-size var(--text-xs, 0.75rem)
+		color var(--color-gray-500, #9E9E9E)
+		text-transform uppercase
+		letter-spacing 0.5px
+		margin-bottom var(--space-2)
+
+.mobile-logout-section
+	margin-top var(--space-4)
+	padding-top var(--space-4)
+	border-top 1px solid rgba(0, 0, 0, 0.08)
 
 .mobile-logout-btn
 	width 100%
-	padding var(--space-3)
-	background var(--color-red-500)
-	color white
+	padding var(--space-2, 0.5rem) var(--space-4, 1rem)
+	background rgba(0, 0, 0, 0.05)
+	background var(--color-gray-100, rgba(0, 0, 0, 0.05))
+	color #616161
+	color var(--color-gray-700, #616161)
 	border none
-	border-radius var(--radius-md)
-	font-size var(--text-base)
-	font-weight var(--font-medium)
+	border-radius var(--radius-md, 8px)
+	font-size var(--text-sm, 0.875rem)
+	font-weight var(--font-medium, 500)
 	cursor pointer
-	transition all var(--transition-base)
+	transition all var(--transition-base, 0.2s ease)
 	&:hover
-		background var(--color-red-600)
+		background rgba(0, 0, 0, 0.08)
+		background var(--color-gray-200, rgba(0, 0, 0, 0.08))
+		color #424242
+		color var(--color-gray-800, #424242)
 
 // Main Content Area
 .dashboard-content
@@ -534,7 +669,7 @@ export default {
 		padding var(--space-6)
 		margin-bottom 100px // Space for mobile nav
 	@media (max-width: 640px)
-		padding var(--space-4)
+		padding var(--space-1)
 		border-radius 0
 		background transparent
 		box-shadow none

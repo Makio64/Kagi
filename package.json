@@ -15,7 +15,11 @@
     "build-storybook": "cd frontend && pnpm build-storybook"
   },
   "devDependencies": {
+    "baseline-browser-mapping": "^2.9.19",
     "concurrently": "^9.2.1"
   },
-  "packageManager": "pnpm@10.24.0"
+  "packageManager": "pnpm@10.28.2",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.93.2"
+  }
 }
