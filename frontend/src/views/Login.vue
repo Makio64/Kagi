@@ -331,9 +331,9 @@ export default {
 
 .language-switcher-container
 	position fixed
-	top 20px
-	right 20px
-	z-index 10
+	top calc(20px + var(--sait, 0px))
+	right calc(20px + var(--sair, 0px))
+	z-index var(--z-fixed)
 
 .login-container
 	width 100%

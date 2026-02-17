@@ -1,7 +1,7 @@
 <template>
 	<div class="home">
 		<div class="language-switcher-container">
-			<LanguageSwitcher />
+			<LanguageSwitcher variant="compact" />
 		</div>
 
 		<header class="hero">
