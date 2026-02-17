@@ -168,15 +168,16 @@
 							<td>{{ u.name || '-' }}</td>
 							<td>{{ u.email }}</td>
 							<td>
-								<select
-									:value="u.role"
-									class="role-select"
-									@change="updateUserRole(u.id, $event.target.value)"
-								>
-									<option v-for="role in buildingRoleOptions" :key="role.value" :value="role.value">
+								<div class="roles-checkboxes">
+									<label v-for="role in buildingRoleOptions" :key="role.value" class="role-checkbox-label">
+										<input
+											type="checkbox"
+											:checked="(u.roles || [u.role]).includes(role.value)"
+											@change="toggleUserRole(u, role.value, $event.target.checked)"
+										>
 										{{ role.label }}
-									</option>
-								</select>
+									</label>
+								</div>
 							</td>
 							<td>{{ u.unit || '-' }}</td>
 							<td class="actions-cell">
@@ -245,12 +246,17 @@
 						>
 					</div>
 					<div class="form-group">
-						<label for="invite-role">{{ $t('admin.users.role') }} *</label>
-						<select id="invite-role" v-model="inviteForm.role" required>
-							<option v-for="role in buildingRoleOptions" :key="role.value" :value="role.value">
+						<label>{{ $t('admin.users.role') }} *</label>
+						<div class="roles-checkboxes">
+							<label v-for="role in buildingRoleOptions" :key="role.value" class="role-checkbox-label">
+								<input
+									type="checkbox"
+									:checked="inviteForm.roles.includes(role.value)"
+									@change="toggleInviteRole(role.value, $event.target.checked)"
+								>
 								{{ role.label }}
-							</option>
-						</select>
+							</label>
+						</div>
 					</div>
 					<div v-if="showUnitField" class="form-group">
 						<label for="invite-unit">{{ $t('admin.users.unit') }}</label>
@@ -343,7 +349,7 @@ export default {
 			inviteForm: {
 				email: '',
 				name: '',
-				role: 'resident',
+				roles: ['resident'],
 				unit: ''
 			},
 			facilityOptions: ['gym', 'pool', 'parking', 'lounge', 'rooftop', 'laundry'],
@@ -355,7 +361,7 @@ export default {
 	},
 	computed: {
 		showUnitField() {
-			return this.inviteForm.role === 'resident' || this.inviteForm.role === 'landlord'
+			return this.inviteForm.roles.some( r => r === 'resident' || r === 'landlord' )
 		},
 		buildingRoleOptions() {
 			return this.roleOptions.filter( r => r.value === 'resident' || r.value === 'mansion_admin' )
@@ -414,8 +420,25 @@ export default {
 				...this.editForm
 			} )
 		},
-		updateUserRole( userId, newRole ) {
-			this.$emit( 'update-user', { userId, role: newRole } )
+		toggleUserRole( user, role, checked ) {
+			const currentRoles = user.roles || [user.role]
+			let newRoles
+			if ( checked ) {
+				newRoles = [...currentRoles, role]
+			} else {
+				newRoles = currentRoles.filter( r => r !== role )
+			}
+			if ( newRoles.length === 0 ) return
+			this.$emit( 'update-user', { userId: user.id, roles: newRoles } )
+		},
+		toggleInviteRole( role, checked ) {
+			if ( checked ) {
+				if ( !this.inviteForm.roles.includes( role ) ) {
+					this.inviteForm.roles.push( role )
+				}
+			} else {
+				this.inviteForm.roles = this.inviteForm.roles.filter( r => r !== role )
+			}
 		},
 		submitInvite() {
 			this.$emit( 'invite-user', {
@@ -475,7 +498,7 @@ export default {
 			this.inviteForm = {
 				email: '',
 				name: '',
-				role: 'resident',
+				roles: ['resident'],
 				unit: ''
 			}
 		},
@@ -623,15 +646,21 @@ export default {
 		tbody tr:hover
 			background #f9f9f9
 
-.role-select
-	padding 0.5rem
-	border 1px solid #e0e0e0
-	border-radius 8px
-	background white
+.roles-checkboxes
+	display flex
+	flex-wrap wrap
+	gap 0.25rem 0.75rem
 
-	&:focus
-		outline none
-		border-color $color-primary
+.role-checkbox-label
+	display flex
+	align-items center
+	gap 0.35rem
+	font-size 0.85rem
+	cursor pointer
+	white-space nowrap
+
+	input[type="checkbox"]
+		cursor pointer
 
 .actions-cell
 	display flex

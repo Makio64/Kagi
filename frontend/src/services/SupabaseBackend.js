@@ -197,14 +197,17 @@ class SupabaseBackend {
 	 * Invite a user with a specific role and mansion assignment
 	 * Sends magic link email with pre-configured metadata
 	 */
-	async inviteUser( { email, name, role, mansionId, unit } ) {
+	async inviteUser( { email, name, roles, role, mansionId, unit } ) {
 		// Validate required fields
 		if ( !email ) throw this.createError( 'Email is required', 400 )
-		if ( !role ) throw this.createError( 'Role is required', 400 )
 
-		// C3: Validate role against allowed enum values
+		// Support both roles array and legacy single role
+		const userRoles = roles || ( role ? [role] : null )
+		if ( !userRoles || userRoles.length === 0 ) throw this.createError( 'At least one role is required', 400 )
+
+		// C3: Validate roles against allowed enum values
 		const VALID_ROLES = ['resident', 'landlord', 'guest', 'manager', 'mansion_admin', 'admin']
-		if ( !VALID_ROLES.includes( role ) ) {
+		if ( !userRoles.every( r => VALID_ROLES.includes( r ) ) ) {
 			throw this.createError( 'Invalid role specified', 400 )
 		}
 
@@ -227,15 +230,18 @@ class SupabaseBackend {
 		if ( !caller ) throw this.createError( 'Not authenticated', 401 )
 
 		const callerProfile = await this._getProfile( caller.id )
-		if ( !['admin', 'manager', 'mansion_admin'].includes( callerProfile?.role ) ) {
+		const callerRoles = callerProfile?.roles || [callerProfile?.role]
+		const hasAdminRole = callerRoles.some( r => ['admin', 'manager', 'mansion_admin'].includes( r ) )
+		if ( !hasAdminRole ) {
 			throw this.createError( 'Unauthorized: insufficient permissions to invite users', 403 )
 		}
 
 		// C3: Prevent privilege escalation - only platform admins can assign admin/management roles
-		if ( role === 'admin' && callerProfile.role !== 'admin' ) {
+		const isAdmin = callerRoles.includes( 'admin' )
+		if ( userRoles.includes( 'admin' ) && !isAdmin ) {
 			throw this.createError( 'Only platform admins can assign admin role', 403 )
 		}
-		if ( ['manager', 'mansion_admin'].includes( role ) && callerProfile.role !== 'admin' ) {
+		if ( userRoles.some( r => ['manager', 'mansion_admin'].includes( r ) ) && !isAdmin ) {
 			throw this.createError( 'Only platform admins can assign management roles', 403 )
 		}
 
@@ -250,7 +256,8 @@ class SupabaseBackend {
 			throw this.createError( 'User with this email already exists', 400 )
 		}
 
-		// Send magic link with user metadata (role, mansion, etc.)
+		// Send magic link with user metadata (roles, mansion, etc.)
+		const primaryRole = userRoles[0]
 		const redirectUrl = isNative() ? 'kagi://login' : `${window.location.origin}/login`
 		const { error } = await this.supabase.auth.signInWithOtp( {
 			email,
@@ -258,7 +265,7 @@ class SupabaseBackend {
 				emailRedirectTo: redirectUrl,
 				data: {
 					name: name || email.split( '@' )[0],
-					role,
+					role: primaryRole,
 					mansion_id: mansionId || null,
 					unit: unit || null,
 					invited: true,
@@ -269,11 +276,11 @@ class SupabaseBackend {
 
 		if ( error ) throw this.createError( error.message, 400 )
 
-		this.emit( 'user.invited', { email, role, mansionId } )
+		this.emit( 'user.invited', { email, roles: userRoles, mansionId } )
 		return this.createResponse( {
 			message: 'Invitation sent successfully',
 			email,
-			role,
+			roles: userRoles,
 			mansionId
 		} )
 	}
@@ -336,6 +343,7 @@ class SupabaseBackend {
 			name: data.name,
 			phone: data.phone,
 			unit: data.unit,
+			roles: data.roles || [data.role],
 			role: data.role,
 			mansionId: data.mansion_id,
 			mansionName: data.mansions?.name || null,
@@ -375,7 +383,7 @@ class SupabaseBackend {
 		// Apply mansion filter
 		if ( mansionId ) {
 			query = query.eq( 'mansion_id', mansionId )
-			query = query.neq( 'role', 'admin' )
+			query = query.not( 'roles', 'cs', '{"admin"}' )
 		}
 
 		// Apply role filter
@@ -408,6 +416,7 @@ class SupabaseBackend {
 			name: u.name,
 			phone: u.phone,
 			unit: u.unit,
+			roles: u.roles || [u.role],
 			role: u.role,
 			mansionId: u.mansion_id,
 			mansionName: u.mansions?.name || null,
@@ -427,9 +436,27 @@ class SupabaseBackend {
 	/**
 	 * Update user role and/or mansion assignment
 	 */
-	async updateUser( userId, { role, mansionId, name, unit, phone } ) {
+	async updateUser( userId, { roles, role, mansionId, name, unit, phone } ) {
 		const updates = {}
-		if ( role !== undefined ) updates.role = role
+		if ( roles !== undefined ) {
+			updates.roles = roles
+			// If active role is no longer in the roles array, reset to first role
+			if ( role !== undefined ) {
+				updates.role = roles.includes( role ) ? role : roles[0]
+			} else {
+				// Fetch current active role to check if it's still valid
+				const { data: current } = await this.supabase
+					.from( 'profiles' )
+					.select( 'role' )
+					.eq( 'id', userId )
+					.single()
+				if ( current && !roles.includes( current.role ) ) {
+					updates.role = roles[0]
+				}
+			}
+		} else if ( role !== undefined ) {
+			updates.role = role
+		}
 		if ( mansionId !== undefined ) updates.mansion_id = mansionId
 		if ( name !== undefined ) updates.name = name
 		if ( unit !== undefined ) updates.unit = unit
@@ -449,12 +476,45 @@ class SupabaseBackend {
 			id: data.id,
 			email: data.email,
 			name: data.name,
+			roles: data.roles,
 			role: data.role,
 			mansionId: data.mansion_id,
 			mansionName: data.mansions?.name || null,
 			unit: data.unit,
 			phone: data.phone
 		} )
+	}
+
+	/**
+	 * Switch the active role for the current user
+	 */
+	async switchRole( newRole ) {
+		const { data: { user } } = await this.supabase.auth.getUser()
+		if ( !user ) throw this.createError( 'Not authenticated', 401 )
+
+		// Validate newRole is in user's roles
+		const profile = await this._getProfile( user.id )
+		const userRoles = profile.roles || [profile.role]
+		if ( !userRoles.includes( newRole ) ) {
+			throw this.createError( 'Cannot switch to a role not assigned to you', 403 )
+		}
+
+		const { data, error } = await this.supabase
+			.from( 'profiles' )
+			.update( { role: newRole } )
+			.eq( 'id', user.id )
+			.select( '*, mansions(name)' )
+			.single()
+
+		if ( error ) throw this.createError( error.message, 400 )
+
+		// Flatten mansion name
+		if ( data.mansions ) {
+			data.mansion_name = data.mansions.name
+			delete data.mansions
+		}
+
+		return this.createResponse( this._mapProfile( data ) )
 	}
 
 	/**
@@ -544,8 +604,8 @@ class SupabaseBackend {
 			},
 			users: {
 				total: usersRes.count || 0,
-				residents: users.filter( u => u.role === 'resident' ).length,
-				admins: users.filter( u => ['admin', 'mansion_admin', 'manager'].includes( u.role ) ).length,
+				residents: users.filter( u => ( u.roles || [u.role] ).includes( 'resident' ) ).length,
+				admins: users.filter( u => ( u.roles || [u.role] ).some( r => ['admin', 'mansion_admin', 'manager'].includes( r ) ) ).length,
 				residentsThisMonth: usersThisMonthRes.count || 0
 			},
 			maintenance: {
@@ -581,6 +641,7 @@ class SupabaseBackend {
 			mansionId: profile.mansion_id,
 			mansionName: profile.mansion_name || null,
 			avatar: profile.avatar,
+			roles: profile.roles || [profile.role],
 			role: profile.role,
 			permissions: profile.permissions || [],
 			settings: profile.settings || {},
@@ -617,6 +678,7 @@ class SupabaseBackend {
 				id: user.id,
 				email: user.email,
 				name: metadata.name || user.email.split( '@' )[0],
+				roles: [safeRole],
 				role: safeRole,
 				mansion_id: metadata.mansion_id || null,
 				unit: metadata.unit || null
@@ -854,7 +916,8 @@ class SupabaseBackend {
 
 		const profile = await this._getProfile( user.id )
 		const mansionId = profile.mansion_id
-		const isManager = ['admin', 'manager', 'mansion_admin'].includes( profile.role )
+		const profileRoles = profile.roles || [profile.role]
+		const isManager = profileRoles.some( r => ['admin', 'manager', 'mansion_admin'].includes( r ) )
 		const now = new Date().toISOString()
 
 		// Build queries based on role
@@ -927,7 +990,8 @@ class SupabaseBackend {
 		if ( !user ) throw this.createError( 'Not authenticated', 401 )
 
 		const profile = await this._getProfile( user.id )
-		if ( !['admin', 'manager', 'mansion_admin'].includes( profile.role ) ) {
+		const analyticsRoles = profile.roles || [profile.role]
+		if ( !analyticsRoles.some( r => ['admin', 'manager', 'mansion_admin'].includes( r ) ) ) {
 			throw this.createError( 'Unauthorized', 403 )
 		}
 

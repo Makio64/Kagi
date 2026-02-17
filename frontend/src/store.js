@@ -22,10 +22,12 @@ export const isMenuOpen = ref( false )
 
 // Computed getters
 export const userRole = computed( () => user.value?.role || null )
-export const isAdmin = computed( () => user.value?.role === 'admin' )
-export const isMansionAdmin = computed( () => user.value?.role === 'mansion_admin' )
-export const isResident = computed( () => user.value?.role === 'resident' )
-export const isLandlord = computed( () => user.value?.role === 'landlord' )
+export const userRoles = computed( () => user.value?.roles || [] )
+export const hasRole = ( role ) => userRoles.value.includes( role )
+export const isAdmin = computed( () => userRoles.value.includes( 'admin' ) )
+export const isMansionAdmin = computed( () => userRoles.value.includes( 'mansion_admin' ) )
+export const isResident = computed( () => userRoles.value.includes( 'resident' ) )
+export const isLandlord = computed( () => userRoles.value.includes( 'landlord' ) )
 export const mansionId = computed( () => user.value?.mansionId || null )
 
 // User profile information (flat structure - KISS principle)
@@ -42,6 +44,7 @@ const _persistUser = () => {
 	if ( !user.value ) return
 	localStorage.setItem( 'kagi_user', JSON.stringify( {
 		id: user.value.id,
+		roles: user.value.roles,
 		role: user.value.role,
 		mansionId: user.value.mansionId,
 		name: user.value.name,
@@ -293,6 +296,24 @@ export const refreshUserRole = async () => {
 		}
 	} catch ( error ) {
 		console.error( 'Failed to refresh user role:', error )
+	}
+	return false
+}
+
+// Switch active role (persists to backend)
+export const switchActiveRole = async ( newRole ) => {
+	if ( !isAuthenticated.value ) return false
+	if ( !userRoles.value.includes( newRole ) ) return false
+
+	try {
+		const response = await backend.switchRole( newRole )
+		if ( response.success && response.data ) {
+			user.value = response.data
+			_persistUser()
+			return true
+		}
+	} catch ( error ) {
+		console.error( 'Failed to switch role:', error )
 	}
 	return false
 }

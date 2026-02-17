@@ -83,7 +83,7 @@ export default {
 		await store.refreshUserRole()
 
 		const allowedRoles = ['admin', 'manager', 'mansion_admin']
-		if ( !allowedRoles.includes( store.userRole.value ) ) {
+		if ( !store.userRoles.value.some( r => allowedRoles.includes( r ) ) ) {
 			this.$router.push( '/dashboard' )
 		}
 	},

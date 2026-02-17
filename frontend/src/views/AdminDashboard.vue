@@ -184,15 +184,16 @@
 									<td>{{ u.name || '-' }}</td>
 									<td>{{ u.email }}</td>
 									<td>
-										<select
-											:value="u.role"
-											class="role-select"
-											@change="updateUserRole(u.id, $event.target.value)"
-										>
-											<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+										<div class="roles-checkboxes">
+											<label v-for="role in roleOptions" :key="role.value" class="role-checkbox-label">
+												<input
+													type="checkbox"
+													:checked="(u.roles || [u.role]).includes(role.value)"
+													@change="toggleUserRole(u, role.value, $event.target.checked)"
+												>
 												{{ role.label }}
-											</option>
-										</select>
+											</label>
+										</div>
 									</td>
 									<td>{{ u.building }}</td>
 									<td class="actions-cell">
@@ -577,12 +578,17 @@
 					>
 				</div>
 				<div class="form-group">
-					<label for="invite-role">{{ $t('admin.users.role') }} *</label>
-					<select id="invite-role" v-model="newUser.role" required>
-						<option v-for="role in roleOptions" :key="role.value" :value="role.value">
+					<label>{{ $t('admin.users.role') }} *</label>
+					<div class="roles-checkboxes">
+						<label v-for="role in roleOptions" :key="role.value" class="role-checkbox-label">
+							<input
+								type="checkbox"
+								:checked="newUser.roles.includes(role.value)"
+								@change="toggleNewUserRole(role.value, $event.target.checked)"
+							>
 							{{ role.label }}
-						</option>
-					</select>
+						</label>
+					</div>
 				</div>
 				<div class="form-group">
 					<label for="invite-mansion">{{ $t('admin.users.building') }}</label>
@@ -740,7 +746,7 @@ export default {
 			newUser: {
 				email: '',
 				name: '',
-				role: 'mansion_admin',
+				roles: ['mansion_admin'],
 				mansionId: null
 			},
 			// User edit form
@@ -1264,7 +1270,7 @@ export default {
 				const response = await backend.inviteUser( {
 					email: userData.email,
 					name: userData.name,
-					role: userData.role,
+					roles: userData.roles,
 					mansionId: userData.mansionId,
 					unit: userData.unit
 				} )
@@ -1282,7 +1288,7 @@ export default {
 
 		async handleUpdateBuildingUser( updateData ) {
 			try {
-				const response = await backend.updateUser( updateData.userId, { role: updateData.role } )
+				const response = await backend.updateUser( updateData.userId, { roles: updateData.roles } )
 				if ( response.success ) {
 					await this.fetchBuildingUsers( this.selectedBuilding.id )
 				}
@@ -1346,12 +1352,12 @@ export default {
 				const response = await backend.inviteUser( {
 					email: this.newUser.email,
 					name: this.newUser.name,
-					role: this.newUser.role,
+					roles: this.newUser.roles,
 					mansionId: this.newUser.mansionId
 				} )
 				if ( response.success ) {
 					this.showInviteUserModal = false
-					this.newUser = { email: '', name: '', role: 'mansion_admin', mansionId: null }
+					this.newUser = { email: '', name: '', roles: ['mansion_admin'], mansionId: null }
 					// User will appear after they accept invitation
 					alert( this.$t( 'admin.users.inviteSent' ) || 'Invitation sent successfully!' )
 				}
@@ -1399,14 +1405,32 @@ export default {
 			}
 		},
 
-		async updateUserRole( userId, newRole ) {
+		async toggleUserRole( user, role, checked ) {
+			const currentRoles = user.roles || [user.role]
+			let newRoles
+			if ( checked ) {
+				newRoles = [...currentRoles, role]
+			} else {
+				newRoles = currentRoles.filter( r => r !== role )
+			}
+			if ( newRoles.length === 0 ) return
 			try {
-				const response = await backend.updateUser( userId, { role: newRole } )
+				const response = await backend.updateUser( user.id, { roles: newRoles } )
 				if ( response.success ) {
 					await this.fetchUsers()
 				}
 			} catch ( error ) {
-				console.error( 'Failed to update user role:', error )
+				console.error( 'Failed to update user roles:', error )
+			}
+		},
+
+		toggleNewUserRole( role, checked ) {
+			if ( checked ) {
+				if ( !this.newUser.roles.includes( role ) ) {
+					this.newUser.roles.push( role )
+				}
+			} else {
+				this.newUser.roles = this.newUser.roles.filter( r => r !== role )
 			}
 		},
 
@@ -1647,17 +1671,21 @@ export default {
 			background #E8F5E9
 			color #4CAF50
 
-.role-select
-	padding 0.5rem
-	border 1px solid #e0e0e0
-	border-radius 8px
-	background white
-	font-size 0.9rem
-	cursor pointer
+.roles-checkboxes
+	display flex
+	flex-wrap wrap
+	gap 0.25rem 0.75rem
 
-	&:focus
-		outline none
-		border-color $color-primary
+.role-checkbox-label
+	display flex
+	align-items center
+	gap 0.35rem
+	font-size 0.85rem
+	cursor pointer
+	white-space nowrap
+
+	input[type="checkbox"]
+		cursor pointer
 
 // Sortable headers
 .sortable-header

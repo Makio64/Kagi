@@ -17,8 +17,12 @@ CREATE TABLE profiles (
 	unit TEXT,
 	mansion_id UUID,
 	avatar TEXT,
+	roles TEXT[] NOT NULL DEFAULT ARRAY['resident']
+		CHECK (roles <@ ARRAY['admin', 'manager', 'mansion_admin', 'resident', 'landlord', 'guest']
+			AND array_length(roles, 1) > 0),
 	role TEXT NOT NULL DEFAULT 'resident'
-		CHECK (role IN ('admin', 'manager', 'mansion_admin', 'resident', 'landlord', 'guest')),
+		CHECK (role IN ('admin', 'manager', 'mansion_admin', 'resident', 'landlord', 'guest')
+			AND role = ANY(roles)),
 	permissions JSONB DEFAULT '[]'::jsonb,
 	settings JSONB DEFAULT '{"theme": "light", "language": "en", "notifications": true}'::jsonb,
 	metadata JSONB DEFAULT '{}'::jsonb,
@@ -193,7 +197,7 @@ CREATE TABLE notifications (
 -- INDEXES
 -- =============================================================
 CREATE INDEX idx_profiles_mansion ON profiles(mansion_id);
-CREATE INDEX idx_profiles_role ON profiles(role);
+CREATE INDEX idx_profiles_roles ON profiles USING GIN(roles);
 CREATE INDEX idx_facilities_mansion ON facilities(mansion_id);
 CREATE INDEX idx_bookings_facility ON bookings(facility_id);
 CREATE INDEX idx_bookings_creator ON bookings(creator_id);
@@ -262,9 +266,9 @@ ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
 -- Helper functions
-CREATE OR REPLACE FUNCTION get_user_role()
-RETURNS TEXT AS $$
-	SELECT role FROM profiles WHERE id = auth.uid();
+CREATE OR REPLACE FUNCTION get_user_roles()
+RETURNS TEXT[] AS $$
+	SELECT roles FROM profiles WHERE id = auth.uid();
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 CREATE OR REPLACE FUNCTION get_user_mansion_id()
@@ -280,71 +284,71 @@ CREATE POLICY profiles_select_own ON profiles
 CREATE POLICY profiles_select_mansion ON profiles
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin']
 	);
 -- C1: Platform admins (mansion_id=NULL) need cross-mansion access
 CREATE POLICY profiles_select_admin ON profiles
-	FOR SELECT USING (get_user_role() = 'admin');
--- C2: Users can update own profile but NOT role or mansion_id
+	FOR SELECT USING ('admin' = ANY(get_user_roles()));
+-- C2: Users can update own profile but NOT roles or mansion_id (can switch active role within their roles)
 CREATE POLICY profiles_update_own ON profiles
 	FOR UPDATE USING (id = auth.uid())
 	WITH CHECK (
 		id = auth.uid()
-		AND role = (SELECT role FROM profiles WHERE id = auth.uid())
+		AND roles = (SELECT roles FROM profiles WHERE id = auth.uid())
 		AND mansion_id IS NOT DISTINCT FROM (SELECT mansion_id FROM profiles WHERE id = auth.uid())
 	);
 -- C2: Mansion admins can update users but only assign non-privileged roles
 CREATE POLICY profiles_update_mansion ON profiles
 	FOR UPDATE USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin']
 	)
 	WITH CHECK (
 		mansion_id = get_user_mansion_id()
-		AND role IN ('resident', 'landlord', 'guest')
+		AND roles <@ ARRAY['resident', 'landlord', 'guest', 'mansion_admin']
 	);
 -- C1: Platform admins can update any profile (including role changes)
 CREATE POLICY profiles_update_admin ON profiles
-	FOR UPDATE USING (get_user_role() = 'admin');
+	FOR UPDATE USING ('admin' = ANY(get_user_roles()));
 -- C1: Platform admins can delete any profile
 CREATE POLICY profiles_delete_admin ON profiles
-	FOR DELETE USING (get_user_role() = 'admin');
+	FOR DELETE USING ('admin' = ANY(get_user_roles()));
 -- C1: Mansion admins can delete users in their mansion
 CREATE POLICY profiles_delete_mansion ON profiles
 	FOR DELETE USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin']
 	);
 
 -- MANSIONS
 CREATE POLICY mansions_select ON mansions
 	FOR SELECT USING (
 		id = get_user_mansion_id()
-		OR get_user_role() = 'admin'
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY mansions_modify_admin ON mansions
-	FOR ALL USING (get_user_role() = 'admin');
+	FOR ALL USING ('admin' = ANY(get_user_roles()));
 
 -- FACILITIES
 CREATE POLICY facilities_select ON facilities
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		OR get_user_role() = 'admin'
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY facilities_insert ON facilities
 	FOR INSERT WITH CHECK (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY facilities_update ON facilities
 	FOR UPDATE USING (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY facilities_delete ON facilities
 	FOR DELETE USING (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 
 -- BOOKINGS
@@ -353,7 +357,7 @@ CREATE POLICY bookings_select_own ON bookings
 CREATE POLICY bookings_select_mansion ON bookings
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin', 'admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin', 'admin']
 	);
 CREATE POLICY bookings_insert ON bookings
 	FOR INSERT WITH CHECK (
@@ -365,7 +369,7 @@ CREATE POLICY bookings_update_own ON bookings
 CREATE POLICY bookings_update_mansion ON bookings
 	FOR UPDATE USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin', 'admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin', 'admin']
 	);
 CREATE POLICY bookings_delete_own ON bookings
 	FOR DELETE USING (creator_id = auth.uid());
@@ -376,7 +380,7 @@ CREATE POLICY maintenance_select_own ON maintenance_requests
 CREATE POLICY maintenance_select_mansion ON maintenance_requests
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin', 'admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin', 'admin']
 	);
 CREATE POLICY maintenance_insert ON maintenance_requests
 	FOR INSERT WITH CHECK (
@@ -388,7 +392,7 @@ CREATE POLICY maintenance_update_own ON maintenance_requests
 CREATE POLICY maintenance_update_mansion ON maintenance_requests
 	FOR UPDATE USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin', 'admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin', 'admin']
 	);
 
 -- BILLS
@@ -397,40 +401,40 @@ CREATE POLICY bills_select_own ON bills
 CREATE POLICY bills_select_mansion ON bills
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		AND get_user_role() IN ('manager', 'mansion_admin', 'admin')
+		AND get_user_roles() && ARRAY['manager', 'mansion_admin', 'admin']
 	);
 -- H3: Bills insert must enforce mansion scope (not just role)
 CREATE POLICY bills_insert_manager ON bills
 	FOR INSERT WITH CHECK (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY bills_update_manager ON bills
 	FOR UPDATE USING (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 
 -- DOCUMENTS
 CREATE POLICY documents_select ON documents
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		OR get_user_role() = 'admin'
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY documents_insert ON documents
 	FOR INSERT WITH CHECK (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY documents_update ON documents
 	FOR UPDATE USING (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY documents_delete ON documents
 	FOR DELETE USING (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 
 -- DOCUMENT READS
@@ -441,9 +445,9 @@ CREATE POLICY document_reads_select_own ON document_reads
 -- H5: Mansion admins should only see reads for documents in their mansion
 CREATE POLICY document_reads_select_admin ON document_reads
 	FOR SELECT USING (
-		get_user_role() = 'admin'
+		'admin' = ANY(get_user_roles())
 		OR (
-			get_user_role() IN ('manager', 'mansion_admin')
+			get_user_roles() && ARRAY['manager', 'mansion_admin']
 			AND document_id IN (
 				SELECT id FROM documents WHERE mansion_id = get_user_mansion_id()
 			)
@@ -454,22 +458,22 @@ CREATE POLICY document_reads_select_admin ON document_reads
 CREATE POLICY announcements_select ON announcements
 	FOR SELECT USING (
 		mansion_id = get_user_mansion_id()
-		OR get_user_role() = 'admin'
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY announcements_insert ON announcements
 	FOR INSERT WITH CHECK (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY announcements_update ON announcements
 	FOR UPDATE USING (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 CREATE POLICY announcements_delete ON announcements
 	FOR DELETE USING (
-		(mansion_id = get_user_mansion_id() AND get_user_role() IN ('manager', 'mansion_admin'))
-		OR get_user_role() = 'admin'
+		(mansion_id = get_user_mansion_id() AND get_user_roles() && ARRAY['manager', 'mansion_admin'])
+		OR 'admin' = ANY(get_user_roles())
 	);
 
 -- NOTIFICATIONS

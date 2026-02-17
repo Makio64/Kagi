@@ -49,6 +49,7 @@ async function seed() {
 			meta: { role: 'admin', name: 'Admin User' },
 			profile: {
 				name: 'Admin User',
+				roles: ['admin'],
 				role: 'admin',
 				phone: '+81-3-1234-5678',
 				unit: null,
@@ -62,6 +63,7 @@ async function seed() {
 			meta: { role: 'mansion_admin', name: 'Tanaka Hiroshi' },
 			profile: {
 				name: 'Tanaka Hiroshi',
+				roles: ['mansion_admin', 'resident'],
 				role: 'mansion_admin',
 				phone: '+81-3-2345-6789',
 				unit: 'Office',
@@ -76,6 +78,7 @@ async function seed() {
 			meta: { role: 'resident', name: 'Makio Kitano' },
 			profile: {
 				name: 'Makio Kitano',
+				roles: ['resident'],
 				role: 'resident',
 				phone: '+81-90-6543-6543',
 				unit: '2704',
@@ -89,6 +92,7 @@ async function seed() {
 			meta: { role: 'resident', name: '田中 由紀' },
 			profile: {
 				name: '田中 由紀',
+				roles: ['resident'],
 				role: 'resident',
 				phone: '+81-80-9876-5432',
 				unit: 'B-302',

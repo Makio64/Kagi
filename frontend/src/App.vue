@@ -13,7 +13,7 @@ import { loadTranslations } from 'vue-tiny-translation'
 
 import { detectLang } from '@/makio/utils/detect'
 import { listenForAppStateChange, listenForDeepLinks } from '@/mobile'
-import { checkSession, contentLoaded, initAuth, initInactivityTimer, isAdmin, isAuthenticated, isMansionAdmin, setupAuthListener, userRole } from '@/store'
+import { checkSession, contentLoaded, hasRole, initAuth, initInactivityTimer, isAuthenticated, setupAuthListener, userRoles } from '@/store'
 
 // Configure engine with default settings
 engine.timeUnit = 's'
@@ -175,9 +175,9 @@ export default {
 					this.$router.push( '/login' )
 					return
 				}
-				if ( !isAdmin.value ) {
+				if ( !hasRole( 'admin' ) ) {
 					// Redirect non-admins to their appropriate dashboard
-					if ( isMansionAdmin.value || userRole.value === 'manager' ) {
+					if ( userRoles.value.some( r => ['mansion_admin', 'manager'].includes( r ) ) ) {
 						this.$router.push( '/mansion-dashboard' )
 					} else {
 						this.$router.push( '/dashboard' )
@@ -193,7 +193,7 @@ export default {
 					return
 				}
 				const allowedRoles = ['admin', 'manager', 'mansion_admin']
-				if ( !allowedRoles.includes( userRole.value ) ) {
+				if ( !userRoles.value.some( r => allowedRoles.includes( r ) ) ) {
 					this.$router.push( '/dashboard' )
 					return
 				}

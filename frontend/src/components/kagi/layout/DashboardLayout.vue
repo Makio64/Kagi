@@ -13,7 +13,23 @@
 					<h1 v-else>{{ title }}</h1>
 				</div>
 				<div class="header-right">
-					<span v-if="userRole && userRole !== 'resident'" class="user-badge">{{ userRole }}</span>
+					<div v-if="canSwitchRoles" class="role-switcher" @click="showRolePicker = !showRolePicker">
+						<span class="user-badge role-switcher-trigger">
+							{{ roleLabel(userRole) }}
+							<span class="role-arrow">▼</span>
+						</span>
+						<div v-if="showRolePicker" class="role-picker">
+							<button
+								v-for="r in userRoles"
+								:key="r"
+								:class="['role-option', { active: r === userRole }]"
+								@click.stop="switchRole(r)"
+							>
+								{{ roleLabel(r) }}
+							</button>
+						</div>
+					</div>
+					<span v-else-if="userRole && userRole !== 'resident'" class="user-badge">{{ roleLabel(userRole) }}</span>
 					<button class="user-menu-btn" @click="showMobileMenu = !showMobileMenu">
 						<span class="user-email desktop-only">{{ userProfile.userEmail }}</span>
 						<span class="user-email mobile-only">{{ $t('common.profile') }}</span>
@@ -117,7 +133,8 @@ export default {
 	},
 	data() {
 		return {
-			showMobileMenu: false
+			showMobileMenu: false,
+			showRolePicker: false
 		}
 	},
 	computed: {
@@ -127,11 +144,17 @@ export default {
 		userRole() {
 			return store.userRole.value
 		},
+		userRoles() {
+			return store.userRoles.value
+		},
+		canSwitchRoles() {
+			return this.userRoles.length > 1
+		},
 		isResidentRole() {
 			return this.userRole === 'resident' || this.userRole === 'landlord'
 		},
 		showsMansionName() {
-			return this.userRole !== 'admin'
+			return !store.hasRole( 'admin' ) || this.userRole !== 'admin'
 		},
 		mobileMenuItems() {
 			// Filter out documents, bills, and maintenance from mobile menu
@@ -139,7 +162,40 @@ export default {
 			return this.menuItems.filter( item => !hiddenOnMobile.includes( item.id ) )
 		}
 	},
+	mounted() {
+		document.addEventListener( 'click', this.closeRolePicker )
+	},
+	beforeUnmount() {
+		document.removeEventListener( 'click', this.closeRolePicker )
+	},
 	methods: {
+		roleLabel( role ) {
+			const key = role === 'mansion_admin' ? 'mansionAdmin' : role
+			return this.$t( `roles.${key}` ) || role
+		},
+		async switchRole( newRole ) {
+			if ( newRole === this.userRole ) {
+				this.showRolePicker = false
+				return
+			}
+			const success = await store.switchActiveRole( newRole )
+			this.showRolePicker = false
+			if ( success ) {
+				// Navigate to the appropriate dashboard for the new role
+				if ( newRole === 'admin' ) {
+					this.$router.push( '/admin-dashboard' )
+				} else if ( ['manager', 'mansion_admin'].includes( newRole ) ) {
+					this.$router.push( '/mansion-dashboard' )
+				} else {
+					this.$router.push( '/dashboard' )
+				}
+			}
+		},
+		closeRolePicker( e ) {
+			if ( this.showRolePicker && !e.target.closest( '.role-switcher' ) ) {
+				this.showRolePicker = false
+			}
+		},
 		handleNavigation( sectionId ) {
 			// Scroll #app to top instantly
 			document.querySelector( '#app' ).scrollTop = 0
@@ -274,6 +330,52 @@ export default {
 	font-weight var(--font-semibold)
 	@media (max-width: 768px)
 		display none
+
+.role-switcher
+	position relative
+	@media (max-width: 768px)
+		display none
+
+.role-switcher-trigger
+	cursor pointer
+	display flex
+	align-items center
+	gap var(--space-1)
+	user-select none
+	.role-arrow
+		font-size 10px
+		opacity 0.6
+
+.role-picker
+	position absolute
+	top calc(100% + var(--space-2))
+	right 0
+	background white
+	border-radius var(--radius-lg)
+	box-shadow var(--shadow-lg)
+	border 1px solid rgba(0, 0, 0, 0.1)
+	overflow hidden
+	min-width 160px
+	z-index 200
+
+.role-option
+	display block
+	width 100%
+	padding var(--space-2) var(--space-4)
+	background transparent
+	border none
+	text-align left
+	font-size var(--text-sm)
+	color var(--color-gray-700)
+	cursor pointer
+	transition all var(--transition-base)
+	&:hover
+		background var(--color-primary-50)
+		color var(--color-gray-900)
+	&.active
+		background var(--color-primary-100)
+		color var(--color-primary-700)
+		font-weight var(--font-semibold)
 
 .user-menu-btn
 	display flex

@@ -50,6 +50,7 @@ class Backend {
 					avatar: 'https://i.pravatar.cc/150?u=admin',
 					phone: '+81-3-1234-5678'
 				},
+				roles: ['admin'],
 				role: 'admin',
 				permissions: ['*'],
 				settings: { theme: 'dark', language: 'en', notifications: true },
@@ -64,7 +65,8 @@ class Backend {
 					phone: '+81-3-2345-6789',
 					unit: 'Office'
 				},
-				role: 'manager',
+				roles: ['mansion_admin', 'resident'],
+				role: 'mansion_admin',
 				permissions: ['manage_residents', 'manage_facilities', 'view_analytics'],
 				settings: { theme: 'light', language: 'ja', notifications: true },
 				metadata: { lastLogin: now - 3600000, created: now - 60 * 24 * 60 * 60 * 1000 }
@@ -77,6 +79,7 @@ class Backend {
 				unit: '2704',
 				mansionName: 'Dresser Tower',
 				avatar: 'https://i.pravatar.cc/150?u=john',
+				roles: ['resident'],
 				role: 'resident',
 				permissions: ['view_bills', 'book_facilities', 'submit_maintenance'],
 				settings: { theme: 'light', language: 'en', notifications: true },
@@ -90,6 +93,7 @@ class Backend {
 				unit: 'B-302',
 				mansionName: 'Dresser Tower',
 				avatar: 'https://i.pravatar.cc/150?u=yuki',
+				roles: ['resident'],
 				role: 'resident',
 				permissions: ['view_bills', 'book_facilities', 'submit_maintenance'],
 				settings: { theme: 'auto', language: 'ja', notifications: false },
@@ -569,6 +573,7 @@ class Backend {
 						unit: role === 'resident' ? '2704' : 'Office',
 						mansionName: 'Dresser Tower',
 						avatar: `https://i.pravatar.cc/150?u=${email}`,
+						roles: [role],
 						role: role,
 						permissions: role === 'admin' ? ['*'] :
 							role === 'manager' ? ['manage_residents', 'manage_facilities', 'view_analytics'] :
@@ -679,6 +684,32 @@ class Backend {
 				throw this.createError( 'Invalid or expired token', 401 )
 			}
 		}
+	}
+
+	// Switch active role for current user
+	async switchRole( newRole ) {
+		await this.delay()
+
+		const currentUser = this.getStoredData( 'currentUser' )
+		if ( !currentUser ) throw this.createError( 'Not authenticated', 401 )
+
+		const userRoles = currentUser.roles || [currentUser.role]
+		if ( !userRoles.includes( newRole ) ) {
+			throw this.createError( 'Cannot switch to a role not assigned to you', 403 )
+		}
+
+		currentUser.role = newRole
+		this.setStoredData( 'currentUser', currentUser )
+
+		// Update in users list too
+		const users = this.getStoredData( 'users' ) || []
+		const userIndex = users.findIndex( u => u.id === currentUser.id )
+		if ( userIndex !== -1 ) {
+			users[userIndex].role = newRole
+			this.setStoredData( 'users', users )
+		}
+
+		return this.createResponse( currentUser )
 	}
 
 	// Generic query method
@@ -910,7 +941,8 @@ class Backend {
 		const announcements = this.getStoredData( 'announcements' ) || []
 
 		// Filter by user if not admin/manager
-		const isAdmin = ['admin', 'manager'].includes( currentUser.role )
+		const userRoles = currentUser.roles || [currentUser.role]
+		const isAdmin = userRoles.some( r => ['admin', 'manager', 'mansion_admin'].includes( r ) )
 
 		const userBookings = isAdmin ? bookings :
 			bookings.filter( b => b.creator.id === currentUser.id )
@@ -958,7 +990,8 @@ class Backend {
 		await this.delay()
 
 		const currentUser = this.getStoredData( 'currentUser' )
-		if ( !currentUser || !['admin', 'manager'].includes( currentUser.role ) ) {
+		const analyticsRoles = currentUser?.roles || [currentUser?.role]
+		if ( !currentUser || !analyticsRoles.some( r => ['admin', 'manager', 'mansion_admin'].includes( r ) ) ) {
 			throw this.createError( 'Unauthorized', 403 )
 		}
 
