@@ -845,10 +845,6 @@
   "calendar.september": "September",
   "calendar.october": "October",
   "calendar.november": "November",
-<<<<<<< HEAD
-  "calendar.december": "December"
-}
-=======
   "calendar.december": "December",
   "facilities.gym": "Gym",
   "facilities.pool": "Pool",
@@ -857,4 +853,3 @@
   "facilities.rooftop": "Rooftop",
   "facilities.laundry": "Laundry"
 }
->>>>>>> 02c21bf03633087a0ec7e5a96aef6f524153b7e9
