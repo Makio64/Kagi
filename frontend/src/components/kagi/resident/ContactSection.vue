@@ -84,6 +84,16 @@
 				<h3>{{ $t('dashboard.contact.title') }}</h3>
 
 				<div class="contact-card">
+					<div class="contact-icon">🏢</div>
+					<div class="contact-details">
+						<h4>{{ $t('contact.officeHours') }}</h4>
+						<p class="contact-value">{{ $t('contact.weekdays') }}</p>
+						<p class="contact-note">{{ $t('contact.officeTime') }}</p>
+						<p class="contact-note">{{ $t('contact.closedWeekends') }}</p>
+					</div>
+				</div>
+
+				<div class="contact-card">
 					<div class="contact-icon">📞</div>
 					<div class="contact-details">
 						<h4>{{ $t('dashboard.profile.phone') }}</h4>
@@ -98,16 +108,6 @@
 						<h4>{{ $t('dashboard.profile.email') }}</h4>
 						<p class="contact-value">management@building.com</p>
 						<p class="contact-note">{{ $t('contact.responseTime') }}</p>
-					</div>
-				</div>
-
-				<div class="contact-card">
-					<div class="contact-icon">🏢</div>
-					<div class="contact-details">
-						<h4>{{ $t('contact.officeHours') }}</h4>
-						<p class="contact-value">{{ $t('contact.weekdays') }}</p>
-						<p class="contact-note">{{ $t('contact.officeTime') }}</p>
-						<p class="contact-note">{{ $t('contact.closedWeekends') }}</p>
 					</div>
 				</div>
 

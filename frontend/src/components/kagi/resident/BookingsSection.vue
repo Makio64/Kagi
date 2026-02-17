@@ -197,7 +197,7 @@ export default {
 					name: this.$t( 'dashboard.booking.guestParking' ),
 					icon: '🅿️',
 					image: '/img/facilities/parking.jpg',
-					description: this.$t( 'booking.guestDesc' ),
+					description: this.$t( 'booking.parkingDesc' ),
 					capacity: `1 ${this.$t( 'booking.capacityLabel' )}`,
 					maxCapacity: 1,
 					price: `¥1,000${this.$t( 'dashboard.booking.perNight' )}`,

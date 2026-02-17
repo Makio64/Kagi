@@ -107,6 +107,8 @@
   "dashboard.documents.parkingRules": "Parking Rules",
   "dashboard.documents.lastUpdated": "Last updated",
   "dashboard.documents.view": "View",
+  "dashboard.documents.residentMinutes": "Residents Assembly Minutes",
+  "dashboard.documents.notices": "Notices from the Building",
   "dashboard.booking.title": "Facility Booking",
   "dashboard.booking.partyRoom": "Party Room",
   "dashboard.booking.guestRoom": "Guest Room",

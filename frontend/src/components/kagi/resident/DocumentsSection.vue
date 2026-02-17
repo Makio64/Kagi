@@ -180,6 +180,60 @@ Second offense: Fine (¥10,000)
 Third offense: Parking privileges revoked
 
 For parking permits or questions, contact management office.`
+				},
+				{
+					id: 'minutes',
+					icon: '📝',
+					title: this.$t( 'dashboard.documents.residentMinutes' ),
+					lastUpdated: '2024/02',
+					content: `# Residents Assembly Minutes (Feb 2024)
+
+## Agenda Items
+
+1. **FY2023 Financial Report**
+   - Approved by majority vote.
+
+2. **FY2024 Budget Plan**
+   - Approved without amendments.
+
+3. **Upcoming Major Repairs**
+   - Scheduled for Spring 2025.
+   - Contractor selection in progress.
+
+4. **Board Member Election**
+   - New board members have been elected.
+
+## Other Business
+
+- Discussion on improved waste disposal procedures.
+- Bicycle parking organization usage reminders.
+
+Next general assembly is scheduled for January 2025.`
+				},
+				{
+					id: 'notices',
+					icon: '📢',
+					title: this.$t( 'dashboard.documents.notices' ),
+					lastUpdated: '2024/03',
+					content: `# Information from the Building
+
+## Elevator Maintenance
+- **Date**: March 15, 10:00 - 12:00
+- **Details**: Elevators will be out of service for regular maintenance. Please use stairs.
+
+## Drain Cleaning Schedule
+- **Date**: April 1 - April 3
+- Please check the bulletin board for your unit's specific time slot.
+
+## Pet Policy Update
+- Pets must be carried in common areas (except large dogs).
+- Please ensure you clean up after your pets immediately.
+
+## Recycling Reminder
+- Please separate PET bottles and caps.
+- Cardboard boxes must be flattened.
+
+Thank you for your cooperation.`
 				}
 			]
 		}
